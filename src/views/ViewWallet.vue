@@ -24,7 +24,7 @@
   <AddressCreate
     :is-open="modalIsOpen"
     :address="address"
-    
+    :mnemonic="mnemonic"
     @on-close="modalIsOpen = false"
     @on-keep="keepPhrase"
   />
@@ -53,15 +53,12 @@ export default {
       this.modalIsOpen = true;
     },
     keepPhrase() {
-      console.log(`{this.address}`);
+      console.log(`${this.address}`);
       this.modalIsOpen = false;
     },
   },
   mounted() {
-    console.log("mounted");
-    console.log(Wallet);
-    const wallet = new Wallet();
-    console.log(wallet);
+    console.log("ViewWallet: Mounted.");
     // const store = new Store();
     // store.set("unicorn", "🦄");
     // console.log(store.get("unicorn"));
