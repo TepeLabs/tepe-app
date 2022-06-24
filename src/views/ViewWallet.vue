@@ -21,26 +21,26 @@
       </tbody>
     </table>
   </div>
-  <AddressCreate
+  <!-- <AddressCreate
     :is-open="modalIsOpen"
     :address="address"
     :recovery-phrase="mnemonic"
     @on-close="modalIsOpen = false"
     @on-keep="keepPhrase"
-  />
+  /> -->
 </template>
 <script>
-import AddressCreate from "@/components/AddressCreate.vue";
+// import AddressCreate from "@/components/AddressCreate.vue";
 // import { Wallet } from "secretjs";
-// import sourceData from "@/keys.json";
+import sourceData from "@/assets/keys.json";
 // import Store from "electron-store";
 
 export default {
-  components: { AddressCreate },
+  // components: { AddressCreate },
   data() {
     return {
       modalIsOpen: false,
-      // keys: sourceData.keys,
+      keys: sourceData.keys,
       address: "",
       mnenomic: "",
     };

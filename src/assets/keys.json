@@ -1,0 +1,16 @@
+{
+  "keys": [
+    {
+      "public": "secret1pa3wl5k5t7gs3pj08z4agut3vj8hrlfa87h6wm",
+      "private": "Akn9yf/SCEPjuMH7a3YxMtUoP15YRZQ0C4kD2hRb7sXW",
+      "mnemonic": "ask loan deposit wrist glue pool weapon carry notice canyon recycle rain essay shiver chair throw almost finish awful feel detect penalty crush tail",
+      "default": true
+    },
+    {
+      "public": "secret1d30s05xxurvepkzz45mdmscsvgc4jh52spuxz0",
+      "private": "A0NrtiRRTb0TNanEiFJB0+H+795W3zlDUjXTJFDE1ACZ",
+      "mnemonic": "napkin duty horse shine sibling wave remove health fresh weasel celery member fine hero gold speak exotic eye venture whale aisle river name hill",
+      "default": false
+    }
+  ]
+}
