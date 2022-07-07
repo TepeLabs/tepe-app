@@ -5,6 +5,7 @@ module.exports = defineConfig({
   configureWebpack: {
     resolve: {
       fallback: {
+        "os": false,
         "fs": false,
         "tls": false,
         "net": false,

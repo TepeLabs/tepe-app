@@ -33,7 +33,6 @@
 import AddressCreate from "@/components/AddressCreate.vue";
 import sourceData from "@/assets/keys.json";
 import { Wallet } from "secretjs";
-// import Store from "electron-store";
 
 export default {
   components: { AddressCreate },
@@ -59,9 +58,6 @@ export default {
   },
   mounted() {
     console.log("ViewWallet: Mounted.");
-    // const store = new Store();
-    // store.set("unicorn", "🦄");
-    // console.log(store.get("unicorn"));
   },
 };
 </script>

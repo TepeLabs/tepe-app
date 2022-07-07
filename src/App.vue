@@ -11,6 +11,7 @@ export default {
   components: { TheNavigation },
   mounted() {
     this.$router.push("/");
+    console.log('hello world');
   },
 };
 </script>
