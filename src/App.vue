@@ -10,7 +10,7 @@ import TheNavigation from "@/components/TheNavigation.vue";
 export default {
   components: { TheNavigation },
   mounted() {
-    this.$router.push("/");
+    this.$router.push("/wallet");
     console.log('hello world');
   },
 };

@@ -14,16 +14,31 @@ protocol.registerSchemesAsPrivileged([
 
 const store = new Store()
 
-async function saveKey(address, mnemonic) {
-  console.log('saving key with address ' + address)
-  const keys = loadKeys()
-  keys[address] = mnemonic
-  console.log(keys);
+async function getStoreValue(event, key) {
+  return store.get(key)
 }
 
-async function loadKeys() {
-  console.log('loading keys')
-  return store.get('keys')
+async function saveKey(event, address, mnemonic) {
+  console.log("saving key with address " + address)
+  if (store.has('keyPairs')) {
+    getStoreValue('keyPairs').then((result) => {
+      let keyPairs = result.keyPairs.concat({
+        'address': address,
+        'mnemonic': mnemonic,
+      })
+      store.set('keyPairs', keyPairs)
+    }).catch((err) => {
+      console.log(`Error loading keys with error <${err}>`)
+    });
+  } else {
+    let keyPairs = [
+      {
+        'address': address,
+        'mnemonic': mnemonic
+      }
+    ]
+    store.set('keyPairs', keyPairs)
+  }
 }
 
 async function createWindow() {
@@ -78,8 +93,8 @@ app.on('ready', async () => {
       console.error('Vue Devtools failed to install:', e.toString())
     }
   }
+  ipcMain.handle('settings:getStoreValue', getStoreValue)
   ipcMain.handle('settings:saveKey', saveKey)
-  ipcMain.handle('settings:loadKeys', loadKeys)
   createWindow()
 })
 
