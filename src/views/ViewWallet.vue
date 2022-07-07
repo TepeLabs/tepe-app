@@ -46,9 +46,11 @@ export default {
   },
   methods: {
     makeNewKey() {
-      const wallet = new Wallet();
-      this.address = wallet.address;
-      this.mnemonic = wallet.mnemonic;
+      const wallet = new Wallet()
+      this.address = wallet.address
+      this.mnemonic = wallet.mnemonic
+      const sth = window.electronAPI.doSomething()
+      console.log(sth)
       this.modalIsOpen = true;
     },
     keepPhrase() {
@@ -57,7 +59,7 @@ export default {
     },
   },
   mounted() {
-    console.log("ViewWallet: Mounted.");
+    console.log("ViewWallet: Mounted.")
   },
 };
 </script>

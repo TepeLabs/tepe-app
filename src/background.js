@@ -1,8 +1,10 @@
 'use strict'
 
-import { app, protocol, BrowserWindow } from 'electron'
+import { app, protocol, BrowserWindow, ipcMain } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer'
+import path from 'path'
+import storage from 'electron-json-storage'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 // Scheme must be registered before the app is ready
@@ -10,13 +12,18 @@ protocol.registerSchemesAsPrivileged([
   { scheme: 'app', privileges: { secure: true, standard: true } }
 ])
 
+async function handleSomething() {
+  console.log('handling something')
+  return 'handled something'
+}
+
 async function createWindow() {
   // Create the browser window.
   const win = new BrowserWindow({
     width: 800,
     height: 600,
     webPreferences: {
-      
+      preload: path.join(__dirname, 'preload.js'),
       // Use pluginOptions.nodeIntegration, leave this alone
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
       nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
@@ -34,7 +41,9 @@ async function createWindow() {
     win.loadURL('app://./index.html')
   }
 
-  console.log('path: ' + app.getPath('userData'));
+  console.log('path: ' + app.getPath('userData'))
+  const defaultDataPath = storage.getDefaultDataPath()
+  console.log(defaultDataPath);
 }
 
 // Quit when all windows are closed.
@@ -64,6 +73,7 @@ app.on('ready', async () => {
       console.error('Vue Devtools failed to install:', e.toString())
     }
   }
+  ipcMain.handle('settings:doSomething', handleSomething)
   createWindow()
 })
 
