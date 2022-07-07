@@ -4,7 +4,7 @@ import { app, protocol, BrowserWindow, ipcMain } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer'
 import path from 'path'
-import storage from 'electron-json-storage'
+import Store from 'electron-store'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 // Scheme must be registered before the app is ready
@@ -12,9 +12,18 @@ protocol.registerSchemesAsPrivileged([
   { scheme: 'app', privileges: { secure: true, standard: true } }
 ])
 
-async function handleSomething() {
-  console.log('handling something')
-  return 'handled something'
+const store = new Store()
+
+async function saveKey(address, mnemonic) {
+  console.log('saving key with address ' + address)
+  const keys = loadKeys()
+  keys[address] = mnemonic
+  console.log(keys);
+}
+
+async function loadKeys() {
+  console.log('loading keys')
+  return store.get('keys')
 }
 
 async function createWindow() {
@@ -40,10 +49,6 @@ async function createWindow() {
     // Load the index.html when not in development
     win.loadURL('app://./index.html')
   }
-
-  console.log('path: ' + app.getPath('userData'))
-  const defaultDataPath = storage.getDefaultDataPath()
-  console.log(defaultDataPath);
 }
 
 // Quit when all windows are closed.
@@ -73,7 +78,8 @@ app.on('ready', async () => {
       console.error('Vue Devtools failed to install:', e.toString())
     }
   }
-  ipcMain.handle('settings:doSomething', handleSomething)
+  ipcMain.handle('settings:saveKey', saveKey)
+  ipcMain.handle('settings:loadKeys', loadKeys)
   createWindow()
 })
 

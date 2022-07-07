@@ -41,7 +41,7 @@ export default {
       modalIsOpen: false,
       keys: sourceData.keys,
       address: "",
-      mnenomic: "",
+      mnemonic: "",
     };
   },
   methods: {
@@ -49,17 +49,18 @@ export default {
       const wallet = new Wallet()
       this.address = wallet.address
       this.mnemonic = wallet.mnemonic
-      const sth = window.electronAPI.doSomething()
-      console.log(sth)
       this.modalIsOpen = true;
     },
     keepPhrase() {
       console.log(`${this.address}`);
+      window.settings.saveKey(this.address, this.mnemonic)
       this.modalIsOpen = false;
     },
   },
   mounted() {
     console.log("ViewWallet: Mounted.")
+    // this.keys = window.settings.loadKeys()
+    // console.log(this.keys);
   },
 };
 </script>
