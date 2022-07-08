@@ -34,7 +34,7 @@
     :address="addressNew"
     :mnemonic="mnemonicNew"
     @on-close="addressCreateOpen = false"
-    @on-keep="keepNewKey"
+    @on-keep="saveNewKey"
   />
   <AddressEdit
     :is-open="addressEditOpen"
@@ -95,7 +95,7 @@ export default {
       // not yet implemented
       this.addressEditOpen = false
     },
-    keepNewKey() {
+    saveNewKey() {
       console.log(`${this.addressNew}`)
       window.settings.saveKey(this.addressNew, this.mnemonicNew)
       this.loadKeyPairs()
