@@ -7,7 +7,7 @@
           <tr>
             <th></th>
             <th>Address</th>
-            <th >
+            <th>
               <button class="button is-small" @click="displayAddressCreate">+</button>
             </th>
           </tr>
@@ -17,7 +17,9 @@
             <td>{{ index + 1 }}</td>
             <td>{{ keyPair.address }}</td>
             <td>
-              <button class="button is-small" @click="displayAddressEdit(index)">···</button>
+              <button class="button is-small" @click="displayAddressEdit(index)">
+                ···
+              </button>
             </td>
           </tr>
         </tbody>
@@ -46,9 +48,9 @@
   />
 </template>
 <script>
-import AddressCreate from "@/components/AddressCreate.vue"
-import AddressEdit from "@/components/AddressEdit.vue"
-import { Wallet } from "secretjs"
+import AddressCreate from "@/components/AddressCreate.vue";
+import AddressEdit from "@/components/AddressEdit.vue";
+import { Wallet } from "secretjs";
 export default {
   components: { AddressCreate, AddressEdit },
   data() {
@@ -59,60 +61,63 @@ export default {
       mnemonicNew: "",
       addressNew: "",
       addressEdit: "",
-    }
+    };
   },
   computed: {
     hasKeyPairs() {
-      return this.keyPairs && this.keyPairs.length>0
+      return this.keyPairs && this.keyPairs.length > 0;
     },
     addressEditIsSelected() {
-      return this.addressEdit === this.addressSelected
+      return this.addressEdit === this.addressSelected;
     },
     addressSelected() {
-      return this.keyPairs ? this.keyPairs.find((pair) => pair.selected).address : ""
-    }
+      return this.keyPairs ? this.keyPairs.find((pair) => pair.selected).address : "";
+    },
   },
   methods: {
     displayAddressCreate() {
-      const wallet = new Wallet()
-      this.addressNew = wallet.address
-      this.mnemonicNew = wallet.mnemonic
-      this.addressCreateOpen = true
+      const wallet = new Wallet();
+      this.addressNew = wallet.address;
+      this.mnemonicNew = wallet.mnemonic;
+      this.addressCreateOpen = true;
     },
     displayAddressEdit(index) {
-      this.addressEdit = this.keyPairs[index].address
-      this.addressEditOpen = true
+      this.addressEdit = this.keyPairs[index].address;
+      this.addressEditOpen = true;
     },
     selectAddress() {
-      window.settings.selectAddress(this.addressEdit)
+      window.settings.selectAddress(this.addressEdit);
       this.keyPairs = this.keyPairs.map((pair) => {
-        pair.selected = (pair.address === this.addressEdit)
-        return pair
-      })
-      this.addressEditOpen = false
+        pair.selected = pair.address === this.addressEdit;
+        return pair;
+      });
+      this.addressEditOpen = false;
     },
     deleteAddress() {
       // not yet implemented
-      this.addressEditOpen = false
+      this.addressEditOpen = false;
     },
     saveNewKey() {
-      console.log(`${this.addressNew}`)
-      window.settings.saveKey(this.addressNew, this.mnemonicNew)
-      this.loadKeyPairs()
-      this.addressCreateOpen = false
+      console.log(`${this.addressNew}`);
+      window.settings.saveKey(this.addressNew, this.mnemonicNew);
+      this.loadKeyPairs();
+      this.addressCreateOpen = false;
     },
     loadKeyPairs() {
-      window.settings.getStoreValue('keyPairs').then((result) => {
-        this.keyPairs = result
-        console.dir(result)
-      }).catch((err) => {
-        console.log(`Error loading key pairs <${err}>.`)
-      })
+      window.settings
+        .getStoreValue("keyPairs")
+        .then((result) => {
+          this.keyPairs = result;
+          console.dir(result);
+        })
+        .catch((err) => {
+          console.log(`Error loading key pairs <${err}>.`);
+        });
     },
   },
   mounted() {
-    console.log("ViewWallet: Mounted.")
-    this.loadKeyPairs()
+    console.log("ViewWallet: Mounted.");
+    this.loadKeyPairs();
   },
-}
+};
 </script>

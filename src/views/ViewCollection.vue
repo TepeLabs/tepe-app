@@ -10,9 +10,9 @@
         <thead>
           <tr>
             <th></th>
-            <th>Name</th>
+            <th>Channels</th>
             <th>
-              <button class="button is-small" @click="createChannel">+</button>
+              <button class="button is-small" @click="channelCreateOpen = true">+</button>
             </th>
           </tr>
         </thead>
@@ -21,25 +21,35 @@
             <td>{{ index + 1 }}</td>
             <td>{{ item.name }}</td>
             <td>
-              <button class="button is-small" @click="editChannel">···</button>
+              <button class="button is-small" @click="editChannel(index)">···</button>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
   </div>
+  <ChannelCreate
+    :is-open="channelCreateOpen"
+    @on-close="channelCreateOpen = false"
+    @on-create="createChannel"
+  />
 </template>
 <script>
+import ChannelCreate from "@/components/ChannelCreate.vue";
 import sourceData from "@/assets/data.json";
 export default {
+  components: { ChannelCreate },
   data() {
     return {
       collection: sourceData.collection,
+      channelCreateOpen: false,
     };
   },
   methods: {
     createChannel() {},
-    editChannel() {},
+    editChannel(index) {
+      console.log(index);
+    },
   },
   mounted() {},
 };
