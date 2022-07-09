@@ -2,8 +2,8 @@
   <div class="block">
     <nav class="navbar">
       <div class="navbar-brand">
-        <router-link class="navbar-item" to="/">
-          <img src="@/assets/olive-logo.png" width="28" height="28" />
+        <router-link class="navbar-item mt-2 ml-1" to="/">
+          <img class="mr-2" src="@/assets/olive-logo.png" width="28" height="28" />
           <h1 class="title">Olive</h1>
         </router-link>
         <a

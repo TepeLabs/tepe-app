@@ -1,47 +1,46 @@
 <template>
-  <div class="container">
-    <div class="block">
-      <h1 class="title">Collection</h1>
+  <div class="columns is-centered">
+    <div class="column is-three-quarters">
+      <table class="table is-fullwidth is-striped is-hoverable is-striped">
+        <colgroup>
+          <col style="width: 10%" />
+          <col style="width: 80%" />
+          <col style="width: 10%" />
+        </colgroup>
+        <thead>
+          <tr>
+            <th></th>
+            <th>Name</th>
+            <th>
+              <button class="button is-small" @click="createChannel">+</button>
+            </th>
+          </tr>
+        </thead>
+        <tbody v-for="(item, index) in collection" :key="item.name">
+          <tr>
+            <td>{{ index + 1 }}</td>
+            <td>{{ item.name }}</td>
+            <td>
+              <button class="button is-small" @click="editChannel">···</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-
-    <div class="block">
-      <div class="columns">
-        <div class="column">
-          <div class="box">
-            <h1 class="title">Lock 1</h1>
-            <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil, sapiente.
-            </p>
-          </div>
-        </div>
-        <div class="column">
-          <div class="box">
-            <h1 class="title">Lock 2</h1>
-            <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil, sapiente.
-            </p>
-          </div>
-        </div>
-        <div class="column">
-          <div class="box">
-            <h1 class="title">Lock 3</h1>
-            <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Nihil, sapiente.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-    
   </div>
 </template>
 <script>
-// import sourceData from "@/data.json";
+import sourceData from "@/assets/data.json";
 export default {
   data() {
     return {
-      // destinations: sourceData.destinations,
+      collection: sourceData.collection,
     };
   },
+  methods: {
+    createChannel() {},
+    editChannel() {},
+  },
+  mounted() {},
 };
 </script>

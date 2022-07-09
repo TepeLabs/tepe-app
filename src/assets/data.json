@@ -12,5 +12,13 @@
       "mnemonic": "napkin duty horse shine sibling wave remove health fresh weasel celery member fine hero gold speak exotic eye venture whale aisle river name hill",
       "default": false
     }
+  ],
+  "collection": [
+    {
+      "name": "name1"
+    },
+    {
+      "name": "name2"
+    }
   ]
 }
