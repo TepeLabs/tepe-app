@@ -3,13 +3,7 @@
 </template>
 <script>
 export default {
-  props: {
-    isOpen: {
-      type: Boolean,
-      required: true,
-      default: false,
-    },
-  },
+  props: {},
   methods: {},
   mounted() {},
 };
