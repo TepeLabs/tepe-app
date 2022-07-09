@@ -1,7 +1,7 @@
 <template>
   <div class="columns is-centered">
     <div class="column is-three-quarters">
-      <table class="table is-fullwidth is-striped is-hoverable is-striped">
+      <table class="table is-striped is-hoverable is-fullwidth">
         <colgroup>
           <col style="width: 10%" />
           <col style="width: 80%" />
@@ -16,8 +16,8 @@
             </th>
           </tr>
         </thead>
-        <tbody v-for="(item, index) in collection" :key="item.name">
-          <tr>
+        <tbody>
+          <tr v-for="(item, index) in collection" :key="item.name" @click="openChannel">
             <td>{{ index + 1 }}</td>
             <td>{{ item.name }}</td>
             <td>
@@ -49,6 +49,9 @@ export default {
     createChannel() {},
     editChannel(index) {
       console.log(index);
+    },
+    openChannel() {
+      this.$router.push("/channel");
     },
   },
   mounted() {},

@@ -2,9 +2,26 @@
   <div class="block">
     <nav class="navbar">
       <div class="navbar-brand">
-        <router-link class="navbar-item mt-2 ml-1" to="/" @click="isOpen = false">
+        <router-link
+          class="navbar-item mt-2 ml-1"
+          to="/"
+          @click="isOpen = false"
+          v-if="!showBackButton"
+        >
           <img class="mr-2" src="@/assets/olive-logo.png" width="28" height="28" />
           <h1 class="title">Olive</h1>
+        </router-link>
+        <router-link
+          class="navbar-item mt-2 ml-1"
+          to="/"
+          @click="isOpen = false"
+          v-if="showBackButton"
+        >
+          <button class="button">
+            <span class="icon is-small">
+              <i class="fas fa-solid fa-arrow-left"></i>
+            </span>
+          </button>
         </router-link>
         <a
           role="button"
@@ -13,6 +30,7 @@
           aria-expanded="false"
           @click="isOpen = !isOpen"
           :class="{ 'is-active': isOpen }"
+          v-if="!showBackButton"
         >
           <span aria-hidden="true"></span>
           <span aria-hidden="true"></span>
@@ -31,6 +49,12 @@
 </template>
 <script>
 export default {
+  props: {
+    showBackButton: {
+      type: Boolean,
+      default: false,
+    },
+  },
   data: function () {
     return {
       isOpen: false,
