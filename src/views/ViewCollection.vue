@@ -45,7 +45,7 @@
     </div>
   </div>
   <ChannelCreate
-    :is-open="channelCreateOpen"
+    v-if="channelCreateOpen"
     @on-close="channelCreateOpen = false"
     @on-create="createChannel"
   />
@@ -53,6 +53,7 @@
 <script>
 import ChannelCreate from "@/components/ChannelCreate.vue";
 import secret from "@/utils/UtilSecret";
+import { Wallet } from "secretjs";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { faPlus, faCircleDot } from "@fortawesome/free-solid-svg-icons";
 import sourceData from "@/assets/data.json";
@@ -67,13 +68,27 @@ export default {
     };
   },
   methods: {
-    createChannel() {},
+    createChannel(name) {
+      window.settings
+        .getCurrentWallet()
+        .then((result) => {
+          const wallet = new Wallet(result.mnemonic);
+          const label = `${wallet.address}_${Date.now()}_${name}`;
+          return secret.instantiateContract(wallet, label);
+        })
+        .then((result) => {
+          console.log(`contract address ${result}`);
+        })
+        .catch((error) => {
+          // notify user
+          console.error(`Contract instatiation failed with error ${error}.`);
+        });
+      this.channelCreateOpen = false;
+    },
     openChannel() {
       this.$router.push("/channel");
     },
   },
-  mounted() {
-    console.log(secret);
-  },
+  mounted() {},
 };
 </script>

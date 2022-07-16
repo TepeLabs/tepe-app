@@ -1,5 +1,5 @@
 <template>
-  <div class="modal" :class="{ 'is-active': isOpen }">
+  <div class="modal is-active">
     <div class="modal-background"></div>
     <div class="modal-card">
       <header class="modal-card-head">
@@ -8,14 +8,13 @@
       </header>
       <section class="modal-card-body">
         <div class="field">
-          <label for="label">Name</label>
           <div class="control">
-            <input class="input" type="text" placeholder="Name">
+            <input class="input" type="text" placeholder="Name" v-model="name" />
           </div>
         </div>
       </section>
       <footer class="modal-card-foot is-centered">
-        <button class="button is-success" @click="$emit('onCreate')">Create</button>
+        <button class="button is-success" @click="$emit('onCreate', name)">Create</button>
         <button class="button" @click="$emit('onClose')">Cancel</button>
       </footer>
     </div>
@@ -23,14 +22,11 @@
 </template>
 <script>
 export default {
-  props: {
-    isOpen: {
-      type: Boolean,
-      required: true,
-      default: false,
-    },
+  data() {
+    return {
+      name: "",
+    };
   },
-  methods: {},
-  mounted() {},
+  emits: ["onCreate", "onClose"],
 };
 </script>

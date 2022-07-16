@@ -8,4 +8,5 @@ contextBridge.exposeInMainWorld("settings", {
     ipcRenderer.invoke("settings:selectAddress", address),
   deleteAddress: (address) =>
     ipcRenderer.invoke("settings:deleteAddress", address),
+  getCurrentWallet: () => ipcRenderer.invoke("settings:getCurrentWallet"),
 });

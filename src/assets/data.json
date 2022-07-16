@@ -15,16 +15,20 @@
   ],
   "collection": [
     {
-      "name": "name1"
+      "name": "name1",
+      "address": "secret1jmynpzwns56lu0vfm7dr9pnjzejv8yj0tx7gnq"
     },
     {
-      "name": "name2"
+      "name": "name2",
+      "address": "secret1jmynpzwns56lu0vfm7dr9pnjzejv8yj0tx7gnq"
     },
     {
-      "name": "name3"
+      "name": "name3",
+      "address": "secret1jmynpzwns56lu0vfm7dr9pnjzejv8yj0tx7gnq"
     },
     {
-      "name": "name4"
+      "name": "name4",
+      "address": "secret1jmynpzwns56lu0vfm7dr9pnjzejv8yj0tx7gnq"
     }
   ]
 }

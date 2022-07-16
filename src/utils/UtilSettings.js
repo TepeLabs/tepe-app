@@ -1,5 +1,6 @@
 import Store from "electron-store";
 
+const KEYPAIRS = "keyPairs";
 const store = new Store();
 
 async function getStoreValue(event, key) {
@@ -8,8 +9,8 @@ async function getStoreValue(event, key) {
 
 async function saveKey(event, address, mnemonic) {
   console.log("saving key with address " + address);
-  if (store.has("keyPairs")) {
-    getStoreValue("keyPairs")
+  if (store.has(KEYPAIRS)) {
+    getStoreValue(KEYPAIRS)
       .then((result) => {
         let deselectedPairs = result.keyPairs.map((x) => {
           x.selected = false;
@@ -20,7 +21,7 @@ async function saveKey(event, address, mnemonic) {
           mnemonic: mnemonic,
           selected: true,
         });
-        store.set("keyPairs", keyPairs);
+        store.set(KEYPAIRS, keyPairs);
       })
       .catch((err) => {
         console.log(`Error loading keys with error <${err}>`);
@@ -33,18 +34,18 @@ async function saveKey(event, address, mnemonic) {
         selected: true,
       },
     ];
-    store.set("keyPairs", keyPairs);
+    store.set(KEYPAIRS, keyPairs);
   }
 }
 
 async function selectAddress(event, address) {
-  getStoreValue("keyPairs")
+  getStoreValue(KEYPAIRS)
     .then((result) => {
       let newlySelectedPairs = result.keyPairs.map((x) => {
         x.selected = x.address === address;
         return x;
       });
-      store.set("keyPairs", newlySelectedPairs);
+      store.set(KEYPAIRS, newlySelectedPairs);
     })
     .catch((err) => {
       console.log(`Error loading keys with error <${err}>`);
@@ -52,18 +53,32 @@ async function selectAddress(event, address) {
 }
 
 async function deleteAddress(event, address) {
-  getStoreValue("keyPairs")
+  getStoreValue(KEYPAIRS)
     .then((result) => {
       let toDelete = result.keyPairs.filter((x) => x.address === address)[0];
       let newPairs = result.keyPairs.filter((x) => x.address != address);
       if (toDelete.selected) {
         newPairs[0].selected = true;
       }
-      store.set("keyPairs", newPairs);
+      store.set(KEYPAIRS, newPairs);
     })
     .catch((err) => {
       console.log(`Error loading keys with error <${err}>`);
     });
+}
+
+async function getCurrentWallet() {
+  return new Promise((resolve, reject) => {
+    getStoreValue(KEYPAIRS)
+      .then((result) => {
+        let selectedPairs = result.keyPairs.filter((x) => x.selected);
+        resolve(selectedPairs[0]);
+      })
+      .catch((err) => {
+        console.log(`Error loading keys with error <${err}>`);
+        reject(err);
+      });
+  });
 }
 
 const utilSettings = {
@@ -71,7 +86,7 @@ const utilSettings = {
   saveKey,
   selectAddress,
   deleteAddress,
+  getCurrentWallet,
 };
 
-// export { getStoreValue, saveKey, selectAddress, deleteAddress };
 export default utilSettings;

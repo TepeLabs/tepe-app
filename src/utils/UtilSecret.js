@@ -18,24 +18,29 @@ async function getClient(wallet) {
   return client;
 }
 
-async function instantiateContract(wallet) {
-  const client = getClient(wallet);
+async function instantiateContract(wallet, label) {
+  const client = await getClient(wallet);
   const result = await client.tx.compute.instantiateContract(
     {
       sender: wallet.address,
       codeId: CONTRACT_CODE_ID,
       codeHash: CONTRACT_CODE_HASH,
       initMsg: {},
-      label: "some globally unique label for every single instantiation",
+      label: label,
     },
     {
       gasLimit: 100_000,
     }
   );
+  if (result.code != 0) {
+    console.error(
+      `Error instantiating contract with code ${result.code} and message "${result.rawLog}".`
+    );
+    return;
+  }
   const contractAddress = result.arrayLog.find(
     (log) => log.type === "message" && log.key === "contract_address"
   ).value;
-  console.log("\n\nNew contract address:", contractAddress, "\n\n");
   return contractAddress;
 }
 
