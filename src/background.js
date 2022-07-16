@@ -4,79 +4,13 @@ import { app, protocol, BrowserWindow, ipcMain } from "electron";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import installExtension, { VUEJS3_DEVTOOLS } from "electron-devtools-installer";
 import path from "path";
-import Store from "electron-store";
+import settings from "@/utils/UtilSettings";
 const isDevelopment = process.env.NODE_ENV !== "production";
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
   { scheme: "app", privileges: { secure: true, standard: true } },
 ]);
-
-const store = new Store();
-
-async function getStoreValue(event, key) {
-  return store.get(key);
-}
-
-async function saveKey(event, address, mnemonic) {
-  console.log("saving key with address " + address);
-  if (store.has("keyPairs")) {
-    getStoreValue("keyPairs")
-      .then((result) => {
-        let deselectedPairs = result.keyPairs.map((x) => {
-          x.selected = false;
-          return x;
-        });
-        let keyPairs = deselectedPairs.concat({
-          address: address,
-          mnemonic: mnemonic,
-          selected: true,
-        });
-        store.set("keyPairs", keyPairs);
-      })
-      .catch((err) => {
-        console.log(`Error loading keys with error <${err}>`);
-      });
-  } else {
-    let keyPairs = [
-      {
-        address: address,
-        mnemonic: mnemonic,
-        selected: true,
-      },
-    ];
-    store.set("keyPairs", keyPairs);
-  }
-}
-
-async function selectAddress(event, address) {
-  getStoreValue("keyPairs")
-    .then((result) => {
-      let newlySelectedPairs = result.keyPairs.map((x) => {
-        x.selected = x.address === address;
-        return x;
-      });
-      store.set("keyPairs", newlySelectedPairs);
-    })
-    .catch((err) => {
-      console.log(`Error loading keys with error <${err}>`);
-    });
-}
-
-async function deleteAddress(event, address) {
-  getStoreValue("keyPairs")
-    .then((result) => {
-      let toDelete = result.keyPairs.filter((x) => x.address === address)[0];
-      let newPairs = result.keyPairs.filter((x) => x.address != address);
-      if (toDelete.selected) {
-        newPairs[0].selected = true;
-      }
-      store.set("keyPairs", newPairs);
-    })
-    .catch((err) => {
-      console.log(`Error loading keys with error <${err}>`);
-    });
-}
 
 async function createWindow() {
   // Create the browser window.
@@ -101,6 +35,13 @@ async function createWindow() {
     // Load the index.html when not in development
     win.loadURL("app://./index.html");
   }
+}
+
+function connectIPC() {
+  ipcMain.handle("settings:saveKey", settings.saveKey);
+  ipcMain.handle("settings:getStoreValue", settings.getStoreValue);
+  ipcMain.handle("settings:selectAddress", settings.selectAddress);
+  ipcMain.handle("settings:deleteAddress", settings.deleteAddress);
 }
 
 // Quit when all windows are closed.
@@ -130,10 +71,7 @@ app.on("ready", async () => {
       console.error("Vue Devtools failed to install:", e.toString());
     }
   }
-  ipcMain.handle("settings:getStoreValue", getStoreValue);
-  ipcMain.handle("settings:saveKey", saveKey);
-  ipcMain.handle("settings:selectAddress", selectAddress);
-  ipcMain.handle("settings:deleteAddress", deleteAddress);
+  connectIPC();
   createWindow();
 });
 
