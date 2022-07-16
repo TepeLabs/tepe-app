@@ -1,27 +1,43 @@
 <template>
   <div class="columns is-centered">
     <div class="column is-three-quarters">
+      <nav class="level">
+        <div class="level-left">
+          <div class="level-item">
+            <h2 class="is-size-3">Channels</h2>
+          </div>
+        </div>
+        <div class="level-right">
+          <div class="level-item">
+            <button>
+              <font-awesome-icon
+                :icon="faPlus"
+                size="2x"
+                @click="channelCreateOpen = true"
+              />
+            </button>
+          </div>
+        </div>
+      </nav>
+    </div>
+  </div>
+  <div class="columns is-centered">
+    <div class="column is-three-quarters">
       <table class="table is-striped is-hoverable is-fullwidth">
         <colgroup>
-          <col style="width: 10%" />
-          <col style="width: 80%" />
-          <col style="width: 10%" />
+          <col style="width: 5%" />
+          <col style="width: 95%" />
         </colgroup>
-        <thead>
-          <tr>
-            <th></th>
-            <th>Channels</th>
-            <th>
-              <button class="button is-small" @click="channelCreateOpen = true">+</button>
-            </th>
-          </tr>
-        </thead>
         <tbody>
           <tr v-for="(item, index) in collection" :key="item.name" @click="openChannel">
-            <td>{{ index + 1 }}</td>
-            <td>{{ item.name }}</td>
+            <td class="is-vcentered">
+              <font-awesome-icon :icon="faCircleDot" size="2x" />
+            </td>
             <td>
-              <button class="button is-small" @click="editChannel(index)">···</button>
+              <p>
+                <strong>Lorem {{ index }}</strong>
+              </p>
+              <p>{{ item.name }}</p>
             </td>
           </tr>
         </tbody>
@@ -36,24 +52,28 @@
 </template>
 <script>
 import ChannelCreate from "@/components/ChannelCreate.vue";
+import secret from "@/utils/UtilSecret";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { faPlus, faCircleDot } from "@fortawesome/free-solid-svg-icons";
 import sourceData from "@/assets/data.json";
 export default {
-  components: { ChannelCreate },
+  components: { ChannelCreate, FontAwesomeIcon },
   data() {
     return {
       collection: sourceData.collection,
       channelCreateOpen: false,
+      faPlus: faPlus,
+      faCircleDot: faCircleDot,
     };
   },
   methods: {
     createChannel() {},
-    editChannel(index) {
-      console.log(index);
-    },
     openChannel() {
       this.$router.push("/channel");
     },
   },
-  mounted() {},
+  mounted() {
+    console.log(secret);
+  },
 };
 </script>
