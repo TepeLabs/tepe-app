@@ -3,13 +3,13 @@
     <div class="modal-background" @click="$emit('onClose')"></div>
     <div class="modal-card">
       <AddressAddSelect
-        :is-shown="viewShow == 'select'"
+        v-if="viewShow == 'select'"
         @on-close="$emit('onClose')"
         @on-create="onCreate"
         @on-import="viewShow = 'import'"
       />
       <AddressAddNew
-        :is-shown="viewShow == 'new'"
+        v-if="viewShow == 'new'"
         :address="address"
         :mnemonic="mnemonic"
         @on-close="$emit('onClose')"
@@ -17,7 +17,7 @@
         @on-next="viewShow = 'confirm'"
       />
       <AddressAddConfirm
-        :is-shown="viewShow == 'confirm'"
+        v-if="viewShow == 'confirm'"
         :address="address"
         :mnemonic="mnemonic"
         @on-back="viewShow = 'new'"
@@ -25,7 +25,7 @@
         @on-confirm="confirmMnemonic"
       />
       <AddressAddImport
-        :is-shown="viewShow == 'import'"
+        v-if="viewShow == 'import'"
         @on-back="viewShow = 'select'"
         @on-close="$emit('onClose')"
         @on-import="importMnemonic"
