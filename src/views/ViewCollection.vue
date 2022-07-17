@@ -29,7 +29,11 @@
           <col style="width: 95%" />
         </colgroup>
         <tbody>
-          <tr v-for="(item, index) in collection" :key="item.name" @click="openChannel">
+          <tr
+            v-for="(item, index) in collection"
+            :key="item.name"
+            @click="openChannel(index)"
+          >
             <td class="is-vcentered">
               <font-awesome-icon :icon="faCircleDot" size="2x" />
             </td>
@@ -72,8 +76,8 @@ export default {
       window.settings
         .getCurrentWallet()
         .then((result) => {
-          const wallet = new Wallet(result.mnemonic);
-          const label = `${wallet.address}_${Date.now()}_${name}`;
+          let wallet = new Wallet(result.mnemonic);
+          let label = `${wallet.address}_${Date.now()}_${name}`;
           return secret.instantiateContract(wallet, label);
         })
         .then((result) => {
@@ -85,8 +89,8 @@ export default {
         });
       this.channelCreateOpen = false;
     },
-    openChannel() {
-      this.$router.push("/channel");
+    openChannel(index) {
+      this.$router.push(`/channel/${this.collection[index].address}`);
     },
   },
   mounted() {},

@@ -45,7 +45,7 @@ async function instantiateContract(wallet, label) {
 }
 
 async function setKey(wallet, key) {
-  const client = getClient(wallet);
+  const client = await getClient(wallet);
   const resultSet = await client.tx.compute.executeContract(
     {
       sender: wallet.address,
@@ -62,26 +62,28 @@ async function setKey(wallet, key) {
   console.log("\n\nSet key response:", JSON.parse(string), "\n\n");
 }
 
-async function mintNFT(wallet) {
-  const client = getClient(wallet);
+async function mintNFT(wallet, contractAddress) {
+  const client = await getClient(wallet);
   const resultMint = await client.tx.compute.executeContract(
     {
       sender: wallet.address,
-      contractAddress: CONTRACT_ADDRESS,
+      contractAddress: contractAddress,
       codeHash: CONTRACT_CODE_HASH,
-      msg: { mint_nft: { recipient: wallet.address } }, // put the recipient address here
+      msg: { mint_nft: { recipient: wallet.address } },
     },
     {
       gasLimit: 100_000,
     }
   );
   const payload = resultMint.data;
-  const string = new TextDecoder().decode(payload[0]);
-  console.log("\n\nMintNft response:", JSON.parse(string), "\n\n");
+  const response = new TextDecoder().decode(payload[0]);
+  console.log(response);
+  console.log("\n\nMintNft response:", JSON.parse(response), "\n\n");
+  return JSON.parse(response);
 }
 
 async function queryOwners(wallet) {
-  const client = getClient(wallet);
+  const client = await getClient(wallet);
   const resultQuery = await client.query.compute.queryContract({
     contractAddress: CONTRACT_ADDRESS,
     codeHash: CONTRACT_CODE_HASH,
@@ -91,7 +93,7 @@ async function queryOwners(wallet) {
 }
 
 async function readKey(wallet) {
-  const client = getClient(wallet);
+  const client = await getClient(wallet);
   const resultRead = await client.tx.compute.executeContract(
     {
       sender: wallet.address,
@@ -109,7 +111,7 @@ async function readKey(wallet) {
 }
 
 async function sendNFT(wallet, recipientAddress) {
-  const client = getClient(wallet);
+  const client = await getClient(wallet);
   const resultTransfer = await client.tx.compute.executeContract(
     {
       sender: wallet.address,
