@@ -9,7 +9,13 @@
       <section class="modal-card-body">
         <div class="field">
           <div class="control">
-            <input class="input" type="text" placeholder="Name" v-model="name" />
+            <input
+              class="input"
+              type="text"
+              placeholder="Name"
+              v-model="name"
+              @keyup.enter="$emit('onCreate', name)"
+            />
           </div>
         </div>
       </section>

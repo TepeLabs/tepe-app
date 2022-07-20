@@ -5,6 +5,11 @@
 yarn install
 ```
 
+### Compile for Electron
+```
+yarn electron:serve
+```
+
 ### Compiles and hot-reloads for development
 ```
 yarn serve
@@ -22,3 +27,8 @@ yarn lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+## To-Do
+
+[ ] sqlite cache
+[ ] 

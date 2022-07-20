@@ -53,18 +53,22 @@
     @on-close="channelCreateOpen = false"
     @on-create="createChannel"
   />
+  <ErrorModal v-if="errorShow" :message="errorMessage" @on-close="errorShow = false" />
 </template>
 <script>
 import ChannelCreate from "@/components/ChannelCreate.vue";
+import ErrorModal from "@/components/ErrorModal.vue";
 import secret from "@/utils/UtilSecret";
 import { Wallet } from "secretjs";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { faPlus, faCircleDot } from "@fortawesome/free-solid-svg-icons";
 import sourceData from "@/assets/data.json";
 export default {
-  components: { ChannelCreate, FontAwesomeIcon },
+  components: { ChannelCreate, ErrorModal, FontAwesomeIcon },
   data() {
     return {
+      errorShow: false,
+      errorMessage: "",
       collection: sourceData.collection,
       channelCreateOpen: false,
       faPlus: faPlus,
@@ -82,10 +86,13 @@ export default {
         })
         .then((result) => {
           console.log(`contract address ${result}`);
+          // save address to cache
+          // query channels for account - update
         })
         .catch((error) => {
-          // notify user
           console.error(`Contract instatiation failed with error ${error}.`);
+          this.errorMessage = error;
+          this.errorShow = true;
         });
       this.channelCreateOpen = false;
     },
