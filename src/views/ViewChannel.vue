@@ -10,7 +10,7 @@
         <div class="level-right">
           <div class="level-item">
             <button>
-              <font-awesome-icon :icon="faPlus" size="2x" @click="mintNFT" />
+              <font-awesome-icon :icon="faPlus" size="2x" @click="nftMintOpen = true" />
             </button>
           </div>
         </div>
@@ -24,17 +24,34 @@
       <p>yoyo</p>
     </div>
   </div>
+  <NFTMint v-if="nftMintOpen" @on-close="nftMintOpen = false" @on-mint="mintNFT" />
+  <MessageError
+    v-if="messageError.length > 0"
+    :message="messageError"
+    @on-close="messageError = ''"
+  />
+  <MessageInfo
+    v-if="messageInfo.length > 0"
+    :message="messageInfo"
+    @on-close="messageInfo = ''"
+  />
 </template>
 <script>
 import secret from "@/utils/UtilSecret";
 import { Wallet } from "secretjs";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import NFTMint from "@/components/NFTMint.vue";
+import MessageError from "@/components/MessageError.vue";
+import MessageInfo from "@/components/MessageInfo.vue";
 export default {
-  components: { FontAwesomeIcon },
+  components: { FontAwesomeIcon, NFTMint, MessageError, MessageInfo },
   data() {
     return {
       faPlus: faPlus,
+      messageError: "",
+      messageInfo: "",
+      nftMintOpen: false,
     };
   },
   methods: {
@@ -53,6 +70,7 @@ export default {
           // notify user
           console.error(`Contract instatiation failed with error ${error}.`);
         });
+      this.nftMintOpen = false;
     },
   },
   mounted() {},

@@ -77,9 +77,7 @@ export default {
   components: { ChannelCreate, MessageError, MessageInfo, FontAwesomeIcon },
   data() {
     return {
-      showError: false,
       messageError: "",
-      showInfo: false,
       messageInfo: "",
       collection: sourceData.collection,
       channelCreateOpen: false,
