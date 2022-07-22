@@ -1,31 +1,35 @@
 <template>
-  <div class="columns is-centered">
-    <div class="column is-three-quarters">
-      <table class="table is-striped is-hoverable is-fullwidth">
-        <colgroup>
-          <col style="width: 10%" />
-          <col style="width: 80%" />
-          <col style="width: 10%" />
-        </colgroup>
-        <thead>
-          <tr>
-            <th></th>
-            <th>Channels</th>
-            <th>
-              <button class="button is-small" @click="channelCreateOpen = true">+</button>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(item, index) in collection" :key="item.name" @click="openChannel">
-            <td>{{ index + 1 }}</td>
-            <td>{{ item.name }}</td>
-            <td>
-              <button class="button is-small" @click="editChannel(index)">···</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+  <div class="columns">
+    <div class="column">
+      <div class="table-container">
+        <table class="table is-striped is-hoverable is-fullwidth mt-1">
+          <colgroup>
+            <col style="width: 8%" />
+            <col style="width: 82%" />
+            <col style="width: 10%" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th></th>
+              <th>Channels</th>
+              <th>
+                <button class="button is-small" @click="channelCreateOpen = true">
+                  +
+                </button>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(item, index) in collection" :key="item.name" @click="openChannel">
+              <td class="has-text-centered">{{ index + 1 }}</td>
+              <td>{{ item.name }}</td>
+              <td>
+                <button class="button is-small" @click="editChannel(index)">···</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
   <ChannelCreate

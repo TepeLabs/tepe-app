@@ -1,8 +1,8 @@
 <template>
-  <nav class="navbar">
+  <nav class="navbar is-white has-shadow">
     <div class="navbar-brand">
       <router-link
-        class="navbar-item mt-2 ml-1"
+        class="navbar-item ml-1"
         to="/"
         @click="isOpen = false"
         v-if="!showBackButton"
@@ -11,7 +11,7 @@
         <h1 class="title">Olive</h1>
       </router-link>
       <router-link
-        class="navbar-item mt-2 ml-1"
+        class="navbar-item ml-1"
         to="/"
         @click="isOpen = false"
         v-if="showBackButton"
@@ -37,7 +37,8 @@
     <div class="navbar-menu" :class="{ 'is-active': isOpen }">
       <div class="navbar-end" style="text-align: right">
         <router-link class="navbar-item" to="/wallet" @click="isOpen = false">
-          <font-awesome-icon :icon="faWallet" size="2x" />
+          <!-- <font-awesome-icon :icon="faWallet" size="2x" /> -->
+          Wallet
         </router-link>
       </div>
     </div>
