@@ -34,7 +34,6 @@ async function instantiateContract(wallet, label) {
   );
   if (result.code != 0) {
     let errorMessage = `Failed to instantiate contract. Error code <${result.code}> and message <${result.rawLog}>.`;
-    console.error(errorMessage);
     return Promise.reject(new Error(errorMessage));
   }
   const contractAddress = result.arrayLog.find(

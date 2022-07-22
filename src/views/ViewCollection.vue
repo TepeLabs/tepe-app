@@ -53,22 +53,34 @@
     @on-close="channelCreateOpen = false"
     @on-create="createChannel"
   />
-  <ErrorModal v-if="errorShow" :message="errorMessage" @on-close="errorShow = false" />
+  <MessageError
+    v-if="messageError.length > 0"
+    :message="messageError"
+    @on-close="messageError = ''"
+  />
+  <MessageInfo
+    v-if="messageInfo.length > 0"
+    :message="messageInfo"
+    @on-close="messageInfo = ''"
+  />
 </template>
 <script>
 import ChannelCreate from "@/components/ChannelCreate.vue";
-import ErrorModal from "@/components/ErrorModal.vue";
+import MessageError from "@/components/MessageError.vue";
+import MessageInfo from "@/components/MessageInfo.vue";
 import secret from "@/utils/UtilSecret";
 import { Wallet } from "secretjs";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { faPlus, faCircleDot } from "@fortawesome/free-solid-svg-icons";
 import sourceData from "@/assets/data.json";
 export default {
-  components: { ChannelCreate, ErrorModal, FontAwesomeIcon },
+  components: { ChannelCreate, MessageError, MessageInfo, FontAwesomeIcon },
   data() {
     return {
-      errorShow: false,
-      errorMessage: "",
+      showError: false,
+      messageError: "",
+      showInfo: false,
+      messageInfo: "",
       collection: sourceData.collection,
       channelCreateOpen: false,
       faPlus: faPlus,
@@ -82,17 +94,18 @@ export default {
         .then((result) => {
           let wallet = new Wallet(result.mnemonic);
           let label = `${wallet.address}_${Date.now()}_${name}`;
+          this.messageInfo = "Creating channel...";
           return secret.instantiateContract(wallet, label);
         })
         .then((result) => {
           console.log(`contract address ${result}`);
           // save address to cache
           // query channels for account - update
+          this.messageInfo = `Channel created with address ${result}!`;
         })
         .catch((error) => {
-          console.error(`Contract instatiation failed with error ${error}.`);
-          this.errorMessage = error;
-          this.errorShow = true;
+          console.error(`Contract instatiation failed with error "${error}."`);
+          this.messageError = error.message;
         });
       this.channelCreateOpen = false;
     },
