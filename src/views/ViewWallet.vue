@@ -1,30 +1,21 @@
 <template>
-  <div class="columns is-centered">
-    <div class="column is-three-quarters">
-      <nav class="level">
-        <div class="level-left">
-          <div class="level-item">
-            <h2 class="is-size-3">Addresses</h2>
-          </div>
-        </div>
-        <div class="level-right">
-          <div class="level-item">
-            <button>
-              <font-awesome-icon
-                :icon="faPlus"
-                size="2x"
-                @click="addressCreateOpen = true"
-                v-if="hasKeyPairs"
-              />
-            </button>
-          </div>
-        </div>
-      </nav>
-    </div>
-  </div>
-  <div class="columns is-centered">
-    <div class="column is-three-quarters" v-if="hasKeyPairs">
-      <table class="table is-fullwidth is-striped is-hoverable is-striped">
+  <div class="columns">
+    <div class="column" v-if="hasKeyPairs">
+      <table class="table is-fullwidth is-striped is-hoverable is-striped mt-1">
+        <colgroup>
+          <col style="width: 8%" />
+          <col style="width: 82%" />
+          <col style="width: 10%" />
+        </colgroup>
+        <thead>
+          <tr>
+            <th></th>
+            <th>Addresses</th>
+            <th>
+              <button class="button is-small" @click="addressCreateOpen = true">+</button>
+            </th>
+          </tr>
+        </thead>
         <tbody
           v-for="(keyPair, index) in keyPairs"
           :key="keyPair.address"
@@ -38,7 +29,9 @@
               <p>
                 <strong>Lorem {{ index }}</strong>
               </p>
-              <span class="is-family-monospace">{{ keyPair.address }}</span>
+              <span class="is-family-monospace">{{
+                keyPair.address.slice(0, 10) + "..." + keyPair.address.slice(-10)
+              }}</span>
             </td>
             <td></td>
           </tr>

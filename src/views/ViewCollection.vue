@@ -1,51 +1,43 @@
 <template>
-  <div class="columns is-centered">
-    <div class="column is-three-quarters">
-      <nav class="level">
-        <div class="level-left">
-          <div class="level-item">
-            <h2 class="is-size-3">Channels</h2>
-          </div>
-        </div>
-        <div class="level-right">
-          <div class="level-item">
-            <button>
-              <font-awesome-icon
-                :icon="faPlus"
-                size="2x"
-                @click="channelCreateOpen = true"
-              />
-            </button>
-          </div>
-        </div>
-      </nav>
-    </div>
-  </div>
-  <div class="columns is-centered">
-    <div class="column is-three-quarters">
-      <table class="table is-striped is-hoverable is-fullwidth">
-        <colgroup>
-          <col style="width: 5%" />
-          <col style="width: 95%" />
-        </colgroup>
-        <tbody>
-          <tr
-            v-for="(item, index) in collection"
-            :key="item.name"
-            @click="openChannel(index)"
-          >
-            <td class="is-vcentered">
-              <font-awesome-icon :icon="faCircleDot" size="2x" />
-            </td>
-            <td>
-              <p>
-                <strong>Lorem {{ index }}</strong>
-              </p>
-              <p>{{ item.name }}</p>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+  <div class="columns">
+    <div class="column">
+      <div class="table-container">
+        <table class="table is-striped is-hoverable is-fullwidth mt-1">
+          <colgroup>
+            <col style="width: 8%" />
+            <col style="width: 82%" />
+            <col style="width: 10%" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th></th>
+              <th>Channels</th>
+              <th>
+                <button class="button is-small" @click="channelCreateOpen = true">
+                  +
+                </button>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="(item, index) in collection"
+              :key="item.name"
+              @click="openChannel(index)"
+            >
+              <td class="is-vcentered">
+                <font-awesome-icon :icon="faCircleDot" size="2x" />
+              </td>
+              <td>
+                <p>
+                  <strong>Lorem {{ index }}</strong>
+                </p>
+                <p>{{ item.name }}</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
   <ChannelCreate
