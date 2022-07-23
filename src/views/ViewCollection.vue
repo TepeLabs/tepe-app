@@ -4,8 +4,8 @@
       <div class="table-container">
         <table class="table is-striped is-hoverable is-fullwidth mt-1">
           <colgroup>
-            <col style="width: 8%" />
-            <col style="width: 82%" />
+            <col style="width: 10%" />
+            <col style="width: 90%" />
             <col style="width: 10%" />
           </colgroup>
           <thead>
@@ -26,7 +26,7 @@
               @click="openChannel(index)"
             >
               <td class="is-vcentered">
-                <font-awesome-icon :icon="faCircleDot" size="2x" />
+                <font-awesome-icon :icon="faCircleDot" size="2x" class="ml-3" />
               </td>
               <td>
                 <p>

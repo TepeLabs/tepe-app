@@ -22,16 +22,14 @@
           @click="displayAddressEdit(index)"
         >
           <tr>
-            <td class="is-vcentered">
+            <td class="is-vcentered has-text-centered">
               <font-awesome-icon :icon="faCheck" v-if="keyPair.selected" />
             </td>
             <td>
               <p>
                 <strong>Lorem {{ index }}</strong>
               </p>
-              <span class="is-family-monospace">{{
-                keyPair.address.slice(0, 10) + "..." + keyPair.address.slice(-10)
-              }}</span>
+              <span class="is-family-monospace">{{ keyPair.address }}</span>
             </td>
             <td></td>
           </tr>

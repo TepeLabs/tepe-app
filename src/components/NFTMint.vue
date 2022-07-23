@@ -13,14 +13,14 @@
               class="input"
               type="number"
               v-model="number"
-              @keyup.enter="$emit('onCreate', name)"
+              @keyup.enter="$emit('onMint', name)"
             />
             <span class="icon is-medium is-left">
               <FontAwesomeIcon :icon="faHashtag" />
             </span>
           </div>
           <div class="control">
-            <a class="button is-success" @click="$emit('onCreate', name)"> Create </a>
+            <a class="button is-success" @click="$emit('onMint', name)"> Create </a>
           </div>
         </div>
       </section>
@@ -40,6 +40,6 @@ export default {
       number: 1,
     };
   },
-  emits: ["onCreate", "onClose"],
+  emits: ["onMint", "onClose"],
 };
 </script>
