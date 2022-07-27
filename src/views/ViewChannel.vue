@@ -60,33 +60,63 @@
       </article>
     </div>
   </div>
-  <div class="columns is-centered">
+  <div class="columns is-centered" v-if="items.length > 0">
     <div class="column is-three-quarters">
+      <strong class="is-size-5">Files</strong>
       <li v-for="(item, index) in items" :key="item.url" style="list-style-type: none">
         [{{ item.url }}]
         <font-awesome-icon
-          v-if="showSpinner[index]"
+          v-if="showSpinnerFiles[index]"
           :icon="faSpinner"
           class="spinner ml-1"
         />
-        <a class="ml-1" v-if="!showSpinner[index]">
+        <a class="ml-1" v-if="!showSpinnerFiles[index]">
           <font-awesome-icon
             v-if="!item.downloaded"
-            :icon="faCloud"
+            :icon="faCloudDown"
             @click="download(item, index)"
           />
           <font-awesome-icon
-            v-else-if="!item.unlocked"
+            v-else-if="item.encrypted"
             :icon="faLock"
             @click="unlock(item, index)"
           />
+          <font-awesome-icon v-else :icon="faFile" @click="open(item, index)" />
+        </a>
+      </li>
+    </div>
+  </div>
+  <div class="columns is-centered" v-if="isOwner && newFiles.length > 0">
+    <div class="column is-three-quarters">
+      <hr />
+      <strong class="is-size-5">Uploading</strong>
+      <li v-for="(item, index) in newFiles" :key="item.url" style="list-style-type: none">
+        [{{ item.url }}]
+        <font-awesome-icon
+          v-if="showSpinnerUploads[index]"
+          :icon="faSpinner"
+          class="spinner ml-1"
+        />
+        <a class="ml-1" v-if="!showSpinnerUploads[index]">
           <font-awesome-icon
-            v-else-if="item.unlocked"
-            :icon="faFile"
-            @click="open(item, index)"
+            v-if="!item.encrypted"
+            :icon="faLockOpen"
+            @click="lock(item, index)"
+          />
+          <font-awesome-icon
+            v-else-if="!item.uploaded"
+            :icon="faCloudUp"
+            @click="upload(item, index)"
           />
         </a>
       </li>
+    </div>
+  </div>
+  <div class="columns is-centered" v-if="isOwner">
+    <div class="column is-three-quarters">
+      <hr />
+      Upload new file
+      <a class="ml-1" @click="openFile"><font-awesome-icon :icon="faFileUp" /></a>
     </div>
   </div>
   <NFTMint v-if="nftMintOpen" @on-close="nftMintOpen = false" @on-mint="mintNFT" />
@@ -111,9 +141,12 @@ import {
   faUser,
   faCopy,
   faLock,
+  faLockOpen,
   faFile,
   faSpinner,
+  faFileArrowUp,
   faCloudArrowDown,
+  faCloudArrowUp,
 } from "@fortawesome/free-solid-svg-icons";
 import NFTMint from "@/components/NFTMint.vue";
 import MessageError from "@/components/MessageError.vue";
@@ -127,21 +160,28 @@ export default {
       faUser: faUser,
       faCopy: faCopy,
       faLock: faLock,
+      faLockOpen: faLockOpen,
       faFile: faFile,
       faSpinner: faSpinner,
-      faCloud: faCloudArrowDown,
+      faFileUp: faFileArrowUp,
+      faCloudDown: faCloudArrowDown,
+      faCloudUp: faCloudArrowUp,
       messageError: "",
       messageInfo: "",
       nftMintOpen: false,
       viewFile: false,
-      showSpinner: [],
+      showSpinnerFiles: [],
+      showSpinnerUploads: [],
+      isOwner: true,
       items: [
         {
           url: "https://harangju.com",
+          encrypted: true,
           downloaded: false,
-          unlocked: false,
+          uploaded: true,
         },
       ],
+      newFiles: [],
     };
   },
   methods: {
@@ -166,28 +206,61 @@ export default {
     },
     download(item, index) {
       this.messageInfo = `Downloading file at ${item.url}`;
-      this.showSpinner[index] = true;
+      this.showSpinnerFiles[index] = true;
       setTimeout(() => {
         item.downloaded = true;
         this.messageInfo = "Downloaded file.";
-        this.showSpinner[index] = false;
+        this.showSpinnerFiles[index] = false;
       }, 3000);
     },
     unlock(item, index) {
-      this.showSpinner[index] = true;
+      this.showSpinnerFiles[index] = true;
       setTimeout(() => {
-        item.unlocked = true;
-        this.messageInfo = `Item unlocked at ${item.url}.`;
-        this.showSpinner[index] = false;
+        item.encrypted = false;
+        this.messageInfo = `Item decrypted at ${item.url}.`;
+        this.showSpinnerFiles[index] = false;
       }, 500);
     },
     open(item, index) {
       console.log(`Opening item at ${item.url} at index ${index}.`);
       this.viewFile = true;
     },
+    openFile() {
+      window.settings.openFile().then((result) => {
+        console.dir(result);
+        if (!result.canceled) {
+          // open file
+          this.newFiles.push({
+            url: result.filePaths[0],
+            encrypted: false,
+            uploaded: false,
+            downloaded: true,
+          });
+        }
+      });
+    },
+    lock(item, index) {
+      this.showSpinnerUploads[index] = true;
+      setTimeout(() => {
+        item.encrypted = true;
+        this.messageInfo = `File "${item.url}" encrypted.`;
+        this.showSpinnerUploads[index] = false;
+      }, 500);
+    },
+    upload(item, index) {
+      this.showSpinnerUploads[index] = true;
+      setTimeout(() => {
+        item.uploaded = true;
+        this.messageInfo = `File "${item.url}" uploaded.`;
+        this.items.push(item);
+        this.newFiles.splice(index, 1);
+        this.showSpinnerUploads[index] = false;
+      }, 1000);
+    },
   },
   mounted() {
-    this.showSpinner = new Array(this.items.length).fill(false);
+    this.showSpinnerFiles = new Array(this.items.length).fill(false);
+    this.showSpinnerUploads = new Array(this.items.length).fill(false);
   },
 };
 </script>
