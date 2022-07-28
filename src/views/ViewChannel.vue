@@ -135,6 +135,7 @@
 <script>
 import secret from "@/utils/UtilSecret";
 import { Wallet } from "secretjs";
+import crypto from "@/utils/UtilCrypto";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import {
   faPlus,
@@ -261,6 +262,13 @@ export default {
   mounted() {
     this.showSpinnerFiles = new Array(this.items.length).fill(false);
     this.showSpinnerUploads = new Array(this.items.length).fill(false);
+    let text =
+      "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Non aperiam minima delectus officia iste deserunt ad quibusdam nam repellendus similique.";
+    let e = crypto.encrypt(text);
+    console.log(text);
+    console.log(e);
+    let d = crypto.decrypt(e);
+    console.log(d);
   },
 };
 </script>
