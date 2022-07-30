@@ -46,6 +46,7 @@ function connectIPC() {
   ipcMain.handle("settings:getCurrentWallet", settings.getCurrentWallet);
   ipcMain.handle("fileio:selectFile", fileIO.selectFile);
   ipcMain.handle("fileio:openFile", fileIO.openFile);
+  ipcMain.handle("fileio:saveFile", fileIO.saveFile);
 }
 
 // Quit when all windows are closed.

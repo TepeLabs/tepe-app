@@ -15,7 +15,7 @@ function encrypt(text) {
   cipher.start({ iv: iv });
   cipher.update(forge.util.createBuffer(text));
   cipher.finish();
-  return cipher.output;
+  return cipher.output.data;
 }
 
 function decrypt(bytes) {

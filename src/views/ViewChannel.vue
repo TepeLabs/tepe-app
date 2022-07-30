@@ -63,11 +63,7 @@
   <div class="columns is-centered" v-if="items.length > 0">
     <div class="column is-three-quarters">
       <strong class="is-size-5">Files</strong>
-      <li
-        v-for="(item, index) in items"
-        :key="item.url"
-        style="list-style-type: none"
-      >
+      <li v-for="(item, index) in items" :key="item.url" style="list-style-type: none">
         [{{ item.url }}]
         <font-awesome-icon
           v-if="showSpinnerFiles[index]"
@@ -94,11 +90,7 @@
     <div class="column is-three-quarters">
       <hr />
       <strong class="is-size-5">Uploading</strong>
-      <li
-        v-for="(item, index) in newFiles"
-        :key="item.url"
-        style="list-style-type: none"
-      >
+      <li v-for="(item, index) in newFiles" :key="item.url" style="list-style-type: none">
         [{{ item.url }}]
         <font-awesome-icon
           v-if="showSpinnerUploads[index]"
@@ -124,16 +116,10 @@
     <div class="column is-three-quarters">
       <hr />
       Upload new file
-      <a class="ml-1" @click="selectFile"
-        ><font-awesome-icon :icon="faFileUp"
-      /></a>
+      <a class="ml-1" @click="selectFile"><font-awesome-icon :icon="faFileUp" /></a>
     </div>
   </div>
-  <NFTMint
-    v-if="nftMintOpen"
-    @on-close="nftMintOpen = false"
-    @on-mint="mintNFT"
-  />
+  <NFTMint v-if="nftMintOpen" @on-close="nftMintOpen = false" @on-mint="mintNFT" />
   <MessageError
     v-if="messageError.length > 0"
     :message="messageError"
@@ -194,7 +180,7 @@ export default {
           encrypted: true,
           downloaded: false,
           uploaded: true,
-          encryption: null,
+          encryption: "",
         },
       ],
       newFiles: [],
@@ -257,11 +243,17 @@ export default {
     },
     encrypt(item, index) {
       this.showSpinnerUploads[index] = true;
+      let newURL = item.url + ".enc";
       window.settings
         .openFile(item.url)
-        .then((result) => {
-          this.newFiles[index].encryption = crypto.encrypt(result);
+        .then((result) => crypto.encrypt(result))
+        .then((encrypted) => {
+          console.dir(encrypted);
+          window.settings.saveFile(encrypted, newURL);
+        })
+        .then(() => {
           item.encrypted = true;
+          this.newFiles[index].encryption = newURL;
           this.messageInfo = `File "${item.url}" encrypted.`;
           this.showSpinnerUploads[index] = false;
         })

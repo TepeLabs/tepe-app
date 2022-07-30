@@ -17,9 +17,22 @@ async function openFile(event, filePath) {
   });
 }
 
+async function saveFile(event, contents, filePath) {
+  return new Promise((resolve, reject) => {
+    fs.writeFile(filePath, contents, (error) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve();
+      }
+    });
+  });
+}
+
 const utilFileIO = {
   selectFile,
   openFile,
+  saveFile,
 };
 
 export default utilFileIO;
