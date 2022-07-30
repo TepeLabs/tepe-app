@@ -9,5 +9,6 @@ contextBridge.exposeInMainWorld("settings", {
   deleteAddress: (address) =>
     ipcRenderer.invoke("settings:deleteAddress", address),
   getCurrentWallet: () => ipcRenderer.invoke("settings:getCurrentWallet"),
-  openFile: () => ipcRenderer.invoke("fileio:openFile"),
+  selectFile: () => ipcRenderer.invoke("fileio:selectFile"),
+  openFile: (filePath) => ipcRenderer.invoke("fileio:openFile", filePath),
 });

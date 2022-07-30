@@ -63,7 +63,11 @@
   <div class="columns is-centered" v-if="items.length > 0">
     <div class="column is-three-quarters">
       <strong class="is-size-5">Files</strong>
-      <li v-for="(item, index) in items" :key="item.url" style="list-style-type: none">
+      <li
+        v-for="(item, index) in items"
+        :key="item.url"
+        style="list-style-type: none"
+      >
         [{{ item.url }}]
         <font-awesome-icon
           v-if="showSpinnerFiles[index]"
@@ -79,7 +83,7 @@
           <font-awesome-icon
             v-else-if="item.encrypted"
             :icon="faLock"
-            @click="unlock(item, index)"
+            @click="decrypt(item, index)"
           />
           <font-awesome-icon v-else :icon="faFile" @click="open(item, index)" />
         </a>
@@ -90,7 +94,11 @@
     <div class="column is-three-quarters">
       <hr />
       <strong class="is-size-5">Uploading</strong>
-      <li v-for="(item, index) in newFiles" :key="item.url" style="list-style-type: none">
+      <li
+        v-for="(item, index) in newFiles"
+        :key="item.url"
+        style="list-style-type: none"
+      >
         [{{ item.url }}]
         <font-awesome-icon
           v-if="showSpinnerUploads[index]"
@@ -101,7 +109,7 @@
           <font-awesome-icon
             v-if="!item.encrypted"
             :icon="faLockOpen"
-            @click="lock(item, index)"
+            @click="encrypt(item, index)"
           />
           <font-awesome-icon
             v-else-if="!item.uploaded"
@@ -116,10 +124,16 @@
     <div class="column is-three-quarters">
       <hr />
       Upload new file
-      <a class="ml-1" @click="openFile"><font-awesome-icon :icon="faFileUp" /></a>
+      <a class="ml-1" @click="selectFile"
+        ><font-awesome-icon :icon="faFileUp"
+      /></a>
     </div>
   </div>
-  <NFTMint v-if="nftMintOpen" @on-close="nftMintOpen = false" @on-mint="mintNFT" />
+  <NFTMint
+    v-if="nftMintOpen"
+    @on-close="nftMintOpen = false"
+    @on-mint="mintNFT"
+  />
   <MessageError
     v-if="messageError.length > 0"
     :message="messageError"
@@ -180,6 +194,7 @@ export default {
           encrypted: true,
           downloaded: false,
           uploaded: true,
+          encryption: null,
         },
       ],
       newFiles: [],
@@ -214,7 +229,7 @@ export default {
         this.showSpinnerFiles[index] = false;
       }, 3000);
     },
-    unlock(item, index) {
+    decrypt(item, index) {
       this.showSpinnerFiles[index] = true;
       setTimeout(() => {
         item.encrypted = false;
@@ -226,9 +241,8 @@ export default {
       console.log(`Opening item at ${item.url} at index ${index}.`);
       this.viewFile = true;
     },
-    openFile() {
-      window.settings.openFile().then((result) => {
-        console.dir(result);
+    selectFile() {
+      window.settings.selectFile().then((result) => {
         if (!result.canceled) {
           // open file
           this.newFiles.push({
@@ -236,17 +250,26 @@ export default {
             encrypted: false,
             uploaded: false,
             downloaded: true,
+            encryption: null,
           });
         }
       });
     },
-    lock(item, index) {
+    encrypt(item, index) {
       this.showSpinnerUploads[index] = true;
-      setTimeout(() => {
-        item.encrypted = true;
-        this.messageInfo = `File "${item.url}" encrypted.`;
-        this.showSpinnerUploads[index] = false;
-      }, 500);
+      window.settings
+        .openFile(item.url)
+        .then((result) => {
+          this.newFiles[index].encryption = crypto.encrypt(result);
+          item.encrypted = true;
+          this.messageInfo = `File "${item.url}" encrypted.`;
+          this.showSpinnerUploads[index] = false;
+        })
+        .catch((error) => {
+          console.log(error);
+          this.messageError = `Error: <${error}>.`;
+          this.showSpinnerUploads[index] = false;
+        });
     },
     upload(item, index) {
       this.showSpinnerUploads[index] = true;
@@ -262,13 +285,6 @@ export default {
   mounted() {
     this.showSpinnerFiles = new Array(this.items.length).fill(false);
     this.showSpinnerUploads = new Array(this.items.length).fill(false);
-    let text =
-      "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Non aperiam minima delectus officia iste deserunt ad quibusdam nam repellendus similique.";
-    let e = crypto.encrypt(text);
-    console.log(text);
-    console.log(e);
-    let d = crypto.decrypt(e);
-    console.log(d);
   },
 };
 </script>

@@ -44,6 +44,7 @@ function connectIPC() {
   ipcMain.handle("settings:selectAddress", settings.selectAddress);
   ipcMain.handle("settings:deleteAddress", settings.deleteAddress);
   ipcMain.handle("settings:getCurrentWallet", settings.getCurrentWallet);
+  ipcMain.handle("fileio:selectFile", fileIO.selectFile);
   ipcMain.handle("fileio:openFile", fileIO.openFile);
 }
 
