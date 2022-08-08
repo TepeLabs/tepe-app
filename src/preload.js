@@ -13,4 +13,5 @@ contextBridge.exposeInMainWorld("settings", {
   openFile: (filePath) => ipcRenderer.invoke("fileio:openFile", filePath),
   saveFile: (contents, filePath) =>
     ipcRenderer.invoke("fileio:saveFile", contents, filePath),
+  uploadFile: (filePath) => ipcRenderer.invoke("ipfs:uploadFile", filePath),
 });

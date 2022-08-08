@@ -9,6 +9,9 @@
         </div>
         <div class="level-right">
           <div class="level-item">
+            <button class="button" @click="refresh()">Refresh</button>
+          </div>
+          <div class="level-item">
             <button class="button" @click="nftMintOpen = true">Mint</button>
           </div>
         </div>
@@ -135,7 +138,10 @@
 <script>
 import secret from "@/utils/UtilSecret";
 import { Wallet } from "secretjs";
-import crypto from "@/utils/UtilCrypto";
+import NFTMint from "@/components/NFTMint.vue";
+import MessageError from "@/components/MessageError.vue";
+import MessageInfo from "@/components/MessageInfo.vue";
+import FileView from "@/components/FileView.vue";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import {
   faPlus,
@@ -149,10 +155,6 @@ import {
   faCloudArrowDown,
   faCloudArrowUp,
 } from "@fortawesome/free-solid-svg-icons";
-import NFTMint from "@/components/NFTMint.vue";
-import MessageError from "@/components/MessageError.vue";
-import MessageInfo from "@/components/MessageInfo.vue";
-import FileView from "@/components/FileView.vue";
 export default {
   components: { FontAwesomeIcon, NFTMint, MessageError, MessageInfo, FileView },
   data() {
@@ -246,11 +248,8 @@ export default {
       let newURL = item.url + ".enc";
       window.settings
         .openFile(item.url)
-        .then((result) => crypto.encrypt(result))
-        .then((encrypted) => {
-          console.dir(encrypted);
-          window.settings.saveFile(encrypted, newURL);
-        })
+        // .then((result) => crypto.encrypt(result))
+        .then((encrypted) => window.settings.saveFile(encrypted, newURL))
         .then(() => {
           item.encrypted = true;
           this.newFiles[index].encryption = newURL;
@@ -265,16 +264,27 @@ export default {
     },
     upload(item, index) {
       this.showSpinnerUploads[index] = true;
-      setTimeout(() => {
-        item.uploaded = true;
-        this.messageInfo = `File "${item.url}" uploaded.`;
-        this.items.push(item);
-        this.newFiles.splice(index, 1);
-        this.showSpinnerUploads[index] = false;
-      }, 1000);
+      //https:docs.infura.io/infura/networks/ipfs/how-to/manage-files
+      window.settings.uploadFile(item.url)
+        .then((result) => {
+          item.uploaded = true;
+          this.messageInfo = `File "${item.url}" uploaded with result ${result}.`;
+          this.items.push(item);
+          this.newFiles.splice(index, 1);
+          this.showSpinnerUploads[index] = false;
+        })
+        .catch((error) => {
+          console.log(error);
+          this.messageError = `Error: <${error}>.`;
+          this.showSpinnerUploads[index] = false;
+        });
+    },
+    refresh() {
+      // let data = ipfs.downloadFile("QmZdbmjpHaqTGJ3bKdG7xnkRy1HnecXdpuZXnEdaChLfx2");
+      // console.log(data);
     },
   },
-  mounted() {
+  async mounted() {
     this.showSpinnerFiles = new Array(this.items.length).fill(false);
     this.showSpinnerUploads = new Array(this.items.length).fill(false);
   },

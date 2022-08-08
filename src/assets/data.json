@@ -16,19 +16,23 @@
   "collection": [
     {
       "name": "name1",
-      "address": "secret1zy4nl7rq5pe2qvulyek5z9gc2nwjlw7tfr2xyf"
+      "address": "secret1zy4nl7rq5pe2qvulyek5z9gc2nwjlw7tfr2xyf",
+      "cid": "QmZdbmjpHaqTGJ3bKdG7xnkRy1HnecXdpuZXnEdaChLfx2"
     },
     {
       "name": "name2",
-      "address": "secret1jmynpzwns56lu0vfm7dr9pnjzejv8yj0tx7gnq"
+      "address": "secret1jmynpzwns56lu0vfm7dr9pnjzejv8yj0tx7gnq",
+      "cid": "QmZdbmjpHaqTGJ3bKdG7xnkRy1HnecXdpuZXnEdaChLfx2"
     },
     {
       "name": "name3",
-      "address": "secret1jmynpzwns56lu0vfm7dr9pnjzejv8yj0tx7gnq"
+      "address": "secret1jmynpzwns56lu0vfm7dr9pnjzejv8yj0tx7gnq",
+      "cid": "QmZdbmjpHaqTGJ3bKdG7xnkRy1HnecXdpuZXnEdaChLfx2"
     },
     {
       "name": "name4",
-      "address": "secret1jmynpzwns56lu0vfm7dr9pnjzejv8yj0tx7gnq"
+      "address": "secret1jmynpzwns56lu0vfm7dr9pnjzejv8yj0tx7gnq",
+      "cid": "QmZdbmjpHaqTGJ3bKdG7xnkRy1HnecXdpuZXnEdaChLfx2"
     }
   ]
 }
