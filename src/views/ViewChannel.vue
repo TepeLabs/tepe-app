@@ -22,11 +22,7 @@
     <div class="column is-one-quarter">
       <article class="media">
         <figure class="media-left mt-1">
-          <img
-            src="@/assets/pfp.png"
-            alt=""
-            style="width: 40px; height: 40px; border-radius: 20px"
-          />
+          <img src="@/assets/pfp.png" alt="" style="width: 40px; height: 40px; border-radius: 20px" />
         </figure>
         <div class="media-content">
           <div class="content">
@@ -68,22 +64,10 @@
       <strong class="is-size-5">Files</strong>
       <li v-for="(item, index) in items" :key="item.url" style="list-style-type: none">
         [{{ item.url }}]
-        <font-awesome-icon
-          v-if="showSpinnerFiles[index]"
-          :icon="faSpinner"
-          class="spinner ml-1"
-        />
+        <font-awesome-icon v-if="showSpinnerFiles[index]" :icon="faSpinner" class="spinner ml-1" />
         <a class="ml-1" v-if="!showSpinnerFiles[index]">
-          <font-awesome-icon
-            v-if="!item.downloaded"
-            :icon="faCloudDown"
-            @click="download(item, index)"
-          />
-          <font-awesome-icon
-            v-else-if="item.encrypted"
-            :icon="faLock"
-            @click="decrypt(item, index)"
-          />
+          <font-awesome-icon v-if="!item.downloaded" :icon="faCloudDown" @click="download(item, index)" />
+          <font-awesome-icon v-else-if="item.encrypted" :icon="faLock" @click="decrypt(item, index)" />
           <font-awesome-icon v-else :icon="faFile" @click="open(item, index)" />
         </a>
       </li>
@@ -95,22 +79,10 @@
       <strong class="is-size-5">Uploading</strong>
       <li v-for="(item, index) in newFiles" :key="item.url" style="list-style-type: none">
         [{{ item.url }}]
-        <font-awesome-icon
-          v-if="showSpinnerUploads[index]"
-          :icon="faSpinner"
-          class="spinner ml-1"
-        />
+        <font-awesome-icon v-if="showSpinnerUploads[index]" :icon="faSpinner" class="spinner ml-1" />
         <a class="ml-1" v-if="!showSpinnerUploads[index]">
-          <font-awesome-icon
-            v-if="!item.encrypted"
-            :icon="faLockOpen"
-            @click="encrypt(item, index)"
-          />
-          <font-awesome-icon
-            v-else-if="!item.uploaded"
-            :icon="faCloudUp"
-            @click="upload(item, index)"
-          />
+          <font-awesome-icon v-if="!item.encrypted" :icon="faLockOpen" @click="encrypt(item, index)" />
+          <font-awesome-icon v-else-if="!item.uploaded" :icon="faCloudUp" @click="upload(item, index)" />
         </a>
       </li>
     </div>
@@ -119,24 +91,19 @@
     <div class="column is-three-quarters">
       <hr />
       Upload new file
-      <a class="ml-1" @click="selectFile"><font-awesome-icon :icon="faFileUp" /></a>
+      <a class="ml-1" @click="selectFile">
+        <font-awesome-icon :icon="faFileUp" />
+      </a>
     </div>
   </div>
   <NFTMint v-if="nftMintOpen" @on-close="nftMintOpen = false" @on-mint="mintNFT" />
-  <MessageError
-    v-if="messageError.length > 0"
-    :message="messageError"
-    @on-close="messageError = ''"
-  />
-  <MessageInfo
-    v-if="messageInfo.length > 0"
-    :message="messageInfo"
-    @on-close="messageInfo = ''"
-  />
+  <MessageError v-if="messageError.length > 0" :message="messageError" @on-close="messageError = ''" />
+  <MessageInfo v-if="messageInfo.length > 0" :message="messageInfo" @on-close="messageInfo = ''" />
   <FileView v-if="viewFile" @on-close="viewFile = false" />
 </template>
 <script>
 import secret from "@/utils/UtilSecret";
+import ipfs from "@/utils/UtilIPFS";
 import { Wallet } from "secretjs";
 import NFTMint from "@/components/NFTMint.vue";
 import MessageError from "@/components/MessageError.vue";
@@ -282,6 +249,7 @@ export default {
     refresh() {
       // let data = ipfs.downloadFile("QmZdbmjpHaqTGJ3bKdG7xnkRy1HnecXdpuZXnEdaChLfx2");
       // console.log(data);
+      ipfs.test();
     },
   },
   async mounted() {
@@ -297,10 +265,12 @@ export default {
   animation-iteration-count: infinite;
   animation-timing-function: linear;
 }
+
 @keyframes spin {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
