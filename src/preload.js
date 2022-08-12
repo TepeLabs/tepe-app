@@ -11,11 +11,12 @@ contextBridge.exposeInMainWorld("settings", {
   getCurrentWallet: () => ipcRenderer.invoke("settings:getCurrentWallet"),
 });
 
-contextBridge.exposeInMainWorld("file", {
-  selectFile: () => ipcRenderer.invoke("file:selectFile"),
-  openFile: (filePath) => ipcRenderer.invoke("file:openFile", filePath),
+contextBridge.exposeInMainWorld("fileio", {
+  selectFile: () => ipcRenderer.invoke("fileio:selectFile"),
+  openFile: (filePath) => ipcRenderer.invoke("fileio:openFile", filePath),
   saveFile: (contents, filePath) =>
-    ipcRenderer.invoke("file:saveFile", contents, filePath),
+    ipcRenderer.invoke("fileio:saveFile", contents, filePath),
+  saveIPFSFile: (contents, cid) => ipcRenderer.invoke("fileio:saveIPFSFile", contents, cid),
 });
 
 contextBridge.exposeInMainWorld("env", {

@@ -2,6 +2,7 @@
 // https://olive.infura-ipfs.io/ipfs/QmdGT7km3oYaRuqR15rde1FjeN4fmPSQRhFFaPTuvGykZF
 // API Methods
 // https://docs.infura.io/infura/networks/ipfs/http-api-methods
+// https://github.com/ipfs/js-ipfs/blob/master/docs/core-api/FILES.md#ipfscatipfspath-options
 
 const URL_API = "https://ipfs.infura.io:5001/api/v0/";
 const DEFAULT_OPTIONS = {
@@ -12,17 +13,24 @@ const DEFAULT_OPTIONS = {
 };
 
 async function downloadFile(cid) {
-  return request("cat", DEFAULT_OPTIONS, cid);
+  return new Promise((resolve, reject) => {
+    request("cat", DEFAULT_OPTIONS, cid)
+      .then((response) => {
+        window.fileio.saveIPFSFile(response, cid);
+        resolve(response);
+      })
+      .catch((error) => reject(error));
+  });
 }
 
-async function uploadFile() {
-  // window.settings.openFile(filePath)
-  //   .then((response) => console.log(response));
-  let file = new File(["file string array"], "filename.txt", { type: "text/plain" });
-  let formData = new FormData();
-  formData.append('file', file, file.name);
+async function uploadFile(filepath) {
+  let text = ""; //await window.fileio.openFile(filepath);
+  let filename = filepath.replace(/^.*[\\/]/, '')
+  let file = new File([text], filename, { type: "text/plain" });
+  let formdata = new FormData();
+  formdata.append('file', file, file.name);
   let options = Object.assign({}, DEFAULT_OPTIONS);
-  options.body = formData;
+  options.body = formdata;
   return request("add", options);
 }
 

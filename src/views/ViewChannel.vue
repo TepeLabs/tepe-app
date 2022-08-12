@@ -197,7 +197,7 @@ export default {
       this.viewFile = true;
     },
     selectFile() {
-      window.file.selectFile().then((result) => {
+      window.fileio.selectFile().then((result) => {
         if (!result.canceled) {
           // open file
           this.newFiles.push({
@@ -213,10 +213,10 @@ export default {
     encrypt(item, index) {
       this.showSpinnerUploads[index] = true;
       let newURL = item.url + ".enc";
-      window.file
+      window.fileio
         .openFile(item.url)
         // .then((result) => crypto.encrypt(result))
-        .then((encrypted) => window.file.saveFile(encrypted, newURL))
+        .then((encrypted) => window.fileio.saveFile(encrypted, newURL))
         .then(() => {
           item.encrypted = true;
           this.newFiles[index].encryption = newURL;
@@ -248,10 +248,10 @@ export default {
     },
     refresh() {
       ipfs.downloadFile("QmdGT7km3oYaRuqR15rde1FjeN4fmPSQRhFFaPTuvGykZF")
-        .then((response) => console.log(response))
+        .then((response) => console.log("download response", response))
         .catch((error) => console.log(error));
       ipfs.uploadFile("/Users/harang-mbp-22/Downloads/hi.txt")
-        .then((response) => console.log(response))
+        .then((response) => console.log("upload response", response))
         .catch((error) => console.log(error));
     },
   },

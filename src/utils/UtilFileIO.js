@@ -1,5 +1,6 @@
-import { dialog } from "electron";
+import { app, dialog } from "electron";
 import fs from "fs";
+import path from "path";
 
 async function selectFile() {
   return dialog.showOpenDialog({ properties: ["openFile"] });
@@ -29,10 +30,22 @@ async function saveFile(event, contents, filePath) {
   });
 }
 
+async function saveIPFSFile(event, contents, cid) {
+  return new Promise((resolve, reject) => {
+    let userDataPath = app.getPath("userData");
+    let ipfsPath = path.join(userDataPath, "ipfs");
+    if (!fs.existsSync(ipfsPath)) {
+      fs.mkdirSync(ipfsPath);
+    }
+    return saveFile(event, contents, path.join(userDataPath, "ipfs", cid + ".txt"));
+  });
+}
+
 const utilFileIO = {
   selectFile,
   openFile,
   saveFile,
+  saveIPFSFile
 };
 
 export default utilFileIO;
