@@ -197,7 +197,7 @@ export default {
       this.viewFile = true;
     },
     selectFile() {
-      window.settings.selectFile().then((result) => {
+      window.file.selectFile().then((result) => {
         if (!result.canceled) {
           // open file
           this.newFiles.push({
@@ -213,10 +213,10 @@ export default {
     encrypt(item, index) {
       this.showSpinnerUploads[index] = true;
       let newURL = item.url + ".enc";
-      window.settings
+      window.file
         .openFile(item.url)
         // .then((result) => crypto.encrypt(result))
-        .then((encrypted) => window.settings.saveFile(encrypted, newURL))
+        .then((encrypted) => window.file.saveFile(encrypted, newURL))
         .then(() => {
           item.encrypted = true;
           this.newFiles[index].encryption = newURL;
@@ -247,9 +247,12 @@ export default {
         });
     },
     refresh() {
-      // let data = ipfs.downloadFile("QmZdbmjpHaqTGJ3bKdG7xnkRy1HnecXdpuZXnEdaChLfx2");
-      // console.log(data);
-      ipfs.test();
+      ipfs.downloadFile("QmdGT7km3oYaRuqR15rde1FjeN4fmPSQRhFFaPTuvGykZF")
+        .then((response) => console.log(response))
+        .catch((error) => console.log(error));
+      ipfs.uploadFile("/Users/harang-mbp-22/Downloads/hi.txt")
+        .then((response) => console.log(response))
+        .catch((error) => console.log(error));
     },
   },
   async mounted() {

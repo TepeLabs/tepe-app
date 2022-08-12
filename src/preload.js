@@ -9,9 +9,16 @@ contextBridge.exposeInMainWorld("settings", {
   deleteAddress: (address) =>
     ipcRenderer.invoke("settings:deleteAddress", address),
   getCurrentWallet: () => ipcRenderer.invoke("settings:getCurrentWallet"),
-  selectFile: () => ipcRenderer.invoke("fileio:selectFile"),
-  openFile: (filePath) => ipcRenderer.invoke("fileio:openFile", filePath),
+});
+
+contextBridge.exposeInMainWorld("file", {
+  selectFile: () => ipcRenderer.invoke("file:selectFile"),
+  openFile: (filePath) => ipcRenderer.invoke("file:openFile", filePath),
   saveFile: (contents, filePath) =>
-    ipcRenderer.invoke("fileio:saveFile", contents, filePath),
-  uploadFile: (filePath) => ipcRenderer.invoke("ipfs:uploadFile", filePath),
+    ipcRenderer.invoke("file:saveFile", contents, filePath),
+});
+
+contextBridge.exposeInMainWorld("env", {
+  PROJECT_ID: process.env.PROJECT_ID,
+  PROJECT_SECRET: process.env.PROJECT_SECRET,
 });

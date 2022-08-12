@@ -45,10 +45,9 @@ function connectIPC() {
   ipcMain.handle("settings:selectAddress", settings.selectAddress);
   ipcMain.handle("settings:deleteAddress", settings.deleteAddress);
   ipcMain.handle("settings:getCurrentWallet", settings.getCurrentWallet);
-  ipcMain.handle("fileio:selectFile", fileIO.selectFile);
-  ipcMain.handle("fileio:openFile", fileIO.openFile);
-  ipcMain.handle("fileio:saveFile", fileIO.saveFile);
-  ipcMain.handle("ipfs:uploadFile", ipfs.uploadFile);
+  ipcMain.handle("file:selectFile", fileIO.selectFile);
+  ipcMain.handle("file:openFile", fileIO.openFile);
+  ipcMain.handle("file:saveFile", fileIO.saveFile);
 }
 
 // Quit when all windows are closed.
