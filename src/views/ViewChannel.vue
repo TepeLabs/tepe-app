@@ -91,7 +91,7 @@
     <div class="column is-three-quarters">
       <hr />
       Upload new file
-      <a class="ml-1" @click="selectFile" style="pointer-events: none;">
+      <a class="ml-1" @click="selectFile">
         <font-awesome-icon :icon="faFileUp" />
       </a>
     </div>
@@ -104,6 +104,7 @@
 <script>
 import secret from "@/utils/UtilSecret";
 import ipfs from "@/utils/UtilIPFS";
+import crypto from "@/utils/UtilCrypto";
 import { Wallet } from "secretjs";
 import NFTMint from "@/components/NFTMint.vue";
 import MessageError from "@/components/MessageError.vue";
@@ -241,10 +242,25 @@ export default {
     },
     upload(item, index) {
       this.showSpinnerUploads[index] = true;
-      window.settings.uploadFile(item.url)
+      let urlEncrypted = item.url;// + ".enc";
+      console.log(`Uploading item at ${urlEncrypted}.`);
+      ipfs.uploadFile(urlEncrypted)
         .then((result) => {
+          console.log(result);
           item.uploaded = true;
-          this.messageInfo = `File "${item.url}" uploaded with result ${result}.`;
+          item.cid = result.Hash;
+        })
+        .then(() => {
+          console.log("Opening file.")
+          window.fileio.openFile(urlEncrypted);
+        })
+        .then((content) => {
+          console.log("Saving file.");
+          window.fileio.saveIPFSFile(content, item.cid);
+        })
+        .then(() => {
+          console.log("Done.");
+          this.messageInfo = `File "${urlEncrypted}" uploaded.`;
           this.items.push(item);
           this.newFiles.splice(index, 1);
           this.showSpinnerUploads[index] = false;

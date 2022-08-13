@@ -24,7 +24,7 @@ async function downloadFile(cid) {
 }
 
 async function uploadFile(filepath) {
-  let text = ""; //await window.fileio.openFile(filepath);
+  let text = await window.fileio.openFile(filepath);
   let filename = filepath.replace(/^.*[\\/]/, '')
   let file = new File([text], filename, { type: "text/plain" });
   let formdata = new FormData();
@@ -42,6 +42,7 @@ async function request(method, options, cid) {
   return new Promise((resolve, reject) => {
     fetch(url, options)
       .then((response) => response.text())
+      .then((response) => JSON.parse(response))
       .then((response) => resolve(response))
       .catch((error) => reject(error));
   });
