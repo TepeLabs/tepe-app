@@ -99,7 +99,7 @@
   <NFTMint v-if="nftMintOpen" @on-close="nftMintOpen = false" @on-mint="mintNFT" />
   <MessageError v-if="messageError.length > 0" :message="messageError" @on-close="messageError = ''" />
   <MessageInfo v-if="messageInfo.length > 0" :message="messageInfo" @on-close="messageInfo = ''" />
-  <FileView v-if="viewFile" @on-close="viewFile = false" />
+  <FileView v-if="viewFile" :content="contentView" @on-close="viewFile = false" />
 </template>
 <script>
 import secret from "@/utils/UtilSecret";
@@ -146,6 +146,7 @@ export default {
       isOwner: true,
       items: [],
       newFiles: [],
+      contentView: "",
     };
   },
   methods: {
@@ -208,7 +209,14 @@ export default {
     },
     open(item, index) {
       console.log(`Opening item at ${item.url} at index ${index}.`);
-      this.viewFile = true;
+      window.fileio.openIPFSFile(item.cid + ".txt")
+        .then((content) => {
+          this.viewFile = true;
+          this.contentView = content;
+        })
+        .catch((error) => {
+          this.messageError = error;
+        });
     },
     selectFile() {
       window.fileio.selectFile().then((result) => {

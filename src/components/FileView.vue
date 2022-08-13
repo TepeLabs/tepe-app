@@ -8,10 +8,7 @@
       </header>
       <section class="modal-card-body">
         <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Temporibus molestiae
-          repellendus amet quos suscipit nesciunt voluptate qui quaerat eos vero adipisci
-          deserunt iusto error voluptatem harum molestias et cumque ea quas animi,
-          facilis, quae placeat illo necessitatibus! Reprehenderit, excepturi quam.
+          {{ content }}
         </p>
       </section>
       <footer class="modal-card-foot">
@@ -23,5 +20,10 @@
 <script>
 export default {
   emits: ["onClose"],
+  props: {
+    content: {
+      type: String,
+    },
+  },
 };
 </script>
