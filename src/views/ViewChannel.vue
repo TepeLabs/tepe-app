@@ -62,8 +62,8 @@
   <div class="columns is-centered" v-if="items.length > 0">
     <div class="column is-three-quarters">
       <strong class="is-size-5">Files</strong>
-      <li v-for="(item, index) in items" :key="item.url" style="list-style-type: none">
-        [{{ item.url }}]
+      <li v-for="(item, index) in items" :key="item.cid" style="list-style-type: none">
+        [{{ item.cid }}]
         <font-awesome-icon v-if="showSpinnerFiles[index]" :icon="faSpinner" class="spinner ml-1" />
         <a class="ml-1" v-if="!showSpinnerFiles[index]">
           <font-awesome-icon v-if="!item.downloaded" :icon="faCloudDown" @click="download(item, index)" />
@@ -143,15 +143,7 @@ export default {
       showSpinnerFiles: [],
       showSpinnerUploads: [],
       isOwner: true,
-      items: [
-        {
-          url: "https://harangju.com",
-          encrypted: true,
-          downloaded: false,
-          uploaded: true,
-          encryption: "",
-        },
-      ],
+      items: [],
       newFiles: [],
     };
   },
@@ -178,11 +170,14 @@ export default {
     download(item, index) {
       this.messageInfo = `Downloading file at ${item.url}`;
       this.showSpinnerFiles[index] = true;
-      setTimeout(() => {
-        item.downloaded = true;
-        this.messageInfo = "Downloaded file.";
-        this.showSpinnerFiles[index] = false;
-      }, 3000);
+      ipfs.downloadFile(item.cid)
+        .then((response) => {
+          console.log(response);
+          item.downloaded = true;
+          this.messageInfo = "Downloaded file " + item.cid + ".";
+          this.showSpinnerFiles[index] = false;
+        })
+        .catch((error) => console.log(error));
     },
     decrypt(item, index) {
       this.showSpinnerFiles[index] = true;
@@ -215,7 +210,7 @@ export default {
       let newURL = item.url + ".enc";
       window.fileio
         .openFile(item.url)
-        // .then((result) => crypto.encrypt(result))
+        .then((result) => crypto.encrypt(result))
         .then((encrypted) => window.fileio.saveFile(encrypted, newURL))
         .then(() => {
           item.encrypted = true;
@@ -231,7 +226,6 @@ export default {
     },
     upload(item, index) {
       this.showSpinnerUploads[index] = true;
-      //https:docs.infura.io/infura/networks/ipfs/how-to/manage-files
       window.settings.uploadFile(item.url)
         .then((result) => {
           item.uploaded = true;
@@ -258,6 +252,15 @@ export default {
   async mounted() {
     this.showSpinnerFiles = new Array(this.items.length).fill(false);
     this.showSpinnerUploads = new Array(this.items.length).fill(false);
+    this.items = [
+      {
+        cid: "QmdGT7km3oYaRuqR15rde1FjeN4fmPSQRhFFaPTuvGykZF",
+        encrypted: true,
+        downloaded: false,
+        uploaded: true,
+        encryption: "",
+      },
+    ]
   },
 };
 </script>
