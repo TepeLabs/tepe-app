@@ -242,7 +242,7 @@ export default {
     },
     upload(item, index) {
       this.showSpinnerUploads[index] = true;
-      let urlEncrypted = item.url;// + ".enc";
+      let urlEncrypted = item.url + ".enc";
       console.log(`Uploading item at ${urlEncrypted}.`);
       ipfs.uploadFile(urlEncrypted)
         .then((result) => {
@@ -252,7 +252,7 @@ export default {
         })
         .then(() => {
           console.log("Opening file.")
-          window.fileio.openFile(urlEncrypted);
+          return window.fileio.openFile(urlEncrypted);
         })
         .then((content) => {
           console.log("Saving file.");
