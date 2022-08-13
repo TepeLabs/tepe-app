@@ -28,17 +28,15 @@ export default {
   emits: ["onClose"],
   watch: {
     // watcher doesn't work...
-    message: {
-      handler: function (newMessage, oldMessage) {
-        console.log(`new: ${newMessage}, old: ${oldMessage}`);
-        console.log(this.timer);
-        if (this.timer) {
-          console.log("Clearing timeout.");
-          clearTimeout(this.timer);
-        }
-      },
-      deep: true,
-    },
+    // message: {
+    //   handler: function (newMessage, oldMessage) {
+    //     if (this.timer) {
+    //       console.log("Clearing timeout.");
+    //       clearTimeout(this.timer);
+    //     }
+    //   },
+    //   deep: true,
+    // },
   },
   mounted() {
     this.animating = true;
@@ -53,16 +51,20 @@ export default {
 .slidein {
   animation: slidein 3s;
 }
+
 @keyframes slidein {
   0% {
     transform: translateX(100%);
   }
+
   10% {
     transform: translateX(0%);
   }
+
   90% {
     transform: translateX(0.1%);
   }
+
   100% {
     transform: translateX(100%);
   }

@@ -5,6 +5,7 @@ import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import installExtension, { VUEJS3_DEVTOOLS } from "electron-devtools-installer";
 import path from "path";
 import settings from "@/utils/UtilSettings";
+import fileIO from "@/utils/UtilFileIO";
 const isDevelopment = process.env.NODE_ENV !== "production";
 
 // Scheme must be registered before the app is ready
@@ -43,6 +44,11 @@ function connectIPC() {
   ipcMain.handle("settings:selectAddress", settings.selectAddress);
   ipcMain.handle("settings:deleteAddress", settings.deleteAddress);
   ipcMain.handle("settings:getCurrentWallet", settings.getCurrentWallet);
+  ipcMain.handle("fileio:selectFile", fileIO.selectFile);
+  ipcMain.handle("fileio:openFile", fileIO.openFile);
+  ipcMain.handle("fileio:saveFile", fileIO.saveFile);
+  ipcMain.handle("fileio:saveIPFSFile", fileIO.saveIPFSFile);
+  ipcMain.handle("fileio:openIPFSFile", fileIO.openIPFSFile);
 }
 
 // Quit when all windows are closed.

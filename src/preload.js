@@ -10,3 +10,17 @@ contextBridge.exposeInMainWorld("settings", {
     ipcRenderer.invoke("settings:deleteAddress", address),
   getCurrentWallet: () => ipcRenderer.invoke("settings:getCurrentWallet"),
 });
+
+contextBridge.exposeInMainWorld("fileio", {
+  selectFile: () => ipcRenderer.invoke("fileio:selectFile"),
+  openFile: (filePath) => ipcRenderer.invoke("fileio:openFile", filePath),
+  saveFile: (contents, filePath) =>
+    ipcRenderer.invoke("fileio:saveFile", contents, filePath),
+  saveIPFSFile: (contents, cid) => ipcRenderer.invoke("fileio:saveIPFSFile", contents, cid),
+  openIPFSFile: (cid) => ipcRenderer.invoke("fileio:openIPFSFile", cid),
+});
+
+contextBridge.exposeInMainWorld("env", {
+  PROJECT_ID: process.env.PROJECT_ID,
+  PROJECT_SECRET: process.env.PROJECT_SECRET,
+});
