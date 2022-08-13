@@ -187,10 +187,13 @@ export default {
     decrypt(item, index) {
       this.showSpinnerFiles[index] = true;
       window.fileio.openIPFSFile(item.cid)
-        .then((response) => crypto.decrypt(response))
-        .then((response) => {
-          console.log(response);
-          window.fileio.saveIPFSFile(response, item.cid);
+        .then((content) => {
+          console.log("Decrypting " + content);
+          return crypto.decrypt(content);
+        })
+        .then((decrypted) => {
+          console.log(decrypted);
+          window.fileio.saveIPFSFile(decrypted, item.cid + ".txt");
         })
         .then(() => {
           item.encrypted = false;
