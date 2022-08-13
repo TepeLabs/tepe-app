@@ -91,7 +91,7 @@
     <div class="column is-three-quarters">
       <hr />
       Upload new file
-      <a class="ml-1" @click="selectFile">
+      <a class="ml-1" @click="selectFile" style="pointer-events: none;">
         <font-awesome-icon :icon="faFileUp" />
       </a>
     </div>
@@ -168,7 +168,7 @@ export default {
       this.nftMintOpen = false;
     },
     download(item, index) {
-      this.messageInfo = `Downloading file at ${item.url}`;
+      this.messageInfo = `Downloading file from ${item.cid}`;
       this.showSpinnerFiles[index] = true;
       ipfs.downloadFile(item.cid)
         .then((response) => {
@@ -177,7 +177,11 @@ export default {
           this.messageInfo = "Downloaded file " + item.cid + ".";
           this.showSpinnerFiles[index] = false;
         })
-        .catch((error) => console.log(error));
+        .catch((error) => {
+          console.log(error);
+          this.messageError = "Download failed with error " + error;
+          this.showSpinnerFiles[index] = false;
+        });
     },
     decrypt(item, index) {
       this.showSpinnerFiles[index] = true;
