@@ -48,6 +48,7 @@ function connectIPC() {
   ipcMain.handle("fileio:openFile", fileIO.openFile);
   ipcMain.handle("fileio:saveFile", fileIO.saveFile);
   ipcMain.handle("fileio:saveIPFSFile", fileIO.saveIPFSFile);
+  ipcMain.handle("fileio:openIPFSFile", fileIO.openIPFSFile);
 }
 
 // Quit when all windows are closed.

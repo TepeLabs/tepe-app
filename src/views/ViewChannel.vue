@@ -185,11 +185,22 @@ export default {
     },
     decrypt(item, index) {
       this.showSpinnerFiles[index] = true;
-      setTimeout(() => {
-        item.encrypted = false;
-        this.messageInfo = `Item decrypted at ${item.url}.`;
-        this.showSpinnerFiles[index] = false;
-      }, 500);
+      window.fileio.openIPFSFile(item.cid)
+        .then((response) => crypto.decrypt(response))
+        .then((response) => {
+          console.log(response);
+          window.fileio.saveIPFSFile(response, item.cid);
+        })
+        .then(() => {
+          item.encrypted = false;
+          this.messageInfo = `Item decrypted at ${item.cid}.`;
+          this.showSpinnerFiles[index] = false;
+        })
+        .catch((error) => {
+          console.log(error);
+          this.messageError = "Item failed to decript.";
+          this.showSpinnerFiles[index] = false;
+        });
     },
     open(item, index) {
       console.log(`Opening item at ${item.url} at index ${index}.`);

@@ -17,6 +17,7 @@ contextBridge.exposeInMainWorld("fileio", {
   saveFile: (contents, filePath) =>
     ipcRenderer.invoke("fileio:saveFile", contents, filePath),
   saveIPFSFile: (contents, cid) => ipcRenderer.invoke("fileio:saveIPFSFile", contents, cid),
+  openIPFSFile: (cid) => ipcRenderer.invoke("fileio:openIPFSFile", cid),
 });
 
 contextBridge.exposeInMainWorld("env", {

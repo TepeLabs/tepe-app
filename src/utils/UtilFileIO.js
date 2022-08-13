@@ -41,11 +41,23 @@ async function saveIPFSFile(event, contents, cid) {
   });
 }
 
+async function openIPFSFile(event, cid) {
+  return new Promise((resolve, reject) => {
+    let userDataPath = app.getPath("userData");
+    let ipfsPath = path.join(userDataPath, "ipfs");
+    if (!fs.existsSync(ipfsPath)) {
+      fs.mkdirSync(ipfsPath);
+    }
+    return openFile(event, path.join(userDataPath, "ipfs", cid + ".txt"));
+  });
+}
+
 const utilFileIO = {
   selectFile,
   openFile,
   saveFile,
-  saveIPFSFile
+  saveIPFSFile,
+  openIPFSFile,
 };
 
 export default utilFileIO;
