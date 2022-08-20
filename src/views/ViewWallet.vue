@@ -1,6 +1,6 @@
 <template>
   <div class="columns">
-    <div class="column" v-if="hasKeyPairs">
+    <div class="column" v-if="hasWalletList">
       <table class="table is-fullwidth is-striped is-hoverable is-striped mt-1">
         <colgroup>
           <col style="width: 8%" />
@@ -10,26 +10,26 @@
         <thead>
           <tr>
             <th></th>
-            <th>Addresses</th>
+            <th>Wallets</th>
             <th>
-              <button class="button is-small" @click="addressCreateOpen = true">+</button>
+              <button class="button is-small" @click="walletCreateOpen = true">+</button>
             </th>
           </tr>
         </thead>
         <tbody
-          v-for="(keyPair, index) in keyPairs"
-          :key="keyPair.address"
-          @click="displayAddressEdit(index)"
+          v-for="(wallet, index) in walletList"
+          :key="wallet.public"
+          @click="displayWalletEdit(index)"
         >
           <tr>
             <td class="is-vcentered has-text-centered">
-              <font-awesome-icon :icon="faCheck" v-if="keyPair.selected" />
+              <font-awesome-icon :icon="faCheck" v-if="wallet.selected" />
             </td>
             <td>
               <p>
                 <strong>Lorem {{ index }}</strong>
               </p>
-              <span class="is-family-monospace">{{ keyPair.address }}</span>
+              <span class="is-family-monospace">{{ wallet.public }}</span>
             </td>
             <td></td>
           </tr>
@@ -37,113 +37,113 @@
       </table>
     </div>
   </div>
-  <div class="columns is-centered" v-if="!hasKeyPairs">
+  <div class="columns is-centered" v-if="!hasWalletList">
     <div class="column is-three-quarters has-text-centered">
-      <button class="button" @click="addressCreateOpen = true">Create new wallet</button>
+      <button class="button" @click="walletCreateOpen = true">Create new wallet</button>
     </div>
   </div>
-  <AddressAdd
-    v-if="addressCreateOpen"
-    :address="addressNew"
+  <WalletAdd
+    v-if="walletCreateOpen"
+    :address="walletAddressNew"
     :mnemonic="mnemonicNew"
-    @on-create="onAddressCreate"
-    @on-close="addressCreateOpen = false"
-    @on-confirm="saveNewAddress"
+    @on-create="onWalletCreate"
+    @on-close="walletCreateOpen = false"
+    @on-confirm="saveNewWallet"
     @on-import="importMnemonic"
   />
-  <AddressEdit
-    v-if="addressEditOpen"
-    :address="addressEdit"
-    :is-selected="addressEditIsSelected"
-    @on-close="addressEditOpen = false"
-    @on-select="selectAddress"
-    @on-delete="deleteAddress"
+  <WalletEdit
+    v-if="walletEditOpen"
+    :address="walletEdit"
+    :is-selected="walletEditIsSelected"
+    @on-close="walletEditOpen = false"
+    @on-select="selectWallet"
+    @on-delete="deleteWallet"
   />
 </template>
 <script>
-import AddressAdd from "@/components/AddressAdd.vue";
-import AddressEdit from "@/components/AddressEdit.vue";
+import WalletAdd from "@/components/WalletAdd.vue";
+import WalletEdit from "@/components/WalletEdit.vue";
 import { Wallet } from "secretjs";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { faCheck, faPlus } from "@fortawesome/free-solid-svg-icons";
 export default {
-  components: { AddressAdd, AddressEdit, FontAwesomeIcon },
+  components: { WalletAdd, WalletEdit, FontAwesomeIcon },
   data() {
     return {
-      addressCreateOpen: false,
-      addressEditOpen: false,
-      keyPairs: null,
+      walletCreateOpen: false,
+      walletEditOpen: false,
+      walletList: null,
       mnemonicNew: "",
-      addressNew: "",
-      addressEdit: "",
+      walletAddressNew: "",
+      walletEdit: "",
       faCheck: faCheck,
       faPlus: faPlus,
     };
   },
   computed: {
-    hasKeyPairs() {
-      return this.keyPairs && this.keyPairs.length > 0;
+    hasWalletList() {
+      return this.walletList && this.walletList.length > 0;
     },
-    addressEditIsSelected() {
-      return this.addressEdit === this.addressSelected;
+    walletEditIsSelected() {
+      return this.walletEdit === this.walletSelected;
     },
-    addressSelected() {
-      return this.keyPairs ? this.keyPairs.find((pair) => pair.selected).address : "";
+    walletSelected() {
+      return this.walletList ? this.walletList.find((pair) => pair.selected).public : "";
     },
   },
   methods: {
-    onAddressCreate() {
+    onWalletCreate() {
       const wallet = new Wallet();
-      this.addressNew = wallet.address;
+      this.walletAddressNew = wallet.address;
       this.mnemonicNew = wallet.mnemonic;
     },
-    displayAddressEdit(index) {
-      this.addressEdit = this.keyPairs[index].address;
-      this.addressEditOpen = true;
+    displayWalletEdit(index) {
+      this.walletEdit = this.walletList[index].public;
+      this.walletEditOpen = true;
     },
-    selectAddress() {
-      window.settings.selectAddress(this.addressEdit);
-      this.keyPairs = this.keyPairs.map((pair) => {
-        pair.selected = pair.address === this.addressEdit;
-        return pair;
+    selectWallet() {
+      window.settings.selectWallet(this.walletEdit);
+      this.walletList = this.walletList.map((wallet) => {
+        wallet.selected = wallet.public === this.walletEdit;
+        return wallet;
       });
-      this.addressEditOpen = false;
+      this.walletEditOpen = false;
     },
-    deleteAddress() {
-      window.settings.deleteAddress(this.addressEdit);
-      let toDelete = this.keyPairs.filter((x) => x.address === this.addressEdit)[0];
-      this.keyPairs = this.keyPairs.filter((x) => x.address != this.addressEdit);
+    deleteWallet() {
+      window.settings.deleteWallet(this.walletEdit);
+      let toDelete = this.walletList.filter((x) => x.public === this.walletEdit)[0];
+      this.walletList = this.walletList.filter((x) => x.public != this.walletEdit);
       if (toDelete.selected) {
-        this.keyPairs[0].selected = true;
+        this.walletList[0].selected = true;
       }
-      this.addressEditOpen = false;
+      this.walletEditOpen = false;
     },
-    saveNewAddress() {
-      console.log(`${this.addressNew}`);
-      window.settings.saveKey(this.addressNew, this.mnemonicNew);
-      this.loadKeyPairs();
-      this.addressCreateOpen = false;
+    saveNewWallet() {
+      console.log(`${this.walletAddressNew}`);
+      window.settings.saveWallet(this.walletAddressNew, this.mnemonicNew);
+      this.loadWalletList();
+      this.walletCreateOpen = false;
     },
     importMnemonic(mnemonic) {
       const wallet = new Wallet(mnemonic);
-      window.settings.saveKey(wallet.address, mnemonic);
-      this.loadKeyPairs();
-      this.addressCreateOpen = false;
+      window.settings.saveWallet(wallet.address, mnemonic);
+      this.loadWalletList();
+      this.walletCreateOpen = false;
     },
-    loadKeyPairs() {
+    loadWalletList() {
       window.settings
-        .getStoreValue("keyPairs")
+        .getStoreValue("walletList")
         .then((result) => {
-          this.keyPairs = result;
+          this.walletList = result;
         })
         .catch((err) => {
-          console.log(`Error loading key pairs <${err}>.`);
+          console.log(`Error loading wallets <${err}>.`);
         });
     },
   },
   mounted() {
     console.log("ViewWallet: Mounted.");
-    this.loadKeyPairs();
+    this.loadWalletList();
   },
 };
 </script>

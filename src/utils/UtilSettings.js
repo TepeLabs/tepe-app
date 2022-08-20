@@ -1,91 +1,164 @@
 import Store from "electron-store";
 
-const KEYPAIRS = "keyPairs";
+const WALLET_LIST = "walletList";
+const ADDRESS_BOOK = "addressBook";
+const CHANNEL_LIST = "channelList";
 const store = new Store();
 
 async function getStoreValue(event, key) {
   return store.get(key);
 }
 
-async function saveKey(event, address, mnemonic) {
-  console.log("saving key with address " + address);
-  if (store.has(KEYPAIRS)) {
-    getStoreValue(KEYPAIRS)
+async function initializeWalletList(event, walletJSON) {
+  if (!store.has(WALLET_LIST)) {
+    let walletList = [];
+    for (let key in walletJSON) {
+      walletList = walletList.concat(
+        {
+        public: walletJSON[key].public,
+        private: walletJSON[key].private,
+        mnemonic: walletJSON[key].mnemonic,
+        selected: walletJSON[key].default,
+      });
+    }
+    console.log(walletList);
+    store.set(WALLET_LIST, walletList);
+  }
+}
+
+async function initializeChannelList(event, channelJSON) {
+  if (!store.has(CHANNEL_LIST)) {
+ 
+    let channelList = [];
+    for (let key in channelJSON) {
+      channelList = channelList.concat(
+        {
+        address: channelJSON[key].address,
+        name: channelJSON[key].name,
+        cid: channelJSON[key].cid,
+      });
+    }
+    console.log(channelList);
+    store.set(CHANNEL_LIST, channelList);
+  }
+}
+
+async function saveChannel(event, channelAddress, nickname) {
+  console.log("saving channel with address " + channelAddress);
+  if (store.has(CHANNEL_LIST)) {
+    getStoreValue(CHANNEL_LIST)
       .then((result) => {
-        let deselectedPairs = result.keyPairs.map((x) => {
+        let channelList = result.channelList.concat({
+          address: channelAddress,
+          name: nickname,
+          cid: "UNK",
+        });
+        store.set(CHANNEL_LIST, channelList);
+      })
+      .catch((err) => {
+        console.log(`Error editing channels with error <${err}>`);
+      });
+  } else {
+    let channelList = [
+      {
+        address: channelAddress,
+        name: nickname,
+        cid: "UNK",
+        owner: "UNK",
+      },
+    ];
+    store.set(CHANNEL_LIST, channelList);
+  }
+}
+
+async function saveWallet(event, publicAddress, privateAddress, mnemonic) {
+  console.log("saving wallet with address " + publicAddress);
+  if (store.has(WALLET_LIST)) {
+    getStoreValue(WALLET_LIST)
+      .then((result) => {
+        let deselectedWallets = result.walletList.map((x) => {
           x.selected = false;
           return x;
         });
-        let keyPairs = deselectedPairs.concat({
-          address: address,
+        let walletList = deselectedWallets.concat({
+          public: publicAddress,
+          private: privateAddress,
           mnemonic: mnemonic,
           selected: true,
         });
-        store.set(KEYPAIRS, keyPairs);
+        store.set(WALLET_LIST, walletList);
       })
       .catch((err) => {
-        console.log(`Error loading keys with error <${err}>`);
+        console.log(`Error loading wallets with error <${err}>`);
       });
   } else {
-    let keyPairs = [
+    let walletList = [
       {
-        address: address,
+        public: publicAddress,
+        private: privateAddress,
         mnemonic: mnemonic,
         selected: true,
       },
     ];
-    store.set(KEYPAIRS, keyPairs);
+    store.set(WALLET_LIST, walletList);
   }
 }
 
-async function selectAddress(event, address) {
-  getStoreValue(KEYPAIRS)
+async function selectWallet(event, publicAddress) {
+  getStoreValue(WALLET_LIST)
     .then((result) => {
-      let newlySelectedPairs = result.keyPairs.map((x) => {
-        x.selected = x.address === address;
+      let newlySelectedWallets = result.walletList.map((x) => {
+        x.selected = x.public === publicAddress;
         return x;
       });
-      store.set(KEYPAIRS, newlySelectedPairs);
+      store.set(WALLET_LIST, newlySelectedWallets);
     })
     .catch((err) => {
-      console.log(`Error loading keys with error <${err}>`);
+      console.log(`Error loading wallets with error <${err}>`);
     });
 }
 
-async function deleteAddress(event, address) {
-  getStoreValue(KEYPAIRS)
+async function deleteWallet(event, publicAddress) {
+  getStoreValue(WALLET_LIST)
     .then((result) => {
-      let toDelete = result.keyPairs.filter((x) => x.address === address)[0];
-      let newPairs = result.keyPairs.filter((x) => x.address != address);
+      let toDelete = result.walletList.filter((x) => x.public === publicAddress)[0];
+      let newWallets = result.walletList.filter((x) => x.public != publicAddress);
       if (toDelete.selected) {
-        newPairs[0].selected = true;
+        newWallets[0].selected = true;
       }
-      store.set(KEYPAIRS, newPairs);
+      store.set(WALLET_LIST, newWallets);
     })
     .catch((err) => {
-      console.log(`Error loading keys with error <${err}>`);
+      console.log(`Error loading wallets with error <${err}>`);
     });
 }
 
 async function getCurrentWallet() {
   return new Promise((resolve, reject) => {
-    getStoreValue(KEYPAIRS)
-      .then((result) => {
-        let selectedPairs = result.keyPairs.filter((x) => x.selected);
-        resolve(selectedPairs[0]);
-      })
-      .catch((err) => {
-        console.log(`Error loading keys with error <${err}>`);
-        reject(err);
-      });
+    if (store.has(WALLET_LIST)) {
+      getStoreValue(WALLET_LIST)
+        .then((result) => {
+          let selectedWallets = result.walletList.filter((x) => x.selected);
+          resolve(selectedWallets[0]);
+        })
+        .catch((err) => {
+          console.log(`Error loading wallets with error <${err}>`);
+          reject(err);
+        });
+      } else {
+        console.log('You have no wallets yet.');
+      }
   });
 }
 
 const utilSettings = {
   getStoreValue,
-  saveKey,
-  selectAddress,
-  deleteAddress,
+  initializeWalletList,
+  initializeChannelList,
+  saveChannel,
+  saveWallet,
+  selectWallet,
+  deleteWallet,
   getCurrentWallet,
 };
 
