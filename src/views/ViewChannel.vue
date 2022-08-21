@@ -150,23 +150,26 @@ export default {
     };
   },
   methods: {
-    mintNFT() {
+    mintNFT(recipientAddress, number) {
       this.nftMintOpen = false;
       window.settings
         .getCurrentWallet()
         .then((result) => {
           let wallet = new Wallet(result.mnemonic);
+          if (recipientAddress === "") {
+            recipientAddress = wallet.public;
+            console.log('no recipient');
+          }
           this.messageInfo = "Minting NFTs...";
-          return secret.mintNFT(wallet, this.$route.params.address);
-        })
-        .then((result) => {
-          this.messageInfo = `Minting successful! Status: "${result.response.status}"`;
-          console.log(`Minted NFT with result "${result}"`);
-        })
-        .catch((error) => {
+          console.log(`Minting ${number} NFT(s) to address ${recipientAddress}.`)
+
+          secret.mintNFT(wallet, this.$route.params.address, recipientAddress, number).then((mintResult) => {
+            this.messageInfo = `Minting successful! Status: "${mintResult}"`;
+            console.log(`Minted NFT with result "${mintResult[0]}"`);
+          }).catch((error) => {
           this.messageError = error.message;
-          console.error(`Contract instatiation failed with error ${error}.`);
-        });
+          console.error(`Minting failed with error ${error}.`);
+        })});
       this.nftMintOpen = false;
     },
     download(item, index) {
