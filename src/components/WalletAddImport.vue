@@ -26,7 +26,6 @@
     <button
       class="button is-success"
       @click="onImportButtonClicked"
-      :disabled="importButtonOff"
     >
       Import
     </button>
@@ -38,11 +37,6 @@ export default {
     return {
       words: Array(24).fill(""),
     };
-  },
-  computed: {
-    importButtonOff() {
-      return this.words.some((x) => x.length < 4);
-    },
   },
   methods: {
     onImportButtonClicked() {

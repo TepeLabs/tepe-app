@@ -21,7 +21,7 @@
           </thead>
           <tbody>
             <tr
-              v-for="(item, index) in collection"
+              v-for="(item, index) in channelList"
               :key="item.name"
               @click="openChannel(index)"
             >
@@ -71,7 +71,7 @@ export default {
     return {
       messageError: "",
       messageInfo: "",
-      collection: sourceData.collection,
+      channelList: "",
       channelCreateOpen: false,
       faPlus: faPlus,
       faCircleDot: faCircleDot,
@@ -90,19 +90,37 @@ export default {
         .then((result) => {
           console.log(`contract address ${result}`);
           // save address to cache
+          window.settings.saveChannel(result, name);
+          this.loadChannelList();
           // query channels for account - update
           this.messageInfo = `Channel created with address ${result}!`;
         })
         .catch((error) => {
-          console.error(`Contract instatiation failed with error "${error}."`);
+          console.error(`Contract instantiation failed with error "${error}."`);
           this.messageError = error.message;
         });
       this.channelCreateOpen = false;
     },
     openChannel(index) {
-      this.$router.push(`/channel/${this.collection[index].address}`);
+      this.$router.push(`/channel/${this.channelList[index].address}`);
     },
+      loadChannelList() {
+      window.settings
+        .getStoreValue("channelList")
+        .then((result) => {
+          this.channelList = result;
+        })
+        .catch((err) => {
+          console.log(`Error loading channels <${err}>.`);
+        });
+    },
+  }, 
+  mounted() {
+    console.log("ViewCollection: Mounted.");
+    window.settings.initializeWalletList(sourceData.wallets);
+    window.settings.initializeChannelList(sourceData.channels);
+    this.loadChannelList();
   },
-  mounted() {},
+
 };
 </script>

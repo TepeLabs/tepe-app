@@ -2,13 +2,17 @@ const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("settings", {
   getStoreValue: (key) => ipcRenderer.invoke("settings:getStoreValue", key),
-  saveKey: (address, mnemonic) =>
-    ipcRenderer.invoke("settings:saveKey", address, mnemonic),
-  selectAddress: (address) =>
-    ipcRenderer.invoke("settings:selectAddress", address),
-  deleteAddress: (address) =>
-    ipcRenderer.invoke("settings:deleteAddress", address),
+  saveWallet: (address, mnemonic) =>
+    ipcRenderer.invoke("settings:saveWallet", address, mnemonic),
+  saveChannel: (channelAddress, nickname) =>
+    ipcRenderer.invoke("settings:saveChannel", channelAddress, nickname),
+  selectWallet: (wallet) =>
+    ipcRenderer.invoke("settings:selectWallet", wallet),
+  deleteWallet: (wallet) =>
+    ipcRenderer.invoke("settings:deleteWallet", wallet),
   getCurrentWallet: () => ipcRenderer.invoke("settings:getCurrentWallet"),
+  initializeWalletList: (walletListJSON) => ipcRenderer.invoke("settings:initializeWalletList", walletListJSON),
+  initializeChannelList: (channelListJSON) => ipcRenderer.invoke("settings:initializeChannelList", channelListJSON),
 });
 
 contextBridge.exposeInMainWorld("fileio", {

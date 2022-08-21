@@ -39,11 +39,14 @@ async function createWindow() {
 }
 
 function connectIPC() {
-  ipcMain.handle("settings:saveKey", settings.saveKey);
+  ipcMain.handle("settings:saveWallet", settings.saveWallet);
+  ipcMain.handle("settings:saveChannel", settings.saveChannel);
   ipcMain.handle("settings:getStoreValue", settings.getStoreValue);
-  ipcMain.handle("settings:selectAddress", settings.selectAddress);
-  ipcMain.handle("settings:deleteAddress", settings.deleteAddress);
+  ipcMain.handle("settings:selectWallet", settings.selectWallet);
+  ipcMain.handle("settings:deleteWallet", settings.deleteWallet);
   ipcMain.handle("settings:getCurrentWallet", settings.getCurrentWallet);
+  ipcMain.handle("settings:initializeWalletList", settings.initializeWalletList);
+  ipcMain.handle("settings:initializeChannelList", settings.initializeChannelList);
   ipcMain.handle("fileio:selectFile", fileIO.selectFile);
   ipcMain.handle("fileio:openFile", fileIO.openFile);
   ipcMain.handle("fileio:saveFile", fileIO.saveFile);

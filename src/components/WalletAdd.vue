@@ -2,13 +2,13 @@
   <div class="modal is-active">
     <div class="modal-background" @click="$emit('onClose')"></div>
     <div class="modal-card">
-      <AddressAddSelect
+      <WalletAddSelect
         v-if="viewShow == 'select'"
         @on-close="$emit('onClose')"
         @on-create="onCreate"
         @on-import="viewShow = 'import'"
       />
-      <AddressAddNew
+      <WalletAddNew
         v-if="viewShow == 'new'"
         :address="address"
         :mnemonic="mnemonic"
@@ -16,7 +16,7 @@
         @on-back="viewShow = 'select'"
         @on-next="viewShow = 'confirm'"
       />
-      <AddressAddConfirm
+      <WalletAddConfirm
         v-if="viewShow == 'confirm'"
         :address="address"
         :mnemonic="mnemonic"
@@ -24,7 +24,7 @@
         @on-close="$emit('onClose')"
         @on-confirm="confirmMnemonic"
       />
-      <AddressAddImport
+      <WalletAddImport
         v-if="viewShow == 'import'"
         @on-back="viewShow = 'select'"
         @on-close="$emit('onClose')"
@@ -34,16 +34,16 @@
   </div>
 </template>
 <script>
-import AddressAddSelect from "@/components/AddressAddSelect.vue";
-import AddressAddNew from "@/components/AddressAddNew.vue";
-import AddressAddConfirm from "@/components/AddressAddConfirm.vue";
-import AddressAddImport from "@/components/AddressAddImport.vue";
+import WalletAddSelect from "@/components/WalletAddSelect.vue";
+import WalletAddNew from "@/components/WalletAddNew.vue";
+import WalletAddConfirm from "@/components/WalletAddConfirm.vue";
+import WalletAddImport from "@/components/WalletAddImport.vue";
 export default {
   components: {
-    AddressAddSelect,
-    AddressAddNew,
-    AddressAddConfirm,
-    AddressAddImport,
+    WalletAddSelect,
+    WalletAddNew,
+    WalletAddConfirm,
+    WalletAddImport,
   },
   data() {
     return {
