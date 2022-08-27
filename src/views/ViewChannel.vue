@@ -4,7 +4,7 @@
       <nav class="level">
         <div class="level-left">
           <div class="level-item">
-            <h2 class="is-size-3">Name of channel</h2>
+            <h2 class="is-size-3" v-if="this.channel">{{ this.channel.name }}</h2>
           </div>
         </div>
         <div class="level-right">
@@ -137,6 +137,7 @@ export default {
       faFileUp: faFileArrowUp,
       faCloudDown: faCloudArrowDown,
       faCloudUp: faCloudArrowUp,
+      channel: null,
       messageError: "",
       messageInfo: "",
       nftMintOpen: false,
@@ -157,7 +158,7 @@ export default {
         .then((result) => {
           let wallet = new Wallet(result.mnemonic);
           this.messageInfo = "Minting NFTs...";
-          return secret.mintNFT(wallet, this.$route.params.address);
+          return secret.mintNFT(wallet, this.$route.params.channelAddress);
         })
         .then((result) => {
           this.messageInfo = `Minting successful! Status: "${result.response.status}"`;
@@ -294,6 +295,11 @@ export default {
   async mounted() {
     this.showSpinnerFiles = new Array(this.items.length).fill(false);
     this.showSpinnerUploads = new Array(this.items.length).fill(false);
+    window.settings.getChannel(this.$route.params.address)
+      .then((channel) => {
+        this.channel = channel;
+        console.log('channel', channel);
+      });
     this.items = [
       {
         cid: "QmdGT7km3oYaRuqR15rde1FjeN4fmPSQRhFFaPTuvGykZF",

@@ -15,11 +15,11 @@ async function initializeWalletList(event, walletJSON) {
     for (let key in walletJSON) {
       walletList = walletList.concat(
         {
-        public: walletJSON[key].public,
-        private: walletJSON[key].private,
-        mnemonic: walletJSON[key].mnemonic,
-        selected: walletJSON[key].default,
-      });
+          public: walletJSON[key].public,
+          private: walletJSON[key].private,
+          mnemonic: walletJSON[key].mnemonic,
+          selected: walletJSON[key].default,
+        });
     }
     console.log(walletList);
     store.set(WALLET_LIST, walletList);
@@ -28,15 +28,15 @@ async function initializeWalletList(event, walletJSON) {
 
 async function initializeChannelList(event, channelJSON) {
   if (!store.has(CHANNEL_LIST)) {
- 
+
     let channelList = [];
     for (let key in channelJSON) {
       channelList = channelList.concat(
         {
-        address: channelJSON[key].address,
-        name: channelJSON[key].name,
-        cid: channelJSON[key].cid,
-      });
+          address: channelJSON[key].address,
+          name: channelJSON[key].name,
+          cid: channelJSON[key].cid,
+        });
     }
     console.log(channelList);
     store.set(CHANNEL_LIST, channelList);
@@ -69,6 +69,21 @@ async function saveChannel(event, channelAddress, nickname) {
     ];
     store.set(CHANNEL_LIST, channelList);
   }
+}
+
+async function getChannel(event, address) {
+  return getStoreValue(CHANNEL_LIST)
+    .then((result) => {
+      for (let index in result.channelList) {
+        let channel = result.channelList[index];
+        if (channel.address == address) {
+          return channel;
+        }
+      }
+    })
+    .catch((err) => {
+      console.log(`Error editing channels with error <${err}>`);
+    });
 }
 
 async function saveWallet(event, publicAddress, privateAddress, mnemonic) {
@@ -145,9 +160,9 @@ async function getCurrentWallet() {
           console.log(`Error loading wallets with error <${err}>`);
           reject(err);
         });
-      } else {
-        console.log('You have no wallets yet.');
-      }
+    } else {
+      console.log('You have no wallets yet.');
+    }
   });
 }
 
@@ -156,6 +171,7 @@ const utilSettings = {
   initializeWalletList,
   initializeChannelList,
   saveChannel,
+  getChannel,
   saveWallet,
   selectWallet,
   deleteWallet,

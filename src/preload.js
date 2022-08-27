@@ -6,6 +6,8 @@ contextBridge.exposeInMainWorld("settings", {
     ipcRenderer.invoke("settings:saveWallet", address, mnemonic),
   saveChannel: (channelAddress, nickname) =>
     ipcRenderer.invoke("settings:saveChannel", channelAddress, nickname),
+  getChannel: (channelAddress) =>
+    ipcRenderer.invoke("settings:getChannel", channelAddress),
   selectWallet: (wallet) =>
     ipcRenderer.invoke("settings:selectWallet", wallet),
   deleteWallet: (wallet) =>

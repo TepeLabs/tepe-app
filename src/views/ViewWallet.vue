@@ -16,11 +16,7 @@
             </th>
           </tr>
         </thead>
-        <tbody
-          v-for="(wallet, index) in walletList"
-          :key="wallet.public"
-          @click="displayWalletEdit(index)"
-        >
+        <tbody v-for="(wallet, index) in walletList" :key="wallet.public" @click="displayWalletEdit(index)">
           <tr>
             <td class="is-vcentered has-text-centered">
               <font-awesome-icon :icon="faCheck" v-if="wallet.selected" />
@@ -37,28 +33,15 @@
       </table>
     </div>
   </div>
-  <div class="columns is-centered" v-if="!hasWalletList">
+  <div class="columns is-centered mt-4" v-if="!hasWalletList">
     <div class="column is-three-quarters has-text-centered">
       <button class="button" @click="walletCreateOpen = true">Create new wallet</button>
     </div>
   </div>
-  <WalletAdd
-    v-if="walletCreateOpen"
-    :address="walletAddressNew"
-    :mnemonic="mnemonicNew"
-    @on-create="onWalletCreate"
-    @on-close="walletCreateOpen = false"
-    @on-confirm="saveNewWallet"
-    @on-import="importMnemonic"
-  />
-  <WalletEdit
-    v-if="walletEditOpen"
-    :address="walletEdit"
-    :is-selected="walletEditIsSelected"
-    @on-close="walletEditOpen = false"
-    @on-select="selectWallet"
-    @on-delete="deleteWallet"
-  />
+  <WalletAdd v-if="walletCreateOpen" :address="walletAddressNew" :mnemonic="mnemonicNew" @on-create="onWalletCreate"
+    @on-close="walletCreateOpen = false" @on-confirm="saveNewWallet" @on-import="importMnemonic" />
+  <WalletEdit v-if="walletEditOpen" :address="walletEdit" :is-selected="walletEditIsSelected"
+    @on-close="walletEditOpen = false" @on-select="selectWallet" @on-delete="deleteWallet" />
 </template>
 <script>
 import WalletAdd from "@/components/WalletAdd.vue";

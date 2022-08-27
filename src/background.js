@@ -41,6 +41,7 @@ async function createWindow() {
 function connectIPC() {
   ipcMain.handle("settings:saveWallet", settings.saveWallet);
   ipcMain.handle("settings:saveChannel", settings.saveChannel);
+  ipcMain.handle("settings:getChannel", settings.getChannel);
   ipcMain.handle("settings:getStoreValue", settings.getStoreValue);
   ipcMain.handle("settings:selectWallet", settings.selectWallet);
   ipcMain.handle("settings:deleteWallet", settings.deleteWallet);
