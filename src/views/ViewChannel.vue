@@ -296,7 +296,7 @@ export default {
     this.showSpinnerFiles = new Array(this.items.length).fill(false);
     this.showSpinnerUploads = new Array(this.items.length).fill(false);
     window.settings.getCurrentWallet()
-      .then((wallet) => window.settings.getChannel(wallet.address, this.$route.params.address))
+      .then((wallet) => window.settings.getChannel(wallet.public, this.$route.params.address))
       .then((channel) => {
         this.channel = channel;
         console.log('channel', channel);

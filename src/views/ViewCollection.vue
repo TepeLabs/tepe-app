@@ -74,7 +74,7 @@ export default {
           let result = `random_secret_address_${Date.now()}`;
           console.log(`contract address ${result}`);
           // save address to cache
-          window.settings.saveChannel(wallet.address, result, name);
+          window.settings.saveChannel(wallet.public, result, name);
           this.loadChannelList();
           // query channels for account - update
           this.messageInfo = `Channel created with address ${result}!`;
@@ -102,7 +102,7 @@ export default {
     },
     loadChannelList() {
       window.settings.getCurrentWallet()
-        .then((wallet) => window.settings.getChannels(wallet.address))
+        .then((wallet) => window.settings.getChannels(wallet.public))
         .then((result) => {
           this.channelList = result;
         })
