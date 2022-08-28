@@ -114,8 +114,7 @@ export default {
       this.walletCreateOpen = false;
     },
     loadWalletList() {
-      window.settings
-        .getStoreValue("walletList")
+      window.settings.getAllWallets()
         .then((result) => {
           this.walletList = result;
         })

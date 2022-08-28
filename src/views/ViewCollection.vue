@@ -36,8 +36,7 @@
       </div>
     </div>
   </div>
-  <ChannelCreate v-if="channelCreateOpen" :channel="channelSelected" @on-close="channelCreateOpen = false"
-    @on-create="createChannel" />
+  <ChannelCreate v-if="channelCreateOpen" @on-close="channelCreateOpen = false" @on-create="createChannel" />
   <MessageError v-if="messageError.length > 0" :message="messageError" @on-close="messageError = ''" />
   <MessageInfo v-if="messageInfo.length > 0" :message="messageInfo" @on-close="messageInfo = ''" />
 </template>
@@ -64,20 +63,18 @@ export default {
   },
   methods: {
     createChannel(name) {
-      window.settings
-        .getCurrentWallet()
-        .then(() => {
-          // let wallet = new Wallet(result.mnemonic);
-          // let label = `${wallet.address}_${Date.now()}_${name}`;
-          this.messageInfo = "Creating channel...";
-          // return secret.instantiateContract(wallet, label);
-          return new Promise(resolve => setTimeout(resolve, 1000));
-        })
-        .then(() => {
+      window.settings.getCurrentWallet()
+        // .then((wallet) => {
+        //   let wallet = new Wallet(result.mnemonic);
+        //   let label = `${wallet.address}_${Date.now()}_${name}`;
+        //   this.messageInfo = "Creating channel...";
+        //   return secret.instantiateContract(wallet, label);
+        // })
+        .then((wallet) => {
           let result = `random_secret_address_${Date.now()}`;
           console.log(`contract address ${result}`);
           // save address to cache
-          window.settings.saveChannel(result, name);
+          window.settings.saveChannel(wallet.address, result, name);
           this.loadChannelList();
           // query channels for account - update
           this.messageInfo = `Channel created with address ${result}!`;
@@ -104,8 +101,8 @@ export default {
       this.$router.push(`/channel/${this.channelList[index].address}`);
     },
     loadChannelList() {
-      window.settings
-        .getStoreValue("channelList")
+      window.settings.getCurrentWallet()
+        .then((wallet) => window.settings.getChannels(wallet.address))
         .then((result) => {
           this.channelList = result;
         })
@@ -120,6 +117,5 @@ export default {
     window.settings.initializeChannelList(sourceData.channels);
     this.loadChannelList();
   },
-
 };
 </script>
