@@ -9,6 +9,9 @@
         </div>
         <div class="level-right">
           <div class="level-item">
+            <button class="button" @click="nftSetOpen = true">Set data</button>
+          </div>
+          <div class="level-item">
             <button class="button" @click="refresh()">Refresh</button>
           </div>
           <div class="level-item">
@@ -97,6 +100,7 @@
     </div>
   </div>
   <NFTMint v-if="nftMintOpen" @on-close="nftMintOpen = false" @on-mint="mintNFT" />
+  <NFTSet v-if="nftSetOpen" @on-close="nftSetOpen = false" @on-set="mintNFT" />
   <MessageError v-if="messageError.length > 0" :message="messageError" @on-close="messageError = ''" />
   <MessageInfo v-if="messageInfo.length > 0" :message="messageInfo" @on-close="messageInfo = ''" />
   <FileView v-if="viewFile" :content="contentView" @on-close="viewFile = false" />
@@ -107,6 +111,7 @@ import ipfs from "@/utils/UtilIPFS";
 import crypto from "@/utils/UtilCrypto";
 import { Wallet } from "secretjs";
 import NFTMint from "@/components/NFTMint.vue";
+import NFTSet from "@/components/NFTSet.vue";
 import MessageError from "@/components/MessageError.vue";
 import MessageInfo from "@/components/MessageInfo.vue";
 import FileView from "@/components/FileView.vue";
@@ -124,7 +129,7 @@ import {
   faCloudArrowUp,
 } from "@fortawesome/free-solid-svg-icons";
 export default {
-  components: { FontAwesomeIcon, NFTMint, MessageError, MessageInfo, FileView },
+  components: { FontAwesomeIcon, NFTMint, MessageError, MessageInfo, FileView, NFTSet },
   data() {
     return {
       faPlus: faPlus,
@@ -141,6 +146,7 @@ export default {
       messageError: "",
       messageInfo: "",
       nftMintOpen: false,
+      nftSetOpen: false,
       viewFile: false,
       showSpinnerFiles: [],
       showSpinnerUploads: [],
