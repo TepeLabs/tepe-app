@@ -4,10 +4,13 @@
       <nav class="level">
         <div class="level-left">
           <div class="level-item">
-            <h2 class="is-size-3">Name of channel</h2>
+            <h2 class="is-size-3" v-if="this.channel">{{ this.channel.name }}</h2>
           </div>
         </div>
         <div class="level-right">
+          <div class="level-item">
+            <button class="button" @click="nftSetOpen = true">Set data</button>
+          </div>
           <div class="level-item">
             <button class="button" @click="refresh()">Refresh</button>
           </div>
@@ -97,6 +100,7 @@
     </div>
   </div>
   <NFTMint v-if="nftMintOpen" @on-close="nftMintOpen = false" @on-mint="mintNFT" />
+  <NFTSet v-if="nftSetOpen" @on-close="nftSetOpen = false" @on-set="mintNFT" />
   <MessageError v-if="messageError.length > 0" :message="messageError" @on-close="messageError = ''" />
   <MessageInfo v-if="messageInfo.length > 0" :message="messageInfo" @on-close="messageInfo = ''" />
   <FileView v-if="viewFile" :content="contentView" @on-close="viewFile = false" />
@@ -107,6 +111,7 @@ import ipfs from "@/utils/UtilIPFS";
 import crypto from "@/utils/UtilCrypto";
 import { Wallet } from "secretjs";
 import NFTMint from "@/components/NFTMint.vue";
+import NFTSet from "@/components/NFTSet.vue";
 import MessageError from "@/components/MessageError.vue";
 import MessageInfo from "@/components/MessageInfo.vue";
 import FileView from "@/components/FileView.vue";
@@ -124,7 +129,7 @@ import {
   faCloudArrowUp,
 } from "@fortawesome/free-solid-svg-icons";
 export default {
-  components: { FontAwesomeIcon, NFTMint, MessageError, MessageInfo, FileView },
+  components: { FontAwesomeIcon, NFTMint, MessageError, MessageInfo, FileView, NFTSet },
   data() {
     return {
       faPlus: faPlus,
@@ -137,9 +142,11 @@ export default {
       faFileUp: faFileArrowUp,
       faCloudDown: faCloudArrowDown,
       faCloudUp: faCloudArrowUp,
+      channel: null,
       messageError: "",
       messageInfo: "",
       nftMintOpen: false,
+      nftSetOpen: false,
       viewFile: false,
       showSpinnerFiles: [],
       showSpinnerUploads: [],
@@ -157,7 +164,7 @@ export default {
         .then((result) => {
           let wallet = new Wallet(result.mnemonic);
           this.messageInfo = "Minting NFTs...";
-          return secret.mintNFT(wallet, this.$route.params.address);
+          return secret.mintNFT(wallet, this.$route.params.channelAddress);
         })
         .then((result) => {
           this.messageInfo = `Minting successful! Status: "${result.response.status}"`;
@@ -294,6 +301,12 @@ export default {
   async mounted() {
     this.showSpinnerFiles = new Array(this.items.length).fill(false);
     this.showSpinnerUploads = new Array(this.items.length).fill(false);
+    window.settings.getCurrentWallet()
+      .then((wallet) => window.settings.getChannel(wallet.public, this.$route.params.address))
+      .then((channel) => {
+        this.channel = channel;
+        console.log('channel', channel);
+      });
     this.items = [
       {
         cid: "QmdGT7km3oYaRuqR15rde1FjeN4fmPSQRhFFaPTuvGykZF",
