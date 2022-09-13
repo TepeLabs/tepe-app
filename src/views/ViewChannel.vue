@@ -9,9 +9,6 @@
         </div>
         <div class="level-right">
           <div class="level-item">
-            <button class="button" @click="nftSetOpen = true">Set data</button>
-          </div>
-          <div class="level-item">
             <button class="button" @click="refresh()">Refresh</button>
           </div>
           <div class="level-item">
@@ -113,7 +110,6 @@
     </div>
   </div>
   <NFTMint v-if="nftMintOpen" @on-close="nftMintOpen = false" @on-mint="mintNFT" />
-
   <SetMetadata v-if="setMetadataOpen" @on-close="setMetadataOpen = false" @on-set-metadata="setMetadata" />
   <MessageError v-if="messageError.length > 0" :message="messageError" @on-close="messageError = ''" />
   <MessageInfo v-if="messageInfo.length > 0" :message="messageInfo" @on-close="messageInfo = ''" />

@@ -49,8 +49,8 @@
 import ChannelCreate from "@/components/ChannelCreate.vue";
 import MessageError from "@/components/MessageError.vue";
 import MessageInfo from "@/components/MessageInfo.vue";
-// import secret from "@/utils/UtilSecret";
-// import { Wallet } from "secretjs";
+import secret from "@/utils/UtilSecret";
+import { Wallet } from "secretjs";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { faPlus, faCircleDot } from "@fortawesome/free-solid-svg-icons";
 import sourceData from "@/assets/data.json";
@@ -69,20 +69,19 @@ export default {
   methods: {
     createChannel(name) {
       window.settings.getCurrentWallet()
-        // .then((wallet) => {
-        //   let wallet = new Wallet(result.mnemonic);
-        //   let label = `${wallet.address}_${Date.now()}_${name}`;
-        //   this.messageInfo = "Creating channel...";
-        //   return secret.instantiateContract(wallet, label);
-        // })
         .then((wallet) => {
-          let result = `random_secret_address_${Date.now()}`;
-          console.log(`contract address ${result}`);
-          // save address to cache
-          window.settings.saveChannel(wallet.public, result, name);
-          this.loadChannelList();
-          // query channels for account - update
-          this.messageInfo = `Channel created with address ${result}!`;
+          let label = `${wallet.address}_${Date.now()}_${name}`;
+          this.messageInfo = "Creating channel...";
+          let secretjs_wallet_object = new Wallet(wallet.mnemonic);
+          secret.instantiateContract(secretjs_wallet_object, label)
+          .then((channelAddress) => {
+            console.log(`contract address ${channelAddress}`);
+            this.messageInfo = `Channel created with address ${channelAddress}!`;
+            // save address to cache
+            window.settings.saveChannel(wallet.public, channelAddress, name);
+            this.loadChannelList();
+            // query channels for account - update
+          })
         })
         .catch((error) => {
           console.error(`Contract instantiation failed with error "${error}."`);
@@ -103,11 +102,12 @@ export default {
       this.channelCreateOpen = false;
     },
     importChannel(importName, channelAddress) {
-      
-      window.settings.saveChannel(channelAddress, importName);
-      this.loadChannelList();
-      // query channels for account - update
-      this.messageInfo = `Channel import with address ${channelAddress}!`;
+      window.settings.getCurrentWallet().then((wallet) => {
+        window.settings.saveChannel(wallet.public, channelAddress, importName);
+        this.loadChannelList();
+        // query channels for account - update
+        this.messageInfo = `Channel import with address ${channelAddress}!`;
+      })
       this.channelCreateOpen = false;
     },
     openChannel(index) {
