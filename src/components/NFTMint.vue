@@ -8,19 +8,30 @@
       </header>
       <section class="modal-card-body">
         <div class="field has-addons has-addons-centered">
+          <div class="control">
+            <input
+              class="input"
+              type="text"
+              v-model="recipientAddress"
+              placeholder="Recipient Address"
+              @keyup.enter="$emit('onMint', recipientAddress, number)"
+            />
+            Leave blank to mint to yourself.
+          </div>
           <div class="control has-icons-left">
             <input
               class="input"
               type="number"
               v-model="number"
-              @keyup.enter="$emit('onMint', name)"
+              placeholder="Number to mint"
+              @keyup.enter="$emit('onMint', recipientAddress, number)"
             />
             <span class="icon is-medium is-left">
               <FontAwesomeIcon :icon="faHashtag" />
             </span>
           </div>
           <div class="control">
-            <a class="button is-success" @click="$emit('onMint', name)"> Create </a>
+            <a class="button is-success" @click="$emit('onMint', recipientAddress, number)"> Create </a>
           </div>
         </div>
       </section>
@@ -36,7 +47,7 @@ export default {
   data() {
     return {
       faHashtag: faHashtag,
-      name: "",
+      recipientAddress: "",
       number: 1,
     };
   },
