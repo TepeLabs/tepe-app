@@ -14,6 +14,12 @@
           <div class="level-item">
             <button class="button" @click="nftMintOpen = true">Mint</button>
           </div>
+          <div class="level-item">
+            <button class="button" @click="setMetadataOpen = true">Set metadata</button>
+          </div>
+          <div class="level-item">
+            <button class="button" @click="retrieveMetadata()">Read metadata</button>
+          </div>
         </div>
       </nav>
     </div>
@@ -61,6 +67,13 @@
   </div>
   <div class="columns is-centered" v-if="items.length > 0">
     <div class="column is-three-quarters">
+      <p>Public metadata: {{this.publicMetadata}}</p>
+      <p>Private metadata: {{this.privateMetadata}}</p>
+    </div>
+  </div>
+
+  <div class="columns is-centered" v-if="items.length > 0">
+    <div class="column is-three-quarters">
       <strong class="is-size-5">Files</strong>
       <li v-for="(item, index) in items" :key="item.cid" style="list-style-type: none">
         [{{ item.cid }}]
@@ -97,6 +110,7 @@
     </div>
   </div>
   <NFTMint v-if="nftMintOpen" @on-close="nftMintOpen = false" @on-mint="mintNFT" />
+  <SetMetadata v-if="setMetadataOpen" @on-close="setMetadataOpen = false" @on-set-metadata="setMetadata" />
   <MessageError v-if="messageError.length > 0" :message="messageError" @on-close="messageError = ''" />
   <MessageInfo v-if="messageInfo.length > 0" :message="messageInfo" @on-close="messageInfo = ''" />
   <FileView v-if="viewFile" :content="contentView" @on-close="viewFile = false" />
@@ -107,6 +121,7 @@ import ipfs from "@/utils/UtilIPFS";
 import crypto from "@/utils/UtilCrypto";
 import { Wallet } from "secretjs";
 import NFTMint from "@/components/NFTMint.vue";
+import SetMetadata from "@/components/SetMetadata.vue";
 import MessageError from "@/components/MessageError.vue";
 import MessageInfo from "@/components/MessageInfo.vue";
 import FileView from "@/components/FileView.vue";
@@ -124,7 +139,7 @@ import {
   faCloudArrowUp,
 } from "@fortawesome/free-solid-svg-icons";
 export default {
-  components: { FontAwesomeIcon, NFTMint, MessageError, MessageInfo, FileView },
+  components: { FontAwesomeIcon, NFTMint, SetMetadata, MessageError, MessageInfo, FileView },
   data() {
     return {
       faPlus: faPlus,
@@ -139,7 +154,10 @@ export default {
       faCloudUp: faCloudArrowUp,
       messageError: "",
       messageInfo: "",
+      publicMetadata: "",
+      privateMetadata: "",
       nftMintOpen: false,
+      setMetadataOpen: false,
       viewFile: false,
       showSpinnerFiles: [],
       showSpinnerUploads: [],
@@ -162,8 +180,9 @@ export default {
           }
           this.messageInfo = "Minting NFTs...";
           console.log(`Minting ${number} NFT(s) to address ${recipientAddress}.`)
+          let contractAddress = this.$route.params.address;
 
-          secret.mintNFT(wallet, this.$route.params.address, recipientAddress, number).then((mintResult) => {
+          secret.mintNFT(wallet, contractAddress, recipientAddress, number).then((mintResult) => {
             this.messageInfo = `Minting successful! Status: "${mintResult}"`;
             console.log(`Minted NFT with result "${mintResult[0]}"`);
           }).catch((error) => {
@@ -292,6 +311,41 @@ export default {
       ipfs.uploadFile("/Users/harang-mbp-22/Downloads/hi.txt")
         .then((response) => console.log("upload response", response))
         .catch((error) => console.log(error));
+    },
+    retrieveMetadata() {
+      window.settings
+        .getCurrentWallet()
+        .then((result) => {
+          let wallet = new Wallet(result.mnemonic);
+          this.messageInfo = "Retrieving metadata...";
+          let contractAddress = this.$route.params.address;
+          secret.retrieveMetadata(wallet, contractAddress).then((retrieveMetadataResult) => {
+            this.messageInfo = `Retrieve metadata was successful! Status: "${retrieveMetadataResult}"`;
+            console.log(`retrieve metadata with result "${retrieveMetadataResult}"`);
+            this.publicMetadata = retrieveMetadataResult.public_metadata.text;
+            this.privateMetadata = retrieveMetadataResult.private_metadata.text;
+          }).catch((error) => {
+          this.messageError = error.message;
+          console.error(`retrieving metadata failed with error ${error}.`);
+        })});
+    },
+    setMetadata(public_metadata, private_metadata) {
+      this.setMetadataOpen = false;
+      window.settings
+        .getCurrentWallet()
+        .then((result) => {
+          let wallet = new Wallet(result.mnemonic);
+          this.messageInfo = "Setting metadata...";
+          let contractAddress = this.$route.params.address;
+          secret.setMetadata(wallet, contractAddress, public_metadata, private_metadata).then((setMetadataResult) => {
+            this.messageInfo = `Set metadata was successful! Status: "${setMetadataResult}"`;
+            console.log(`set metadata with result "${setMetadataResult}"`);
+          }).catch((error) => {
+          this.messageError = error.message;
+          console.error(`Setting metadata failed with error ${error}.`);
+        })});
+      this.setMetadataOpen = false;
+
     },
   },
   async mounted() {

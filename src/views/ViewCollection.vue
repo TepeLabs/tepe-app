@@ -44,6 +44,7 @@
     v-if="channelCreateOpen"
     @on-close="channelCreateOpen = false"
     @on-create="createChannel"
+    @on-import="importChannel"
   />
   <MessageError
     v-if="messageError.length > 0"
@@ -99,6 +100,14 @@ export default {
           console.error(`Contract instantiation failed with error "${error}."`);
           this.messageError = error.message;
         });
+      this.channelCreateOpen = false;
+    },
+    importChannel(importName, channelAddress) {
+      
+      window.settings.saveChannel(channelAddress, importName);
+      this.loadChannelList();
+      // query channels for account - update
+      this.messageInfo = `Channel import with address ${channelAddress}!`;
       this.channelCreateOpen = false;
     },
     openChannel(index) {

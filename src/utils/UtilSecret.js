@@ -1,11 +1,12 @@
 import { SecretNetworkClient } from "secretjs";
-
+import { MsgExecuteContractResponse } from "secretjs/dist/protobuf_stuff/secret/compute/v1beta1/msg";
+import { fromUtf8 } from "@cosmjs/encoding";
 const CHAINID = "pulsar-2";
 const GRPC_WEBURL = "https://grpc.testnet.secretsaturn.net";
-// For contract code ID 11010, the first SNIP721 olive contract
+// For contract code ID 12339, the olive contract v0.3
 const CONTRACT_CODE_HASH =
-  "0x0d938470cb089b1f58b1add2e398aa6dbc3d70b5410e30676bda688b777afda3";
-const CONTRACT_CODE_ID = "11010";
+  "1a6a70d1bd2b4923f94c677ae5a1fd34710062f1cf8d86a2ab48b5427e30905c";
+const CONTRACT_CODE_ID = "12405";
 
 async function getClient(wallet) {
   const client = await SecretNetworkClient.create({
@@ -31,15 +32,16 @@ async function instantiateContract(wallet, label) {
 
         "config": {
           "public_token_supply": true,  // optional; default: false
-          "public_owner": true,  // optional; default: false
+          "public_owners": true,  // optional; default: false
           "minter_may_update_metadata": true,  // optional; default: true
+          "transferable": true,
         }
 
       },
       label: label,
     },
     {
-      gasLimit: 300_000,
+      gasLimit: 500_000,
     }
   );
   if (resultInstantiate.code != 0) {
@@ -78,11 +80,32 @@ async function setMetadata(wallet, contractAddress, publicMetadata, privateMetad
       gasLimit: 200_000,
     }
   );
-  let payload = resultSet.data;
-  let string = new TextDecoder().decode(payload[0]);
-  console.log("\n\nSet metadata response:", JSON.parse(string), "\n\n");
+  let response = fromUtf8(MsgExecuteContractResponse.decode(resultSet.data[0]).data);
+
+  console.log("\n\nSet metadata response:", JSON.parse(response).set_metadata, "\n\n");
   console.log("Gas used:", resultSet.gasUsed); 
   console.log("Fee:", resultSet.tx.authInfo.fee.amount[0].amount);
+}
+
+async function retrieveMetadata(wallet, contractAddress) {
+  const client = await getClient(wallet);
+  const resultRetrieve = await client.tx.compute.executeContract(
+    {
+      sender: wallet.address,
+      contractAddress: contractAddress,
+      codeHash: CONTRACT_CODE_HASH,
+      msg:  { retrieve_metadata: { } }
+    },
+    {
+      gasLimit: 400_000,
+    }
+  );
+  let response = fromUtf8(MsgExecuteContractResponse.decode(resultRetrieve.data[0]).data);
+
+  console.log("\n\nRetrieve metadata response:", JSON.parse(response).retrieve_metadata, "\n\n");
+  console.log("Gas used:", resultRetrieve.gasUsed); 
+  console.log("Fee:", resultRetrieve.tx.authInfo.fee.amount[0].amount);
+  return JSON.parse(response).retrieve_metadata;
 }
 
 async function mintNFT(wallet, contractAddress, recipientAddress, number) {
@@ -92,7 +115,6 @@ async function mintNFT(wallet, contractAddress, recipientAddress, number) {
     mintList = mintList.concat(
     {
       owner: recipientAddress,
-      transferable: true,
     })
   }
   const resultMint = await client.tx.compute.executeContract(
@@ -103,16 +125,31 @@ async function mintNFT(wallet, contractAddress, recipientAddress, number) {
       msg: { batch_mint_nft: { mints: mintList } },
     },
     {
-      gasLimit: 100_000,
+      gasLimit: 400_000,
     }
   );
-  let payload = resultMint.data;
-  let response = new TextDecoder().decode(payload[0]);
-  console.log(response);
-  console.log("\n\nMintNft response:", JSON.parse(response), "\n\n");
+  let response = fromUtf8(MsgExecuteContractResponse.decode(resultMint.data[0]).data);
+
+  console.log("\n\nMintNft response:", JSON.parse(response).batch_mint_nft, "\n\n");
   console.log("Gas used:", resultMint.gasUsed);
   console.log("Fee:", resultMint.tx.authInfo.fee.amount[0].amount);
-  return JSON.parse(response);
+
+  // Check the list of owners; output to the console
+  const resultRetrieveOwners = await client.tx.compute.executeContract(
+    {
+      sender: wallet.address,
+      contractAddress: contractAddress,
+      codeHash: CONTRACT_CODE_HASH,
+      msg:  { retrieve_owners: { } },
+    },
+    {
+      gasLimit: 500_000,
+    },
+  );
+  let response2 = fromUtf8(MsgExecuteContractResponse.decode(resultRetrieveOwners.data[0]).data);
+  console.log("\n\nOwners:", JSON.parse(response2).retrieve_owners, '\n\n');
+
+  return JSON.parse(response).batch_mint_nft;
 }
 
 async function createViewingKey(wallet, contractAddress) {
@@ -128,12 +165,13 @@ async function createViewingKey(wallet, contractAddress) {
       gasLimit: 100_000,
     },
   );
-  let payload = resultCreateViewingKey.data;
-  let response = new TextDecoder().decode(payload[0]);
-  console.log("\n\nCreate key response:", JSON.parse(response), '\n\n');
+  let response = fromUtf8(MsgExecuteContractResponse.decode(resultCreateViewingKey.data[0]).data);
+
+  console.log("\n\nCreate key response:", JSON.parse(response).create_viewing_key, '\n\n');
+
   console.log("Gas used:", resultCreateViewingKey.gasUsed);
   console.log("Fee:", resultCreateViewingKey.tx.authInfo.fee.amount[0].amount);
-  return JSON.parse(response);
+  return JSON.parse(response).create_viewing_key;
   }
 
 
@@ -155,22 +193,20 @@ async function transferNFT(wallet, contractAddress, recipientAddress, tokenID) {
         gasLimit: 100_000,
       },
     );
-    let payload = resultTransfer.data;
-    let response = new TextDecoder().decode(payload[0]);
-    console.log("\n\nTransfer response:", JSON.parse(response), '\n\n');
+    let response = fromUtf8(MsgExecuteContractResponse.decode(resultTransfer.data[0]).data);
+    console.log("\n\nTransfer response:", JSON.parse(response).transfer_nft, '\n\n');
     console.log("Gas used:", resultTransfer.gasUsed); 
     console.log("Fee:", resultTransfer.tx.authInfo.fee.amount[0].amount);
-    return JSON.parse(response);
+    return JSON.parse(response).transfer_nft;
 }
 
-async function queryNFTDossier(wallet, contractAddress, tokenID, viewingKey) {
+async function queryNFTDossier(wallet, contractAddress, viewingKey) {
   const client = await getClient(wallet);
   const resultQuery = await client.query.compute.queryContract({
       contractAddress: contractAddress,
       codeHash: CONTRACT_CODE_HASH,
       query: { 
         nft_dossier: {
-          token_id: tokenID,
           viewer: {
             address: wallet.address,
             viewing_key: viewingKey,
@@ -185,6 +221,7 @@ async function queryNFTDossier(wallet, contractAddress, tokenID, viewingKey) {
 const utilSecret = {
   instantiateContract,
   setMetadata,
+  retrieveMetadata,
   mintNFT,
   transferNFT,
   queryNFTDossier,
