@@ -4,10 +4,13 @@
       <nav class="level">
         <div class="level-left">
           <div class="level-item">
-            <h2 class="is-size-3">Name of channel</h2>
+            <h2 class="is-size-3" v-if="this.channel">{{ this.channel.name }}</h2>
           </div>
         </div>
         <div class="level-right">
+          <div class="level-item">
+            <button class="button" @click="nftSetOpen = true">Set data</button>
+          </div>
           <div class="level-item">
             <button class="button" @click="refresh()">Refresh</button>
           </div>
@@ -110,6 +113,7 @@
     </div>
   </div>
   <NFTMint v-if="nftMintOpen" @on-close="nftMintOpen = false" @on-mint="mintNFT" />
+
   <SetMetadata v-if="setMetadataOpen" @on-close="setMetadataOpen = false" @on-set-metadata="setMetadata" />
   <MessageError v-if="messageError.length > 0" :message="messageError" @on-close="messageError = ''" />
   <MessageInfo v-if="messageInfo.length > 0" :message="messageInfo" @on-close="messageInfo = ''" />
@@ -121,6 +125,7 @@ import ipfs from "@/utils/UtilIPFS";
 import crypto from "@/utils/UtilCrypto";
 import { Wallet } from "secretjs";
 import NFTMint from "@/components/NFTMint.vue";
+
 import SetMetadata from "@/components/SetMetadata.vue";
 import MessageError from "@/components/MessageError.vue";
 import MessageInfo from "@/components/MessageInfo.vue";
@@ -139,6 +144,7 @@ import {
   faCloudArrowUp,
 } from "@fortawesome/free-solid-svg-icons";
 export default {
+
   components: { FontAwesomeIcon, NFTMint, SetMetadata, MessageError, MessageInfo, FileView },
   data() {
     return {
@@ -152,6 +158,7 @@ export default {
       faFileUp: faFileArrowUp,
       faCloudDown: faCloudArrowDown,
       faCloudUp: faCloudArrowUp,
+      channel: null,
       messageError: "",
       messageInfo: "",
       publicMetadata: "",
@@ -351,6 +358,12 @@ export default {
   async mounted() {
     this.showSpinnerFiles = new Array(this.items.length).fill(false);
     this.showSpinnerUploads = new Array(this.items.length).fill(false);
+    window.settings.getCurrentWallet()
+      .then((wallet) => window.settings.getChannel(wallet.public, this.$route.params.address))
+      .then((channel) => {
+        this.channel = channel;
+        console.log('channel', channel);
+      });
     this.items = [
       {
         cid: "QmdGT7km3oYaRuqR15rde1FjeN4fmPSQRhFFaPTuvGykZF",

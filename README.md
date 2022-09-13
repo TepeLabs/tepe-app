@@ -32,3 +32,6 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 
 [ ] sqlite cache
 [ ] [IPLD](https://ipld.io)
+[x] import wallet
+[ ] address book
+[ ] read and write content
