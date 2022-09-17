@@ -109,7 +109,7 @@ export default {
     },
     importMnemonic(mnemonic) {
       const wallet = new Wallet(mnemonic);
-      window.settings.saveWallet(wallet.address, mnemonic);
+      window.settings.saveWallet(wallet.address, '', mnemonic);
       this.loadWalletList();
       this.walletCreateOpen = false;
     },

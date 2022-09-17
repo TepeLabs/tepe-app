@@ -121,7 +121,6 @@ import ipfs from "@/utils/UtilIPFS";
 import crypto from "@/utils/UtilCrypto";
 import { Wallet } from "secretjs";
 import NFTMint from "@/components/NFTMint.vue";
-
 import SetMetadata from "@/components/SetMetadata.vue";
 import MessageError from "@/components/MessageError.vue";
 import MessageInfo from "@/components/MessageInfo.vue";
@@ -189,9 +188,10 @@ export default {
             this.messageInfo = `Minting successful! Status: "${mintResult}"`;
             console.log(`Minted NFT with result "${mintResult[0]}"`);
           }).catch((error) => {
-          this.messageError = error.message;
-          console.error(`Minting failed with error ${error}.`);
-        })});
+            this.messageError = error.message;
+            console.error(`Minting failed with error ${error}.`);
+          })
+        });
       this.nftMintOpen = false;
     },
     download(item, index) {
@@ -308,12 +308,17 @@ export default {
         });
     },
     refresh() {
-      ipfs.downloadFile("QmdGT7km3oYaRuqR15rde1FjeN4fmPSQRhFFaPTuvGykZF")
-        .then((response) => console.log("download response", response))
-        .catch((error) => console.log(error));
-      ipfs.uploadFile("/Users/harang-mbp-22/Downloads/hi.txt")
-        .then((response) => console.log("upload response", response))
-        .catch((error) => console.log(error));
+      // ipfs.downloadFile("QmdGT7km3oYaRuqR15rde1FjeN4fmPSQRhFFaPTuvGykZF")
+      //   .then((response) => console.log("download response", response))
+      //   .catch((error) => console.log(error));
+      // ipfs.uploadFile("/Users/harang-mbp-22/Downloads/hi.txt")
+      //   .then((response) => console.log("upload response", response))
+      //   .catch((error) => console.log(error));
+      let password = 'password';
+      let encrypted = crypto.encrypt('hello', password);
+      console.log('encrypted text: ', encrypted);
+      let decrypted = crypto.decrypt(encrypted, password);
+      console.log('decrypted text: ', decrypted);
     },
     retrieveMetadata() {
       window.settings
@@ -328,9 +333,10 @@ export default {
             this.publicMetadata = retrieveMetadataResult.public_metadata.text;
             this.privateMetadata = retrieveMetadataResult.private_metadata.text;
           }).catch((error) => {
-          this.messageError = error.message;
-          console.error(`retrieving metadata failed with error ${error}.`);
-        })});
+            this.messageError = error.message;
+            console.error(`retrieving metadata failed with error ${error}.`);
+          })
+        });
     },
     setMetadata(public_metadata, private_metadata) {
       this.setMetadataOpen = false;
@@ -344,9 +350,10 @@ export default {
             this.messageInfo = `Set metadata was successful! Status: "${setMetadataResult}"`;
             console.log(`set metadata with result "${setMetadataResult}"`);
           }).catch((error) => {
-          this.messageError = error.message;
-          console.error(`Setting metadata failed with error ${error}.`);
-        })});
+            this.messageError = error.message;
+            console.error(`Setting metadata failed with error ${error}.`);
+          })
+        });
       this.setMetadataOpen = false;
 
     },
@@ -358,7 +365,7 @@ export default {
       .then((wallet) => window.settings.getChannel(wallet.public, this.$route.params.address))
       .then((channel) => {
         this.channel = channel;
-        console.log('channel', channel);
+        console.log('Mounted: channel is ', channel);
       });
     this.items = [
       {
