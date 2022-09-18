@@ -1,9 +1,12 @@
 import Store from "electron-store";
+import ObservableStore from "obs-store";
+import crypto from "@/utils/UtilCrypto";
 
 const WALLET_LIST = "walletList";
 const ADDRESS_BOOK = "addressBook";
 const CHANNEL_LIST = "channelList";
 const store = new Store();
+const wallet = new ObservableStore({ isUnlocked: false });
 
 async function getStoreValue(key) {
   return store.get(key);
@@ -119,6 +122,29 @@ async function getChannels(event, walletAddress) {
     });
 }
 
+async function walletExists(event) {
+  return store.has(WALLET_LIST);
+}
+
+async function setPassword(event, password) {
+  let json = [];
+  let str = JSON.stringify(json);
+  let bytes = crypto.encrypt(str, password);
+  store.set(WALLET_LIST, bytes);
+}
+
+async function unlockWallet(event, password) {
+  let bytes = await getStoreValue(WALLET_LIST);
+  let decrypted = crypto.decrypt(bytes, password);
+  if (decrypted) {
+    let json = JSON.parse(decrypted);
+    wallet.putState(json);
+    return true;
+  } else {
+    return false;
+  }
+}
+
 async function saveWallet(event, publicAddress, privateAddress, mnemonic) {
   console.log("saving wallet with address " + publicAddress);
   if (store.has(WALLET_LIST)) {
@@ -209,6 +235,9 @@ const utilSettings = {
   saveChannel,
   getChannels,
   getChannel,
+  walletExists,
+  setPassword,
+  unlockWallet,
   saveWallet,
   selectWallet,
   deleteWallet,

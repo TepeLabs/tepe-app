@@ -43,6 +43,9 @@ function connectIPC() {
   ipcMain.handle("settings:saveChannel", settings.saveChannel);
   ipcMain.handle("settings:getChannels", settings.getChannels);
   ipcMain.handle("settings:getChannel", settings.getChannel);
+  ipcMain.handle("settings:unlockWallet", settings.unlockWallet);
+  ipcMain.handle("settings:walletExists", settings.walletExists);
+  ipcMain.handle("settings:setPassword", settings.setPassword);
   ipcMain.handle("settings:selectWallet", settings.selectWallet);
   ipcMain.handle("settings:deleteWallet", settings.deleteWallet);
   ipcMain.handle("settings:getCurrentWallet", settings.getCurrentWallet);

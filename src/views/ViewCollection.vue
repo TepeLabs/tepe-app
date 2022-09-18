@@ -36,14 +36,11 @@
       </div>
     </div>
   </div>
-  <ChannelCreate
-    v-if="channelCreateOpen"
-    @on-close="channelCreateOpen = false"
-    @on-create="createChannel"
-    @on-import="importChannel"
-  />
+  <ChannelCreate v-if="channelCreateOpen" @on-close="channelCreateOpen = false" @on-create="createChannel"
+    @on-import="importChannel" />
   <MessageError v-if="messageError.length > 0" :message="messageError" @on-close="messageError = ''" />
   <MessageInfo v-if="messageInfo.length > 0" :message="messageInfo" @on-close="messageInfo = ''" />
+  <WalletUnlock v-if="walletUnlockOpen" @on-unlock="unlockWallet" />
 </template>
 <script>
 import ChannelCreate from "@/components/ChannelCreate.vue";
@@ -53,15 +50,17 @@ import secret from "@/utils/UtilSecret";
 import { Wallet } from "secretjs";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { faPlus, faCircleDot } from "@fortawesome/free-solid-svg-icons";
-import sourceData from "@/assets/data.json";
+// import sourceData from "@/assets/data.json";
+import WalletUnlock from "../components/WalletUnlock.vue";
 export default {
-  components: { ChannelCreate, MessageError, MessageInfo, FontAwesomeIcon },
+  components: { ChannelCreate, MessageError, MessageInfo, FontAwesomeIcon, WalletUnlock },
   data() {
     return {
       messageError: "",
       messageInfo: "",
       channelList: "",
       channelCreateOpen: false,
+      walletUnlockOpen: false,
       faPlus: faPlus,
       faCircleDot: faCircleDot,
     };
@@ -74,14 +73,14 @@ export default {
           this.messageInfo = "Creating channel...";
           let secretjs_wallet_object = new Wallet(wallet.mnemonic);
           secret.instantiateContract(secretjs_wallet_object, label)
-          .then((channelAddress) => {
-            console.log(`contract address ${channelAddress}`);
-            this.messageInfo = `Channel created with address ${channelAddress}!`;
-            // save address to cache
-            window.settings.saveChannel(wallet.public, channelAddress, name);
-            this.loadChannelList();
-            // query channels for account - update
-          })
+            .then((channelAddress) => {
+              console.log(`contract address ${channelAddress}`);
+              this.messageInfo = `Channel created with address ${channelAddress}!`;
+              // save address to cache
+              window.settings.saveChannel(wallet.public, channelAddress, name);
+              this.loadChannelList();
+              // query channels for account - update
+            })
         })
         .catch((error) => {
           console.error(`Contract instantiation failed with error "${error}."`);
@@ -123,12 +122,16 @@ export default {
           console.log(`Error loading channels <${err}>.`);
         });
     },
+    unlockWallet() {
+      this.walletUnlockOpen = false;
+      // this.loadChannelList();
+    }
   },
   mounted() {
     console.log("ViewCollection: Mounted.");
-    window.settings.initializeWalletList(sourceData.wallets);
-    window.settings.initializeChannelList(sourceData.channels);
-    this.loadChannelList();
+    // window.settings.initializeWalletList(sourceData.wallets);
+    // window.settings.initializeChannelList(sourceData.channels);
+    this.walletUnlockOpen = true;
   },
 };
 </script>
