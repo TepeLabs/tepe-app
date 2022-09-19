@@ -196,19 +196,15 @@ async function getAllWallets() {
 }
 
 async function getCurrentWallet() {
+  let json = wallet.getState();
+  let keys = json[WALLET_KEY_KEYS];
   return new Promise((resolve, reject) => {
-    if (store.has(WALLET)) {
-      store.get(WALLET)
-        .then((walletList) => {
-          let selectedWallets = walletList.filter((x) => x.selected);
-          resolve(selectedWallets[0]);
-        })
-        .catch((err) => {
-          console.log(`Error loading wallets with error <${err}>`);
-          reject(err);
-        });
+    if (keys.length > 0) {
+      let selectedKey = keys.filter((x) => x.selected);
+      resolve(selectedKey[0]);
     } else {
       console.log('You have no wallets yet.');
+      reject();
     }
   });
 }
