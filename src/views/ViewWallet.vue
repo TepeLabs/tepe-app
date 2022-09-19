@@ -94,7 +94,8 @@ export default {
       this.walletEditOpen = false;
     },
     deleteWallet() {
-      window.settings.deleteWallet(this.walletEdit);
+      window.settings.deleteWallet(this.walletEdit)
+        .then(() => window.settings.saveWallet());
       let toDelete = this.walletList.filter((x) => x.public === this.walletEdit)[0];
       this.walletList = this.walletList.filter((x) => x.public != this.walletEdit);
       if (toDelete.selected) {

@@ -180,18 +180,15 @@ async function selectWallet(event, publicAddress) {
 }
 
 async function deleteWallet(event, publicAddress) {
-  store.get(WALLET)
-    .then((walletList) => {
-      let toDelete = walletList.filter((x) => x.public === publicAddress)[0];
-      let newWallets = walletList.filter((x) => x.public != publicAddress);
-      if (toDelete.selected) {
-        newWallets[0].selected = true;
-      }
-      store.set(WALLET, newWallets);
-    })
-    .catch((err) => {
-      console.log(`Error loading wallets with error <${err}>`);
-    });
+  let json = wallet.getState();
+  let keys = json[WALLET_KEY_KEYS];
+  let toDelete = keys.filter((x) => x.public === publicAddress)[0];
+  let newKeys = keys.filter((x) => x.public != publicAddress);
+  if (toDelete.selected) {
+    newKeys[0].selected = true;
+  }
+  json[WALLET_KEY_KEYS] = newKeys;
+  wallet.putState(json);
 }
 
 async function getAllWallets() {
