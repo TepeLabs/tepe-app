@@ -47,10 +47,10 @@ function connectIPC() {
   ipcMain.handle("settings:setPassword", settings.setPassword);
   ipcMain.handle("settings:addKey", settings.addKey);
   ipcMain.handle("settings:saveWallet", settings.saveWallet);
-  ipcMain.handle("settings:selectWallet", settings.selectWallet);
-  ipcMain.handle("settings:deleteWallet", settings.deleteWallet);
-  ipcMain.handle("settings:getCurrentWallet", settings.getCurrentWallet);
-  ipcMain.handle("settings:getAllWallets", settings.getAllWallets);
+  ipcMain.handle("settings:selectKey", settings.selectKey);
+  ipcMain.handle("settings:deleteKey", settings.deleteKey);
+  ipcMain.handle("settings:getCurrentKey", settings.getCurrentKey);
+  ipcMain.handle("settings:getAllKeys", settings.getAllKeys);
   ipcMain.handle("settings:initializeWalletList", settings.initializeWalletList);
   ipcMain.handle("settings:initializeChannelList", settings.initializeChannelList);
   ipcMain.handle("fileio:selectFile", fileIO.selectFile);

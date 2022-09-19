@@ -11,12 +11,12 @@ contextBridge.exposeInMainWorld("settings", {
   addKey: (publicAddress, privateAddress, mnemonic) =>
     ipcRenderer.invoke("settings:addKey", publicAddress, privateAddress, mnemonic),
   saveWallet: () => ipcRenderer.invoke("settings:saveWallet"),
-  selectWallet: (wallet) =>
-    ipcRenderer.invoke("settings:selectWallet", wallet),
-  deleteWallet: (wallet) =>
-    ipcRenderer.invoke("settings:deleteWallet", wallet),
-  getCurrentWallet: () => ipcRenderer.invoke("settings:getCurrentWallet"),
-  getAllWallets: () => ipcRenderer.invoke("settings:getAllWallets"),
+  selectKey: (key) =>
+    ipcRenderer.invoke("settings:selectKey", key),
+  deleteKey: (key) =>
+    ipcRenderer.invoke("settings:deleteKey", key),
+  getCurrentKey: () => ipcRenderer.invoke("settings:getCurrentKey"),
+  getAllKeys: () => ipcRenderer.invoke("settings:getAllKeys"),
   initializeWalletList: (walletListJSON) => ipcRenderer.invoke("settings:initializeWalletList", walletListJSON),
   initializeChannelList: (channelListJSON) => ipcRenderer.invoke("settings:initializeChannelList", channelListJSON),
 });

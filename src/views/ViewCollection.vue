@@ -67,7 +67,7 @@ export default {
   },
   methods: {
     createChannel(name) {
-      window.settings.getCurrentWallet()
+      window.settings.getCurrentKey()
         .then((wallet) => {
           let label = `${wallet.address}_${Date.now()}_${name}`;
           this.messageInfo = "Creating channel...";
@@ -101,7 +101,7 @@ export default {
       this.channelCreateOpen = false;
     },
     importChannel(importName, channelAddress) {
-      window.settings.getCurrentWallet().then((wallet) => {
+      window.settings.getCurrentKey().then((wallet) => {
         window.settings.saveChannel(wallet.public, channelAddress, importName);
         this.loadChannelList();
         // query channels for account - update
@@ -113,7 +113,7 @@ export default {
       this.$router.push(`/channel/${this.channelList[index].address}`);
     },
     loadChannelList() {
-      window.settings.getCurrentWallet()
+      window.settings.getCurrentKey()
         .then((wallet) => window.settings.getChannels(wallet.public))
         .then((result) => {
           this.channelList = result;

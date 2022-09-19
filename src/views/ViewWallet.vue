@@ -41,7 +41,7 @@
   <WalletAdd v-if="walletCreateOpen" :address="walletAddressNew" :mnemonic="mnemonicNew" @on-create="onWalletCreate"
     @on-close="walletCreateOpen = false" @on-confirm="saveNewWallet" @on-import="importMnemonic" />
   <WalletEdit v-if="walletEditOpen" :address="walletEdit" :is-selected="walletEditIsSelected"
-    @on-close="walletEditOpen = false" @on-select="selectWallet" @on-delete="deleteWallet" />
+    @on-close="walletEditOpen = false" @on-select="selectKey" @on-delete="deleteKey" />
 </template>
 <script>
 import WalletAdd from "@/components/WalletAdd.vue";
@@ -84,8 +84,8 @@ export default {
       this.walletEdit = this.walletList[index].public;
       this.walletEditOpen = true;
     },
-    selectWallet() {
-      window.settings.selectWallet(this.walletEdit)
+    selectKey() {
+      window.settings.selectKey(this.walletEdit)
         .then(() => window.settings.saveWallet());
       this.walletList = this.walletList.map((wallet) => {
         wallet.selected = wallet.public === this.walletEdit;
@@ -93,8 +93,8 @@ export default {
       });
       this.walletEditOpen = false;
     },
-    deleteWallet() {
-      window.settings.deleteWallet(this.walletEdit)
+    deleteKey() {
+      window.settings.deleteKey(this.walletEdit)
         .then(() => window.settings.saveWallet());
       let toDelete = this.walletList.filter((x) => x.public === this.walletEdit)[0];
       this.walletList = this.walletList.filter((x) => x.public != this.walletEdit);
@@ -122,7 +122,7 @@ export default {
         });
     },
     loadWalletList() {
-      window.settings.getAllWallets()
+      window.settings.getAllKeys()
         .then((result) => {
           this.walletList = result;
         })

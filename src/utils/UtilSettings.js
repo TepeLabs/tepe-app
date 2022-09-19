@@ -168,7 +168,7 @@ async function saveWallet(event) {
   store.set(WALLET, bytes);
 }
 
-async function selectWallet(event, publicAddress) {
+async function selectKey(event, publicAddress) {
   let json = wallet.getState();
   let keys = json[WALLET_KEY_KEYS];
   let selectedKeys = keys.map((x) => {
@@ -179,7 +179,7 @@ async function selectWallet(event, publicAddress) {
   wallet.putState(json);
 }
 
-async function deleteWallet(event, publicAddress) {
+async function deleteKey(event, publicAddress) {
   let json = wallet.getState();
   let keys = json[WALLET_KEY_KEYS];
   let toDelete = keys.filter((x) => x.public === publicAddress)[0];
@@ -191,11 +191,11 @@ async function deleteWallet(event, publicAddress) {
   wallet.putState(json);
 }
 
-async function getAllWallets() {
+async function getAllKeys() {
   return wallet.getState(WALLET)[WALLET_KEY_KEYS];
 }
 
-async function getCurrentWallet() {
+async function getCurrentKey() {
   let json = wallet.getState();
   let keys = json[WALLET_KEY_KEYS];
   return new Promise((resolve, reject) => {
@@ -220,10 +220,10 @@ const utilSettings = {
   unlockWallet,
   addKey,
   saveWallet,
-  selectWallet,
-  deleteWallet,
-  getAllWallets,
-  getCurrentWallet,
+  selectKey,
+  deleteKey,
+  getAllKeys,
+  getCurrentKey,
 };
 
 export default utilSettings;
