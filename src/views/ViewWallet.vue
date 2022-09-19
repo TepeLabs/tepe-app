@@ -85,7 +85,8 @@ export default {
       this.walletEditOpen = true;
     },
     selectWallet() {
-      window.settings.selectWallet(this.walletEdit);
+      window.settings.selectWallet(this.walletEdit)
+        .then(() => window.settings.saveWallet());
       this.walletList = this.walletList.map((wallet) => {
         wallet.selected = wallet.public === this.walletEdit;
         return wallet;

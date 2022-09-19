@@ -169,17 +169,14 @@ async function saveWallet(event) {
 }
 
 async function selectWallet(event, publicAddress) {
-  store.get(WALLET)
-    .then((walletList) => {
-      let newlySelectedWallets = walletList.map((x) => {
-        x.selected = x.public === publicAddress;
-        return x;
-      });
-      store.set(WALLET, newlySelectedWallets);
-    })
-    .catch((err) => {
-      console.log(`Error loading wallets with error <${err}>`);
-    });
+  let json = wallet.getState();
+  let keys = json[WALLET_KEY_KEYS];
+  let selectedKeys = keys.map((x) => {
+    x.selected = x.public === publicAddress;
+    return x;
+  });
+  json[WALLET_KEY_KEYS] = selectedKeys;
+  wallet.putState(json);
 }
 
 async function deleteWallet(event, publicAddress) {
