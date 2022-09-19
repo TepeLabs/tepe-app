@@ -5,12 +5,11 @@ import crypto from "@/utils/UtilCrypto";
 const WALLET_LIST = "walletList";
 const ADDRESS_BOOK = "addressBook";
 const CHANNEL_LIST = "channelList";
+const WALLET_KEY_PASSWORD = "password";
+const WALLET_KEY_KEYS = "keys";
+
 const store = new Store();
 const wallet = new ObservableStore({ isUnlocked: false });
-
-async function getStoreValue(key) {
-  return store.get(key);
-}
 
 async function initializeWalletList(event, walletJSON) {
   if (!store.has(WALLET_LIST)) {
@@ -47,7 +46,7 @@ async function initializeChannelList(event, channelJSON) {
 
 async function saveChannel(event, walletAddress, channelAddress, nickname) {
   if (store.has(CHANNEL_LIST)) {
-    getStoreValue(CHANNEL_LIST)
+    store.get(CHANNEL_LIST)
       .then((channelList) => {
         let walletFound = false;
         for (let index in channelList) {
@@ -107,7 +106,7 @@ async function getChannel(event, walletAddress, channelAddress) {
 }
 
 async function getChannels(event, walletAddress) {
-  return getStoreValue(CHANNEL_LIST)
+  return store.get(CHANNEL_LIST)
     .then((channelList) => {
       for (let index in channelList) {
         let channels = channelList[index];
@@ -127,14 +126,14 @@ async function walletExists(event) {
 }
 
 async function setPassword(event, password) {
-  let json = [];
+  let json = { [WALLET_KEY_PASSWORD]: password, [WALLET_KEY_KEYS]: [] };
   let str = JSON.stringify(json);
   let bytes = crypto.encrypt(str, password);
   store.set(WALLET_LIST, bytes);
 }
 
 async function unlockWallet(event, password) {
-  let bytes = await getStoreValue(WALLET_LIST);
+  let bytes = await store.get(WALLET_LIST);
   let decrypted = crypto.decrypt(bytes, password);
   if (decrypted) {
     let json = JSON.parse(decrypted);
@@ -145,10 +144,30 @@ async function unlockWallet(event, password) {
   }
 }
 
+async function addKey(event, publicAddress, privateAddress, mnemonic) {
+  let json = wallet.getState();
+  console.log('got wallet', json);
+  let keys = json[WALLET_KEY_KEYS];
+  console.log('got keys', keys);
+  let deselectedKeys = keys.map((x) => {
+    x.selected = false;
+    return x;
+  });
+  let newKeys = deselectedKeys.concat({
+    public: publicAddress,
+    private: privateAddress,
+    mnemonic: mnemonic,
+    selected: true,
+  });
+  json[WALLET_KEY_KEYS] = newKeys;
+  wallet.putState(json);
+  console.log(wallet.getState());
+}
+
 async function saveWallet(event, publicAddress, privateAddress, mnemonic) {
   console.log("saving wallet with address " + publicAddress);
   if (store.has(WALLET_LIST)) {
-    getStoreValue(WALLET_LIST)
+    store.get(WALLET_LIST)
       .then((walletList) => {
         let deselectedWallets = walletList.map((x) => {
           x.selected = false;
@@ -179,7 +198,7 @@ async function saveWallet(event, publicAddress, privateAddress, mnemonic) {
 }
 
 async function selectWallet(event, publicAddress) {
-  getStoreValue(WALLET_LIST)
+  store.get(WALLET_LIST)
     .then((walletList) => {
       let newlySelectedWallets = walletList.map((x) => {
         x.selected = x.public === publicAddress;
@@ -193,7 +212,7 @@ async function selectWallet(event, publicAddress) {
 }
 
 async function deleteWallet(event, publicAddress) {
-  getStoreValue(WALLET_LIST)
+  store.get(WALLET_LIST)
     .then((walletList) => {
       let toDelete = walletList.filter((x) => x.public === publicAddress)[0];
       let newWallets = walletList.filter((x) => x.public != publicAddress);
@@ -208,13 +227,13 @@ async function deleteWallet(event, publicAddress) {
 }
 
 async function getAllWallets() {
-  return getStoreValue(WALLET_LIST);
+  return wallet.getState(WALLET_LIST)[WALLET_KEY_KEYS];
 }
 
 async function getCurrentWallet() {
   return new Promise((resolve, reject) => {
     if (store.has(WALLET_LIST)) {
-      getStoreValue(WALLET_LIST)
+      store.get(WALLET_LIST)
         .then((walletList) => {
           let selectedWallets = walletList.filter((x) => x.selected);
           resolve(selectedWallets[0]);
@@ -238,6 +257,7 @@ const utilSettings = {
   walletExists,
   setPassword,
   unlockWallet,
+  addKey,
   saveWallet,
   selectWallet,
   deleteWallet,

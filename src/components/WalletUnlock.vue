@@ -43,7 +43,6 @@ export default {
       window.settings.unlockWallet(this.password)
         .then((unlocked) => {
           if (unlocked) {
-            console.log('unlocked');
             this.$emit("onUnlock");
           } else {
             console.log('wrong password');
@@ -58,9 +57,8 @@ export default {
       console.log('settings password', this.password);
       window.settings.setPassword(this.password)
         .then(() => window.settings.unlockWallet(this.password))
-        .then((unlocked) => {
-          console.log('unlocked', unlocked);
-          // this.$emit("onUnlock");
+        .then(() => {
+          this.$emit("onUnlock");
         })
         .catch((error) => console.log('Error settings password: ', error));
     }

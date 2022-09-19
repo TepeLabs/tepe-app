@@ -103,13 +103,13 @@ export default {
     },
     saveNewWallet() {
       console.log(`${this.walletAddressNew}`);
-      window.settings.saveWallet(this.walletAddressNew, this.mnemonicNew);
+      window.settings.addKey(this.walletAddressNew, '', this.mnemonicNew);
       this.loadWalletList();
       this.walletCreateOpen = false;
     },
     importMnemonic(mnemonic) {
       const wallet = new Wallet(mnemonic);
-      window.settings.saveWallet(wallet.address, '', mnemonic);
+      window.settings.addKey(wallet.address, '', mnemonic);
       this.loadWalletList();
       this.walletCreateOpen = false;
     },
