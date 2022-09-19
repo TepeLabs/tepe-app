@@ -103,15 +103,21 @@ export default {
     },
     saveNewWallet() {
       console.log(`${this.walletAddressNew}`);
-      window.settings.addKey(this.walletAddressNew, '', this.mnemonicNew);
-      this.loadWalletList();
-      this.walletCreateOpen = false;
+      window.settings.addKey(this.walletAddressNew, '', this.mnemonicNew)
+        .then(() => window.settings.saveWallet())
+        .then(() => {
+          this.loadWalletList();
+          this.walletCreateOpen = false;
+        });
     },
     importMnemonic(mnemonic) {
       const wallet = new Wallet(mnemonic);
-      window.settings.addKey(wallet.address, '', mnemonic);
-      this.loadWalletList();
-      this.walletCreateOpen = false;
+      window.settings.addKey(wallet.address, '', mnemonic)
+        .then(() => window.settings.saveWallet())
+        .then(() => {
+          this.loadWalletList();
+          this.walletCreateOpen = false;
+        });
     },
     loadWalletList() {
       window.settings.getAllWallets()
