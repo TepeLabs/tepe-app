@@ -2,7 +2,7 @@
   <div class="columns">
     <div class="column">
       <div class="table-container">
-        <table class="table is-striped is-hoverable is-fullwidth mt-1">
+        <table class="table is-fullwidth mt-1">
           <colgroup>
             <col style="width: 10%" />
             <col style="width: 90%" />
@@ -20,7 +20,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(item, index) in channelList" :key="item.name" @click="openChannel(index)">
+            <tr v-for="(item, index) in channelList" :key="item.name">
               <td class="is-vcentered">
                 <font-awesome-icon :icon="faCircleDot" size="2x" class="ml-3" />
               </td>
@@ -28,7 +28,18 @@
                 <p>
                   <strong> {{ item.name }}</strong>
                 </p>
-                <p>{{ item.address }}</p>
+                <p>
+                  {{ item.address }}
+                  <a @click="copyToClipboard(index)">
+                    <font-awesome-icon :icon="faCopy" v-if="!copiedToClipboard[index]" />
+                    <font-awesome-icon :icon="faCheck" v-if="copiedToClipboard[index]" />
+                  </a>
+                </p>
+              </td>
+              <td>
+                <button class="button" @click="openChannel(index)">
+                  <font-awesome-icon :icon="faMagnifyingGlass" />
+                </button>
               </td>
             </tr>
           </tbody>
@@ -49,7 +60,7 @@ import MessageInfo from "@/components/MessageInfo.vue";
 import secret from "@/utils/UtilSecret";
 import { Wallet } from "secretjs";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import { faPlus, faCircleDot } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faCircleDot, faCopy, faCheck, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 // import sourceData from "@/assets/data.json";
 import WalletUnlock from "../components/WalletUnlock.vue";
 export default {
@@ -61,8 +72,12 @@ export default {
       channelList: "",
       channelCreateOpen: false,
       walletUnlockOpen: false,
+      copiedToClipboard: [],
       faPlus: faPlus,
       faCircleDot: faCircleDot,
+      faCopy: faCopy,
+      faCheck: faCheck,
+      faMagnifyingGlass: faMagnifyingGlass,
     };
   },
   methods: {
@@ -86,18 +101,6 @@ export default {
           console.error(`Contract instantiation failed with error "${error}."`);
           this.messageError = error.message;
         });
-      // .then((result) => {
-      //   console.log(`contract address ${result}`);
-      //   // save address to cache
-      //   window.settings.saveChannel(result, name);
-      //   this.loadChannelList();
-      //   // query channels for account - update
-      //   this.messageInfo = `Channel created with address ${result}!`;
-      // })
-      // .catch((error) => {
-      //   console.error(`Contract instantiation failed with error "${error}."`);
-      //   this.messageError = error.message;
-      // });
       this.channelCreateOpen = false;
     },
     importChannel(importName, channelAddress) {
@@ -110,6 +113,7 @@ export default {
       this.channelCreateOpen = false;
     },
     openChannel(index) {
+      console.log('open channel ', index);
       this.$router.push(`/channel/${this.channelList[index].address}`);
     },
     loadChannelList() {
@@ -117,6 +121,7 @@ export default {
         .then((wallet) => window.settings.getChannels(wallet.public))
         .then((result) => {
           this.channelList = result;
+          this.copiedToClipboard = Array(result.length).fill(false);
         })
         .catch((err) => {
           console.log(`Error loading channels <${err}>.`);
@@ -124,17 +129,27 @@ export default {
     },
     unlockWallet() {
       this.walletUnlockOpen = false;
-      // this.loadChannelList();
-    }
+      this.loadChannelList();
+    },
+    copyToClipboard(index) {
+      let address = this.channelList[index].address;
+      navigator.clipboard.writeText(address);
+      this.copiedToClipboard[index] = true;
+      setTimeout(() => {
+        this.copiedToClipboard[index] = false;
+      }, 1200);
+    },
   },
   mounted() {
     console.log("ViewCollection: Mounted.");
-    // window.settings.initializeWalletList(sourceData.wallets);
-    // window.settings.initializeChannelList(sourceData.channels);
-    // this.walletUnlockOpen = true;
     window.settings.walletUnlocked()
       .then((unlocked) => {
-        this.walletUnlockOpen = !unlocked;
+        if (unlocked) {
+          this.walletUnlockOpen = false;
+          this.loadChannelList();
+        } else {
+          this.walletUnlockOpen = true;
+        }
       })
       .catch((error) => {
         console.log(`Error: ${error}`);
