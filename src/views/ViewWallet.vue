@@ -41,7 +41,7 @@
   <WalletAdd v-if="walletCreateOpen" :address="walletAddressNew" :mnemonic="mnemonicNew" @on-create="onWalletCreate"
     @on-close="walletCreateOpen = false" @on-confirm="saveNewWallet" @on-import="importMnemonic" />
   <WalletEdit v-if="walletEditOpen" :address="walletEdit" :is-selected="walletEditIsSelected"
-    @on-close="walletEditOpen = false" @on-select="selectWallet" @on-delete="deleteWallet" />
+    @on-close="walletEditOpen = false" @on-select="selectKey" @on-delete="deleteKey" />
 </template>
 <script>
 import WalletAdd from "@/components/WalletAdd.vue";
@@ -84,16 +84,18 @@ export default {
       this.walletEdit = this.walletList[index].public;
       this.walletEditOpen = true;
     },
-    selectWallet() {
-      window.settings.selectWallet(this.walletEdit);
+    selectKey() {
+      window.settings.selectKey(this.walletEdit)
+        .then(() => window.settings.saveWallet());
       this.walletList = this.walletList.map((wallet) => {
         wallet.selected = wallet.public === this.walletEdit;
         return wallet;
       });
       this.walletEditOpen = false;
     },
-    deleteWallet() {
-      window.settings.deleteWallet(this.walletEdit);
+    deleteKey() {
+      window.settings.deleteKey(this.walletEdit)
+        .then(() => window.settings.saveWallet());
       let toDelete = this.walletList.filter((x) => x.public === this.walletEdit)[0];
       this.walletList = this.walletList.filter((x) => x.public != this.walletEdit);
       if (toDelete.selected) {
@@ -103,18 +105,24 @@ export default {
     },
     saveNewWallet() {
       console.log(`${this.walletAddressNew}`);
-      window.settings.saveWallet(this.walletAddressNew, this.mnemonicNew);
-      this.loadWalletList();
-      this.walletCreateOpen = false;
+      window.settings.addKey(this.walletAddressNew, '', this.mnemonicNew)
+        .then(() => window.settings.saveWallet())
+        .then(() => {
+          this.loadWalletList();
+          this.walletCreateOpen = false;
+        });
     },
     importMnemonic(mnemonic) {
       const wallet = new Wallet(mnemonic);
-      window.settings.saveWallet(wallet.address, '', mnemonic);
-      this.loadWalletList();
-      this.walletCreateOpen = false;
+      window.settings.addKey(wallet.address, '', mnemonic)
+        .then(() => window.settings.saveWallet())
+        .then(() => {
+          this.loadWalletList();
+          this.walletCreateOpen = false;
+        });
     },
     loadWalletList() {
-      window.settings.getAllWallets()
+      window.settings.getAllKeys()
         .then((result) => {
           this.walletList = result;
         })

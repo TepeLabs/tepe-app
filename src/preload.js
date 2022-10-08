@@ -1,18 +1,23 @@
 const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("settings", {
-  saveWallet: (address, mnemonic) =>
-    ipcRenderer.invoke("settings:saveWallet", address, mnemonic),
   saveChannel: (walletAddress, channelAddress, nickname) =>
     ipcRenderer.invoke("settings:saveChannel", walletAddress, channelAddress, nickname),
   getChannel: (walletAddress, channelAddress) => ipcRenderer.invoke("settings:getChannel", walletAddress, channelAddress),
   getChannels: (walletAddress) => ipcRenderer.invoke("settings:getChannels", walletAddress),
-  selectWallet: (wallet) =>
-    ipcRenderer.invoke("settings:selectWallet", wallet),
-  deleteWallet: (wallet) =>
-    ipcRenderer.invoke("settings:deleteWallet", wallet),
-  getCurrentWallet: () => ipcRenderer.invoke("settings:getCurrentWallet"),
-  getAllWallets: () => ipcRenderer.invoke("settings:getAllWallets"),
+  unlockWallet: (password) => ipcRenderer.invoke("settings:unlockWallet", password),
+  walletUnlocked: () => ipcRenderer.invoke("settings:walletUnlocked"),
+  walletExists: () => ipcRenderer.invoke("settings:walletExists"),
+  setPassword: (password) => ipcRenderer.invoke("settings:setPassword", password),
+  addKey: (publicAddress, privateAddress, mnemonic) =>
+    ipcRenderer.invoke("settings:addKey", publicAddress, privateAddress, mnemonic),
+  saveWallet: () => ipcRenderer.invoke("settings:saveWallet"),
+  selectKey: (key) =>
+    ipcRenderer.invoke("settings:selectKey", key),
+  deleteKey: (key) =>
+    ipcRenderer.invoke("settings:deleteKey", key),
+  getCurrentKey: () => ipcRenderer.invoke("settings:getCurrentKey"),
+  getAllKeys: () => ipcRenderer.invoke("settings:getAllKeys"),
   initializeWalletList: (walletListJSON) => ipcRenderer.invoke("settings:initializeWalletList", walletListJSON),
   initializeChannelList: (channelListJSON) => ipcRenderer.invoke("settings:initializeChannelList", channelListJSON),
 });

@@ -182,7 +182,7 @@ export default {
     mintNFT(recipientAddress, number) {
       this.nftMintOpen = false;
       window.settings
-        .getCurrentWallet()
+        .getCurrentKey()
         .then((result) => {
           let wallet = new Wallet(result.mnemonic);
           if (recipientAddress === "") {
@@ -374,7 +374,7 @@ export default {
     },
     retrieveMetadata() {
       window.settings
-        .getCurrentWallet()
+        .getCurrentKey()
         .then((result) => {
           let wallet = new Wallet(result.mnemonic);
           this.messageInfo = "Retrieving metadata...";
@@ -398,7 +398,7 @@ export default {
     setMetadata(public_metadata, private_metadata) {
       this.setMetadataOpen = false;
       window.settings
-        .getCurrentWallet()
+        .getCurrentKey()
         .then((result) => {
           let wallet = new Wallet(result.mnemonic);
           this.messageInfo = "Setting metadata...";
@@ -459,6 +459,7 @@ export default {
     },
 
 }
+
 </script>
 <style>
 .spinner {
