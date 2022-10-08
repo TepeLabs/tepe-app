@@ -131,7 +131,14 @@ export default {
     console.log("ViewCollection: Mounted.");
     // window.settings.initializeWalletList(sourceData.wallets);
     // window.settings.initializeChannelList(sourceData.channels);
-    this.walletUnlockOpen = true;
+    // this.walletUnlockOpen = true;
+    window.settings.walletUnlocked()
+      .then((unlocked) => {
+        this.walletUnlockOpen = !unlocked;
+      })
+      .catch((error) => {
+        console.log(`Error: ${error}`);
+      });
   },
 };
 </script>
