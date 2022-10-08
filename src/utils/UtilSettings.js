@@ -46,37 +46,32 @@ async function initializeChannelList(event, channelJSON) {
 
 async function saveChannel(event, walletAddress, channelAddress, nickname) {
   if (store.has(CHANNEL_LIST)) {
-    store.get(CHANNEL_LIST)
-      .then((channelList) => {
-        let walletFound = false;
-        for (let index in channelList) {
-          if (channelList[index]['wallet'] == walletAddress) {
-            walletFound = true;
-            channelList[index]['channels'] = channelList[index]['channels'].concat({
-              address: channelAddress,
-              name: nickname,
-              cid: "UNK",
-            });
+    let channelList = await store.get(CHANNEL_LIST);
+    let walletFound = false;
+    for (let index in channelList) {
+      if (channelList[index]['wallet'] == walletAddress) {
+        walletFound = true;
+        channelList[index]['channels'] = channelList[index]['channels'].concat({
+          address: channelAddress,
+          name: nickname,
+          cid: "UNK",
+        });
+      }
+    }
+    if (!walletFound) {
+      let newChannelsForWallet = {
+        wallet: walletAddress,
+        channels: [
+          {
+            address: channelAddress,
+            name: nickname,
+            cid: "UNK",
           }
-        }
-        if (!walletFound) {
-          let newChannelsForWallet = {
-            wallet: walletAddress,
-            channels: [
-              {
-                address: channelAddress,
-                name: nickname,
-                cid: "UNK",
-              }
-            ]
-          };
-          channelList = channelList.concat(newChannelsForWallet);
-        }
-        store.set(CHANNEL_LIST, channelList);
-      })
-      .catch((err) => {
-        console.log(`Error editing channels with error <${err}>`);
-      });
+        ]
+      };
+      channelList = channelList.concat(newChannelsForWallet);
+    }
+    store.set(CHANNEL_LIST, channelList);
   } else {
     let channelList = [
       {
@@ -106,19 +101,13 @@ async function getChannel(event, walletAddress, channelAddress) {
 }
 
 async function getChannels(event, walletAddress) {
-  return store.get(CHANNEL_LIST)
-    .then((channelList) => {
-      for (let index in channelList) {
-        let channels = channelList[index];
-        if (channels.wallet == walletAddress) {
-          return channels.channels;
-        }
-      }
-    })
-    .catch((err) => {
-      console.log(`Error getting channels with error <${err}>`);
-      return err;
-    });
+  let channelList = await store.get(CHANNEL_LIST);
+  for (let index in channelList) {
+    let channels = channelList[index];
+    if (channels.wallet == walletAddress) {
+      return channels.channels;
+    }
+  }
 }
 
 async function walletExists(event) {
