@@ -206,7 +206,7 @@ export default {
     transferNFT(recipientAddress, number) {
       this.nftTransferOpen = false;
       window.settings
-        .getCurrentWallet()
+        .getCurrentKey()
         .then((result) => {
           let wallet = new Wallet(result.mnemonic);
           if (recipientAddress === "") {
@@ -344,7 +344,7 @@ export default {
     refresh() {
       // get all the public contract metadata
       window.settings
-        .getCurrentWallet()
+        .getCurrentKey()
         .then((result) => {
           let wallet = new Wallet(result.mnemonic);
           let contractAddress = this.$route.params.address;
@@ -420,7 +420,7 @@ export default {
     this.showSpinnerFiles = new Array(this.items.length).fill(false);
     this.showSpinnerUploads = new Array(this.items.length).fill(false);
     window.settings
-        .getCurrentWallet()
+        .getCurrentKey()
         .then((result) => {
           let wallet = new Wallet(result.mnemonic);
           let contractAddress = this.$route.params.address;
@@ -430,7 +430,9 @@ export default {
 
           secret.queryNFTDossier(wallet, contractAddress).then((dossierResult) => {
             this.admin = dossierResult.nft_dossier.owner;
-            this.publicMetadata = dossierResult.nft_dossier.public_metadata.text;
+            if (dossierResult.nft_dossier.public_metadata !== null) {
+              this.publicMetadata = dossierResult.nft_dossier.public_metadata.text;
+            }
             this.transferable = dossierResult.nft_dossier.transferable;
             if (this.admin == result.public) {
               this.isOwner = true;
@@ -479,7 +481,4 @@ export default {
   }
 }
 
-body {
-  background-image: url('@/assets/pfp.png');
-}
 </style>

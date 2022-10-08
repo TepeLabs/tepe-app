@@ -135,6 +135,7 @@ export default {
     window.settings.walletUnlocked()
       .then((unlocked) => {
         this.walletUnlockOpen = !unlocked;
+        this.loadChannelList();
       })
       .catch((error) => {
         console.log(`Error: ${error}`);
