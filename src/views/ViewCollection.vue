@@ -2,7 +2,7 @@
   <div class="columns">
     <div class="column">
       <div class="table-container">
-        <table class="table is-striped is-hoverable is-fullwidth mt-1">
+        <table class="table is-fullwidth mt-1">
           <colgroup>
             <col style="width: 10%" />
             <col style="width: 90%" />

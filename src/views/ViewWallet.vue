@@ -1,7 +1,7 @@
 <template>
   <div class="columns">
     <div class="column" v-if="hasWalletList">
-      <table class="table is-fullwidth is-striped is-hoverable is-striped mt-1">
+      <table class="table is-fullwidth is-striped is-striped mt-1">
         <colgroup>
           <col style="width: 8%" />
           <col style="width: 82%" />
