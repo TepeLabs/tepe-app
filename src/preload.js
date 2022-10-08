@@ -6,6 +6,7 @@ contextBridge.exposeInMainWorld("settings", {
   getChannel: (walletAddress, channelAddress) => ipcRenderer.invoke("settings:getChannel", walletAddress, channelAddress),
   getChannels: (walletAddress) => ipcRenderer.invoke("settings:getChannels", walletAddress),
   unlockWallet: (password) => ipcRenderer.invoke("settings:unlockWallet", password),
+  walletUnlocked: () => ipcRenderer.invoke("settings:walletUnlocked"),
   walletExists: () => ipcRenderer.invoke("settings:walletExists"),
   setPassword: (password) => ipcRenderer.invoke("settings:setPassword", password),
   addKey: (publicAddress, privateAddress, mnemonic) =>
