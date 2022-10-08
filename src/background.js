@@ -43,6 +43,7 @@ function connectIPC() {
   ipcMain.handle("settings:getChannels", settings.getChannels);
   ipcMain.handle("settings:getChannel", settings.getChannel);
   ipcMain.handle("settings:unlockWallet", settings.unlockWallet);
+  ipcMain.handle("settings:walletUnlocked", settings.walletUnlocked);
   ipcMain.handle("settings:walletExists", settings.walletExists);
   ipcMain.handle("settings:setPassword", settings.setPassword);
   ipcMain.handle("settings:addKey", settings.addKey);

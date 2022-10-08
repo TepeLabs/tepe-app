@@ -9,7 +9,7 @@ const WALLET_KEY_PASSWORD = "password";
 const WALLET_KEY_KEYS = "keys";
 
 const store = new Store();
-const wallet = new ObservableStore({ isUnlocked: false });
+const wallet = new ObservableStore();
 
 async function initializeWalletList(event, walletJSON) {
   if (!store.has(WALLET)) {
@@ -144,6 +144,10 @@ async function unlockWallet(event, password) {
   }
 }
 
+async function walletUnlocked(event) {
+  return Object.keys(wallet.getState()).length > 0;
+}
+
 async function addKey(event, publicAddress, privateAddress, mnemonic) {
   let json = wallet.getState();
   let keys = json[WALLET_KEY_KEYS];
@@ -218,6 +222,7 @@ const utilSettings = {
   walletExists,
   setPassword,
   unlockWallet,
+  walletUnlocked,
   addKey,
   saveWallet,
   selectKey,
