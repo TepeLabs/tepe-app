@@ -85,43 +85,6 @@
     </div>
   </div>
 
-  <div class="columns is-centered" v-if="items.length > 0">
-    <div class="column is-three-quarters">
-      <strong class="is-size-5">Files</strong>
-      <li v-for="(item, index) in items" :key="item.cid" style="list-style-type: none">
-        [{{ item.cid }}]
-        <font-awesome-icon v-if="showSpinnerFiles[index]" :icon="faSpinner" class="spinner ml-1" />
-        <a class="ml-1" v-if="!showSpinnerFiles[index]">
-          <font-awesome-icon v-if="!item.downloaded" :icon="faCloudDown" @click="download(item, index)" />
-          <font-awesome-icon v-else-if="item.encrypted" :icon="faLock" @click="decrypt(item, index)" />
-          <font-awesome-icon v-else :icon="faFile" @click="open(item, index)" />
-        </a>
-      </li>
-    </div>
-  </div>
-  <div class="columns is-centered" v-if="isOwner && newFiles.length > 0">
-    <div class="column is-three-quarters">
-      <hr />
-      <strong class="is-size-5">Uploading</strong>
-      <li v-for="(item, index) in newFiles" :key="item.url" style="list-style-type: none">
-        [{{ item.url }}]
-        <font-awesome-icon v-if="showSpinnerUploads[index]" :icon="faSpinner" class="spinner ml-1" />
-        <a class="ml-1" v-if="!showSpinnerUploads[index]">
-          <font-awesome-icon v-if="!item.encrypted" :icon="faLockOpen" @click="encrypt(item, index)" />
-          <font-awesome-icon v-else-if="!item.uploaded" :icon="faCloudUp" @click="upload(item, index)" />
-        </a>
-      </li>
-    </div>
-  </div>
-  <div class="columns is-centered" v-if="isOwner">
-    <div class="column is-three-quarters">
-      <hr />
-      Upload new file
-      <a class="ml-1" @click="selectFile">
-        <font-awesome-icon :icon="faFileUp" />
-      </a>
-    </div>
-  </div>
   <NFTMint v-if="nftMintOpen" @on-close="nftMintOpen = false" @on-mint="mintNFT" />
   <NFTTransfer v-if="nftTransferOpen" @on-close="nftTransferOpen = false" @on-transfer="transferNFT" />
   <SetMetadata v-if="setMetadataOpen" @on-close="setMetadataOpen = false" @on-set-metadata="setMetadata" />
@@ -373,12 +336,6 @@ export default {
           });
         });
 
-      // ipfs.downloadFile("QmdGT7km3oYaRuqR15rde1FjeN4fmPSQRhFFaPTuvGykZF")
-      //   .then((response) => console.log("download response", response))
-      //   .catch((error) => console.log(error));
-      // ipfs.uploadFile("/Users/harang-mbp-22/Downloads/hi.txt")
-      //   .then((response) => console.log("upload response", response))
-      //   .catch((error) => console.log(error));
       let password = 'password';
       let encrypted = crypto.encrypt('hello', password);
       console.log('encrypted text: ', encrypted);
