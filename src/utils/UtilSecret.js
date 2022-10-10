@@ -175,47 +175,72 @@ async function createViewingKey(wallet, contractAddress) {
   }
 
 
-async function transferNFT(wallet, contractAddress, recipientAddress, tokenID) {
+async function transferNFT(wallet, contractAddress, recipientAddress, number) {
   const client = await getClient(wallet);
+  let transferList = [];
+  for (let nftIndex = 0; nftIndex < number; nftIndex++) {
+    transferList = transferList.concat(
+    {
+      recipient: recipientAddress,
+    })
+  }
   const resultTransfer = await client.tx.compute.executeContract(
-      {
-        sender: wallet.address,
-        contractAddress: contractAddress,
-        codeHash: CONTRACT_CODE_HASH,
-        msg: { 
-          transfer_nft: {
-            recipient: recipientAddress,
-            token_id: tokenID,
-        },
-      },
+    {
+      sender: wallet.address,
+      contractAddress: contractAddress,
+      codeHash: CONTRACT_CODE_HASH,
+      msg: { batch_transfer_nft: { transfers: transferList } },
     },
-      {
-        gasLimit: 100_000,
-      },
-    );
-    let response = fromUtf8(MsgExecuteContractResponse.decode(resultTransfer.data[0]).data);
-    console.log("\n\nTransfer response:", JSON.parse(response).transfer_nft, '\n\n');
-    console.log("Gas used:", resultTransfer.gasUsed); 
-    console.log("Fee:", resultTransfer.tx.authInfo.fee.amount[0].amount);
-    return JSON.parse(response).transfer_nft;
+    {
+      gasLimit: 400_000,
+    }
+  );
+  let response = fromUtf8(MsgExecuteContractResponse.decode(resultTransfer.data[0]).data);
+  console.log("\n\nTransfer response:", JSON.parse(response).transfer_nft, '\n\n');
+  console.log("Gas used:", resultTransfer.gasUsed); 
+  console.log("Fee:", resultTransfer.tx.authInfo.fee.amount[0].amount);
+  return JSON.parse(response).transfer_nft;
 }
 
-async function queryNFTDossier(wallet, contractAddress, viewingKey) {
+async function queryNFTDossier(wallet, contractAddress, viewingKey=null) {
   const client = await getClient(wallet);
-  const resultQuery = await client.query.compute.queryContract({
+  var resultQuery = null;
+  if (viewingKey == null) {
+    console.log('here where I should be');
+    resultQuery = await client.query.compute.queryContract({
       contractAddress: contractAddress,
       codeHash: CONTRACT_CODE_HASH,
       query: { 
-        nft_dossier: {
-          viewer: {
-            address: wallet.address,
-            viewing_key: viewingKey,
-          }
-        } },
+        nft_dossier: { } },
       });
-    
-    console.log("\n\nNFT Dossier:", JSON.parse(resultQuery), '\n\n');
-    return JSON.parse(resultQuery);
+  } else {
+
+    resultQuery = await client.query.compute.queryContract({
+        contractAddress: contractAddress,
+        codeHash: CONTRACT_CODE_HASH,
+        query: { 
+          nft_dossier: {
+            viewer: {
+              address: wallet.address,
+              viewing_key: viewingKey,
+            }
+          } },
+        });
+  }
+  console.log("\n\nNFT Dossier:", resultQuery, '\n\n');
+  return resultQuery;
+}
+
+async function queryNumTokens(wallet, contractAddress) {
+  const client = await getClient(wallet);
+  let resultQuery = await client.query.compute.queryContract({
+    contractAddress: contractAddress,
+    codeHash: CONTRACT_CODE_HASH,
+    query: { 
+      num_tokens: { } },
+  });
+  console.log("\n\nNum tokens:", resultQuery.num_tokens.count, '\n\n');
+  return resultQuery;
 }
 
 const utilSecret = {
@@ -225,6 +250,7 @@ const utilSecret = {
   mintNFT,
   transferNFT,
   queryNFTDossier,
+  queryNumTokens,
   createViewingKey,
 };
 

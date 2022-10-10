@@ -12,10 +12,13 @@
             <button class="button" @click="refresh()">Refresh</button>
           </div>
           <div class="level-item">
-            <button class="button" @click="nftMintOpen = true">Mint</button>
+            <button class="button" @click="nftMintOpen = true" v-if="this.isOwner">Mint</button>
           </div>
           <div class="level-item">
-            <button class="button" @click="setMetadataOpen = true">Set metadata</button>
+            <button class="button" @click="nftTransferOpen = true" v-if="this.isOwner && this.transferable">Transfer</button>
+          </div>
+          <div class="level-item">
+            <button class="button" @click="setMetadataOpen = true" v-if="this.isOwner">Set metadata</button>
           </div>
           <div class="level-item">
             <button class="button" @click="retrieveMetadata()">Read metadata</button>
@@ -32,8 +35,8 @@
         </figure>
         <div class="media-content">
           <div class="content">
-            <strong>Creator</strong>
-            <p>Harang</p>
+            <strong>Admin</strong>
+            <p> {{ this.admin }} </p>
           </div>
         </div>
       </article>
@@ -46,7 +49,7 @@
         <div class="media-content">
           <div class="content">
             <strong>Owners</strong>
-            <p>10</p>
+            <p> {{this.numTokens}}</p>
           </div>
         </div>
       </article>
@@ -110,6 +113,7 @@
     </div>
   </div>
   <NFTMint v-if="nftMintOpen" @on-close="nftMintOpen = false" @on-mint="mintNFT" />
+  <NFTTransfer v-if="nftTransferOpen" @on-close="nftTransferOpen = false" @on-transfer="transferNFT" />
   <SetMetadata v-if="setMetadataOpen" @on-close="setMetadataOpen = false" @on-set-metadata="setMetadata" />
   <MessageError v-if="messageError.length > 0" :message="messageError" @on-close="messageError = ''" />
   <MessageInfo v-if="messageInfo.length > 0" :message="messageInfo" @on-close="messageInfo = ''" />
@@ -121,6 +125,7 @@ import ipfs from "@/utils/UtilIPFS";
 import crypto from "@/utils/UtilCrypto";
 import { Wallet } from "secretjs";
 import NFTMint from "@/components/NFTMint.vue";
+import NFTTransfer from "@/components/NFTTransfer.vue";
 import SetMetadata from "@/components/SetMetadata.vue";
 import MessageError from "@/components/MessageError.vue";
 import MessageInfo from "@/components/MessageInfo.vue";
@@ -140,7 +145,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 export default {
 
-  components: { FontAwesomeIcon, NFTMint, SetMetadata, MessageError, MessageInfo, FileView },
+  components: { FontAwesomeIcon, NFTMint, NFTTransfer, SetMetadata, MessageError, MessageInfo, FileView },
   data() {
     return {
       faPlus: faPlus,
@@ -159,11 +164,15 @@ export default {
       publicMetadata: "",
       privateMetadata: "",
       nftMintOpen: false,
+      nftTransferOpen: false,
       setMetadataOpen: false,
+      admin: "",
+      numTokens: 0,
+      transferable: true,
       viewFile: false,
       showSpinnerFiles: [],
       showSpinnerUploads: [],
-      isOwner: true,
+      isOwner: false,
       items: [],
       newFiles: [],
       contentView: "",
@@ -193,6 +202,31 @@ export default {
           })
         });
       this.nftMintOpen = false;
+    },
+    transferNFT(recipientAddress, number) {
+      this.nftTransferOpen = false;
+      window.settings
+        .getCurrentKey()
+        .then((result) => {
+          let wallet = new Wallet(result.mnemonic);
+          if (recipientAddress === "") {
+            recipientAddress = wallet.public;
+            console.log('no recipient');
+          }
+          this.messageInfo = "Transferring NFTs...";
+          console.log(`Tranferring ${number} NFT(s) to address ${recipientAddress}.`)
+          let contractAddress = this.$route.params.address;
+
+          secret.transferNFT(wallet, contractAddress, recipientAddress, number).then((transferResult) => {
+            this.messageInfo = `Transfer successful!`;
+            console.log(`Transfered NFT with result`);
+            console.log(transferResult);
+          }).catch((error) => {
+            this.messageError = error.message;
+            console.error(`Transfer failed with error ${error}.`);
+          })
+        });
+      this.nftTransferOpen = false;
     },
     download(item, index) {
       this.messageInfo = `Downloading file from ${item.cid}`;
@@ -308,6 +342,23 @@ export default {
         });
     },
     refresh() {
+      // get all the public contract metadata
+      window.settings
+        .getCurrentKey()
+        .then((result) => {
+          let wallet = new Wallet(result.mnemonic);
+          let contractAddress = this.$route.params.address;
+          secret.queryNumTokens(wallet, contractAddress).then((queryResult) => {
+            this.numTokens = queryResult.num_tokens.count;
+          });
+
+          secret.queryNFTDossier(wallet, contractAddress).then((dossierResult) => {
+            this.admin = dossierResult.nft_dossier.owner;
+            this.publicMetadata = dossierResult.nft_dossier.public_metadata.text;
+            this.transferable = dossierResult.nft_dossier.transferable;
+          });
+        });
+
       // ipfs.downloadFile("QmdGT7km3oYaRuqR15rde1FjeN4fmPSQRhFFaPTuvGykZF")
       //   .then((response) => console.log("download response", response))
       //   .catch((error) => console.log(error));
@@ -319,6 +370,7 @@ export default {
       console.log('encrypted text: ', encrypted);
       let decrypted = crypto.decrypt(encrypted, password);
       console.log('decrypted text: ', decrypted);
+
     },
     retrieveMetadata() {
       window.settings
@@ -328,10 +380,15 @@ export default {
           this.messageInfo = "Retrieving metadata...";
           let contractAddress = this.$route.params.address;
           secret.retrieveMetadata(wallet, contractAddress).then((retrieveMetadataResult) => {
-            this.messageInfo = `Retrieve metadata was successful! Status: "${retrieveMetadataResult}"`;
-            console.log(`retrieve metadata with result "${retrieveMetadataResult}"`);
-            this.publicMetadata = retrieveMetadataResult.public_metadata.text;
-            this.privateMetadata = retrieveMetadataResult.private_metadata.text;
+            if (retrieveMetadataResult.display_private_metadata_error == null) {
+              this.messageInfo = `Retrieve metadata was successful!"`;
+              this.publicMetadata = retrieveMetadataResult.public_metadata.text;
+              this.privateMetadata = retrieveMetadataResult.private_metadata.text;
+            } else {
+              this.messageInfo = `Public metadata retrieved!"`;
+              this.privateMetadata = `NO ACCESS`;
+              this.publicMetadata = retrieveMetadataResult.public_metadata.text;
+            }
           }).catch((error) => {
             this.messageError = error.message;
             console.error(`retrieving metadata failed with error ${error}.`);
@@ -359,25 +416,52 @@ export default {
     },
   },
   async mounted() {
+    // await this.refresh();
     this.showSpinnerFiles = new Array(this.items.length).fill(false);
     this.showSpinnerUploads = new Array(this.items.length).fill(false);
-    window.settings.getCurrentKey()
-      .then((wallet) => window.settings.getChannel(wallet.public, this.$route.params.address))
-      .then((channel) => {
-        this.channel = channel;
-        console.log('Mounted: channel is ', channel);
-      });
-    this.items = [
-      {
-        cid: "QmdGT7km3oYaRuqR15rde1FjeN4fmPSQRhFFaPTuvGykZF",
-        encrypted: true,
-        downloaded: false,
-        uploaded: true,
-        encryption: "",
-      },
-    ]
-  },
-};
+    window.settings
+        .getCurrentKey()
+        .then((result) => {
+          let wallet = new Wallet(result.mnemonic);
+          let contractAddress = this.$route.params.address;
+          secret.queryNumTokens(wallet, contractAddress).then((queryResult) => {
+            this.numTokens = queryResult.num_tokens.count;
+          });
+
+          secret.queryNFTDossier(wallet, contractAddress).then((dossierResult) => {
+            this.admin = dossierResult.nft_dossier.owner;
+            if (dossierResult.nft_dossier.public_metadata !== null) {
+              this.publicMetadata = dossierResult.nft_dossier.public_metadata.text;
+            }
+            this.transferable = dossierResult.nft_dossier.transferable;
+            if (this.admin == result.public) {
+              this.isOwner = true;
+            } else {
+              this.isOwner = false;
+            }
+
+          });
+          window.settings.getChannel(result.public, this.$route.params.address).then((channel) => {
+              this.channel = channel;
+              console.log('Mounted: channel is ', channel);
+            });
+          console.log(this.admin);
+          console.log(result.public);
+          
+        });
+      // this.items = [
+      //   {
+      //     cid: "QmdGT7km3oYaRuqR15rde1FjeN4fmPSQRhFFaPTuvGykZF",
+      //     encrypted: true,
+      //     downloaded: false,
+      //     uploaded: true,
+      //     encryption: "",
+      //   },
+      // ];
+    },
+
+}
+
 </script>
 <style>
 .spinner {
@@ -396,4 +480,5 @@ export default {
     transform: rotate(360deg);
   }
 }
+
 </style>
