@@ -1,7 +1,7 @@
 <template>
   <div class="columns">
     <div class="column" v-if="hasWalletList">
-      <table class="table is-fullwidth is-striped is-hoverable is-striped mt-1">
+      <table class="table is-fullwidth is-striped is-striped mt-1">
         <colgroup>
           <col style="width: 8%" />
           <col style="width: 82%" />
@@ -16,7 +16,7 @@
             </th>
           </tr>
         </thead>
-        <tbody v-for="(wallet, index) in walletList" :key="wallet.public" @click="displayWalletEdit(index)">
+        <tbody v-for="(wallet, index) in walletList" :key="wallet.public">
           <tr>
             <td class="is-vcentered has-text-centered">
               <font-awesome-icon :icon="faCheck" v-if="wallet.selected" />
@@ -25,9 +25,17 @@
               <p>
                 <strong>Lorem {{ index }}</strong>
               </p>
-              <span class="is-family-monospace">{{ wallet.public }}</span>
+              <span class="is-family-monospace">
+                {{ wallet.public }}
+                <a @click="copyToClipboard(index)">
+                  <font-awesome-icon :icon="faCopy" v-if="!copiedToClipboard[index]" />
+                  <font-awesome-icon :icon="faCheck" v-if="copiedToClipboard[index]" />
+                </a>
+              </span>
             </td>
-            <td></td>
+            <td>
+              <button class="button" @click="displayWalletEdit(index)">&#8230;</button>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -48,7 +56,7 @@ import WalletAdd from "@/components/WalletAdd.vue";
 import WalletEdit from "@/components/WalletEdit.vue";
 import { Wallet } from "secretjs";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import { faCheck, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faPlus, faCopy } from "@fortawesome/free-solid-svg-icons";
 export default {
   components: { WalletAdd, WalletEdit, FontAwesomeIcon },
   data() {
@@ -59,8 +67,10 @@ export default {
       mnemonicNew: "",
       walletAddressNew: "",
       walletEdit: "",
+      copiedToClipboard: [],
       faCheck: faCheck,
       faPlus: faPlus,
+      faCopy: faCopy,
     };
   },
   computed: {
@@ -125,10 +135,19 @@ export default {
       window.settings.getAllKeys()
         .then((result) => {
           this.walletList = result;
+          this.copiedToClipboard = Array(result.length).fill(false);
         })
         .catch((err) => {
           console.log(`Error loading wallets <${err}>.`);
         });
+    },
+    copyToClipboard(index) {
+      let address = this.walletList[index].public;
+      navigator.clipboard.writeText(address);
+      this.copiedToClipboard[index] = true;
+      setTimeout(() => {
+        this.copiedToClipboard[index] = false;
+      }, 1200);
     },
   },
   mounted() {
