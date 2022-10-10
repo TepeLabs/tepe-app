@@ -9,20 +9,29 @@
         </div>
         <div class="level-right">
           <div class="level-item">
-            <button class="button" @click="refresh()">Refresh</button>
+            <button class="button" @click="refresh()">
+              <font-awesome-icon :icon="faArrowsRotate" />
+            </button>
           </div>
           <div class="level-item">
-            <button class="button" @click="nftMintOpen = true" v-if="this.isOwner">Mint</button>
+            <button class="button" @click="nftMintOpen = true" v-if="this.isOwner">
+              <font-awesome-icon :icon="faPlus" />
+            </button>
           </div>
           <div class="level-item">
-            <button class="button" @click="nftTransferOpen = true"
-              v-if="this.isOwner && this.transferable">Transfer</button>
+            <button class="button" @click="nftTransferOpen = true" v-if="this.isOwner && this.transferable">
+              <font-awesome-icon :icon="faPaperPlane" />
+            </button>
           </div>
           <div class="level-item">
-            <button class="button" @click="setMetadataOpen = true" v-if="this.isOwner">Set metadata</button>
+            <button class="button" @click="setMetadataOpen = true" v-if="this.isOwner">
+              <font-awesome-icon :icon="faCloudUp" />
+            </button>
           </div>
           <div class="level-item">
-            <button class="button" @click="retrieveMetadata()">Read metadata</button>
+            <button class="button" @click="retrieveMetadata()">
+              <font-awesome-icon :icon="faCloudDown" />
+            </button>
           </div>
         </div>
       </nav>
@@ -140,9 +149,11 @@ import {
   faLockOpen,
   faFile,
   faSpinner,
+  faPaperPlane,
   faFileArrowUp,
-  faCloudArrowDown,
+  faArrowsRotate,
   faCloudArrowUp,
+  faCloudArrowDown,
 } from "@fortawesome/free-solid-svg-icons";
 export default {
 
@@ -157,8 +168,10 @@ export default {
       faFile: faFile,
       faSpinner: faSpinner,
       faFileUp: faFileArrowUp,
-      faCloudDown: faCloudArrowDown,
       faCloudUp: faCloudArrowUp,
+      faPaperPlane: faPaperPlane,
+      faCloudDown: faCloudArrowDown,
+      faArrowsRotate: faArrowsRotate,
       channel: null,
       messageError: "",
       messageInfo: "",
