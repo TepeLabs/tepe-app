@@ -301,11 +301,13 @@ export default {
         });
     },
     async upload() {
+      this.showSpinnerUpload = true;
       let key = await window.settings.getCurrentKey();
       let contractAddress = this.$route.params.address;
       let wallet = new Wallet(key.mnemonic);
       let fileSelection = await window.fileio.selectFile();
       if (fileSelection.canceled) {
+        this.showSpinnerUpload = false;
         return;
       }
       this.messageInfo = "Uploading...";
@@ -316,14 +318,19 @@ export default {
       let filePathEnc = filePath + ".enc";
       await window.fileio.saveFile(encrypted, filePathEnc);
       ipfs.uploadFile(filePathEnc)
-        .then((ipfsUpload) => ipfsUpload.Hash)
+        .then((ipfsUpload) => {
+          console.log(`uploaded to IPFS ${ipfsUpload} with cid ${ipfsUpload['Hash']}`);
+          return ipfsUpload.Hash;
+        })
         .then((cid) => secret.setMetadata(wallet, contractAddress, cid, password))
         .then((setMetadataResult) => {
           this.messageInfo = 'Set metadata was successful!';
+          this.showSpinnerUpload = false;
           console.log('set metadata with result ', setMetadataResult);
         })
         .catch((error) => {
           this.messageError = `Error: <${error}>.`;
+          this.showSpinnerUpload = false;
           console.log('Error uploading', error);
         });
       this.refresh();
