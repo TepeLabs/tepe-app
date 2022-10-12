@@ -36,7 +36,6 @@ async function instantiateContract(wallet, label) {
           "minter_may_update_metadata": true,  // optional; default: true
           "transferable": true,
         }
-
       },
       label: label,
     },

@@ -59,7 +59,7 @@
         <div class="media-content">
           <div class="content">
             <strong>Owners</strong>
-            <p> {{this.numTokens}}</p>
+            <p> {{this.owners.length}} </p>
           </div>
         </div>
       </article>
@@ -72,7 +72,7 @@
         <div class="media-content">
           <div class="content">
             <strong>Copies</strong>
-            <p>100</p>
+            <p>{{this.numTokens}}</p>
           </div>
         </div>
       </article>
@@ -145,6 +145,7 @@ export default {
       setMetadataOpen: false,
       admin: "",
       numTokens: 0,
+      owners: [],
       transferable: true,
       viewFile: false,
       showSpinnerFiles: [],
@@ -319,7 +320,6 @@ export default {
         });
     },
     refresh() {
-      // get all the public contract metadata
       window.settings
         .getCurrentKey()
         .then((result) => {
@@ -328,20 +328,23 @@ export default {
           secret.queryNumTokens(wallet, contractAddress).then((queryResult) => {
             this.numTokens = queryResult.num_tokens.count;
           });
-
+          secret.retrieveOwners(wallet, contractAddress).then((owners) => {
+            this.owners = owners;
+            console.log('owners', owners);
+          });
           secret.queryNFTDossier(wallet, contractAddress).then((dossierResult) => {
             this.admin = dossierResult.nft_dossier.owner;
-            this.publicMetadata = dossierResult.nft_dossier.public_metadata.text;
+            if (dossierResult.nft_dossier.public_metadata) {
+              this.publicMetadata = dossierResult.nft_dossier.public_metadata.text;
+            }
             this.transferable = dossierResult.nft_dossier.transferable;
+            if (this.admin == result.public) {
+              this.isOwner = true;
+            } else {
+              this.isOwner = false;
+            }
           });
         });
-
-      let password = 'password';
-      let encrypted = crypto.encrypt('hello', password);
-      console.log('encrypted text: ', encrypted);
-      let decrypted = crypto.decrypt(encrypted, password);
-      console.log('decrypted text: ', decrypted);
-
     },
     retrieveMetadata() {
       window.settings
@@ -387,51 +390,12 @@ export default {
     },
   },
   async mounted() {
-    // await this.refresh();
-    this.showSpinnerFiles = new Array(this.items.length).fill(false);
-    this.showSpinnerUploads = new Array(this.items.length).fill(false);
-    window.settings
-      .getCurrentKey()
-      .then((result) => {
-        let wallet = new Wallet(result.mnemonic);
-        let contractAddress = this.$route.params.address;
-        secret.queryNumTokens(wallet, contractAddress).then((queryResult) => {
-          this.numTokens = queryResult.num_tokens.count;
-        });
-
-        secret.queryNFTDossier(wallet, contractAddress).then((dossierResult) => {
-          this.admin = dossierResult.nft_dossier.owner;
-          if (dossierResult.nft_dossier.public_metadata !== null) {
-            this.publicMetadata = dossierResult.nft_dossier.public_metadata.text;
-          }
-          this.transferable = dossierResult.nft_dossier.transferable;
-          if (this.admin == result.public) {
-            this.isOwner = true;
-          } else {
-            this.isOwner = false;
-          }
-
-        });
-        window.settings.getChannel(result.public, this.$route.params.address).then((channel) => {
-          this.channel = channel;
-          console.log('Mounted: channel is ', channel);
-        });
-        console.log(this.admin);
-        console.log(result.public);
-
-      });
-    // this.items = [
-    //   {
-    //     cid: "QmdGT7km3oYaRuqR15rde1FjeN4fmPSQRhFFaPTuvGykZF",
-    //     encrypted: true,
-    //     downloaded: false,
-    //     uploaded: true,
-    //     encryption: "",
-    //   },
-    // ];
+    await this.refresh();
+    let currentKey = await window.settings.getCurrentKey();
+    this.channel = await window.settings.getChannel(currentKey.public, this.$route.params.address)
+    console.log('Mounted: channel is ', this.channel);
   },
-
-}
+};
 
 </script>
 <style>
