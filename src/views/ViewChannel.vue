@@ -78,15 +78,27 @@
       </article>
     </div>
   </div>
-  <div class="columns is-centered" v-if="items.length > 0">
+
+  <div class="columns is-centered" v-if="publicMetadata">
     <div class="column is-three-quarters">
-      <p>Public metadata: {{this.publicMetadata}}</p>
-      <p>Private metadata: {{this.privateMetadata}}</p>
+      <hr />
+      <p>IPFS CID: <a @click="openWebsite">{{this.publicMetadata}}</a></p>
+      <p class="is-size-7 mt-4">The file is encrypted and stored on IPFS. But you can only access it if you have the
+        NFT.</p>
     </div>
   </div>
 
-  <div class="columns is-centered mt-6" v-if="publicMetadata">
+  <div class="columns is-centered" v-if="content">
     <div class="column is-three-quarters">
+      <hr />
+      <h3 class="title is-3">Content</h3>
+      <p>{{this.content}}</p>
+    </div>
+  </div>
+
+  <div class="columns is-centered" v-if="publicMetadata && !content">
+    <div class="column is-three-quarters">
+      <hr />
       <h3 class="subtitle is-5 has-text-centered">
         Download item
         <a @click="download()">
@@ -114,7 +126,7 @@
   <SetMetadata v-if="setMetadataOpen" @on-close="setMetadataOpen = false" @on-set-metadata="setMetadata" />
   <MessageError v-if="messageError.length > 0" :message="messageError" @on-close="messageError = ''" />
   <MessageInfo v-if="messageInfo.length > 0" :message="messageInfo" @on-close="messageInfo = ''" />
-  <FileView v-if="viewFile" :content="contentView" @on-close="viewFile = false" />
+  <FileView v-if="viewFile" :content="content" @on-close="viewFile = false" />
 </template>
 <script>
 import secret from "@/utils/UtilSecret";
@@ -177,7 +189,7 @@ export default {
       isOwner: false,
       items: [],
       newFiles: [],
-      contentView: "",
+      content: null,
     };
   },
   methods: {
@@ -268,27 +280,19 @@ export default {
           return secret.retrieveMetadata(wallet, contractAddress)
         })
         .then((retrieveMetadataResult) => {
-          if (retrieveMetadataResult.display_private_metadata_error) {
-            this.messageInfo = `Public metadata retrieved!"`;
-            this.privateMetadata = `NO ACCESS`;
+          if (!retrieveMetadataResult.display_private_metadata_error) {
+            this.messageInfo = `Retrieve metadata was successful!"`;
             this.publicMetadata = retrieveMetadataResult.public_metadata.text;
+            this.privateMetadata = retrieveMetadataResult.private_metadata.text;
+            return retrieveMetadataResult.public_metadata.text;
           }
-          this.messageInfo = `Retrieve metadata was successful!"`;
-          this.publicMetadata = retrieveMetadataResult.public_metadata.text;
-          this.privateMetadata = retrieveMetadataResult.private_metadata.text;
-          return retrieveMetadataResult.public_metadata.text;
         })
-        // .then((cid) => (ipfs.downloadFile(cid), cid))
-        // .then((response, cid) => {
-        //   console.log(response);
-        //   item.downloaded = true;
-        //   this.messageInfo = "Downloaded file " + cid + ".";
-        //   this.showSpinnerDownload = false;
-        // })
-        // open file window.fileio.openIPFSFile(item.cid)
-        // decrypt crypto.decrypt(content);
-        // save
-        // this.contentView = content;
+        .then((cid) => ipfs.downloadFile(cid))
+        .then((content) => {
+          this.showSpinnerDownload = false;
+          this.content = crypto.decrypt(content, this.privateMetadata);
+          console.log('decrypted', this.content);
+        })
         .catch((error) => {
           this.messageError = error.message;
           this.showSpinnerDownload = false;
@@ -323,6 +327,10 @@ export default {
         });
       this.refresh();
     },
+    openWebsite() {
+      // this.publicMetadata
+      // require('electron').shell.openExternal("http://google.com");
+    }
   },
   async mounted() {
     await this.refresh();

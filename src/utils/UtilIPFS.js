@@ -42,7 +42,6 @@ async function request(method, options, cid) {
   return new Promise((resolve, reject) => {
     fetch(url, options)
       .then((response) => response.text())
-      .then((response) => JSON.parse(response))
       .then((response) => resolve(response))
       .catch((error) => reject(error));
   });
