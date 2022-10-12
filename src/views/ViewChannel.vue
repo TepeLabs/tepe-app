@@ -24,15 +24,15 @@
             </button>
           </div>
           <div class="level-item">
-            <button class="button" @click="setMetadataOpen = true" v-if="this.isOwner">
+            <button class="button" @click="upload()" v-if="this.isOwner">
               <font-awesome-icon :icon="faCloudUp" />
             </button>
           </div>
-          <div class="level-item">
+          <!-- <div class="level-item">
             <button class="button" @click="retrieveMetadata()">
               <font-awesome-icon :icon="faCloudDown" />
             </button>
-          </div>
+          </div> -->
         </div>
       </nav>
     </div>
@@ -82,6 +82,30 @@
     <div class="column is-three-quarters">
       <p>Public metadata: {{this.publicMetadata}}</p>
       <p>Private metadata: {{this.privateMetadata}}</p>
+    </div>
+  </div>
+
+  <div class="columns is-centered mt-6" v-if="publicMetadata">
+    <div class="column is-three-quarters">
+      <h3 class="subtitle is-5 has-text-centered">
+        Download item
+        <a @click="download()">
+          <font-awesome-icon :icon="faCloudDown" v-if="!showSpinnerDownload" />
+          <font-awesome-icon :icon="faSpinner" v-if="showSpinnerDownload" class="spinner" />
+        </a>
+      </h3>
+    </div>
+  </div>
+
+  <div class="columns is-centered mt-6" v-if="!publicMetadata">
+    <div class="column is-three-quarters">
+      <h3 class="subtitle is-5 has-text-centered">
+        Upload item
+        <a @click="upload()">
+          <font-awesome-icon :icon="faCloudUp" v-if="!showSpinnerUpload" />
+          <font-awesome-icon :icon="faSpinner" v-if="showSpinnerUpload" class="spinner" />
+        </a>
+      </h3>
     </div>
   </div>
 
@@ -148,8 +172,8 @@ export default {
       owners: [],
       transferable: true,
       viewFile: false,
-      showSpinnerFiles: [],
-      showSpinnerUploads: [],
+      showSpinnerDownload: false,
+      showSpinnerUpload: false,
       isOwner: false,
       items: [],
       newFiles: [],
@@ -168,7 +192,7 @@ export default {
             console.log('no recipient');
           }
           this.messageInfo = "Minting NFTs...";
-          console.log(`Minting ${number} NFT(s) to address ${recipientAddress}.`)
+          console.log(`Minting ${number} NFT(s) to address "${recipientAddress}".`)
           let contractAddress = this.$route.params.address;
 
           secret.mintNFT(wallet, contractAddress, recipientAddress, number).then((mintResult) => {
@@ -206,119 +230,6 @@ export default {
         });
       this.nftTransferOpen = false;
     },
-    download(item, index) {
-      this.messageInfo = `Downloading file from ${item.cid}`;
-      this.showSpinnerFiles[index] = true;
-      ipfs.downloadFile(item.cid)
-        .then((response) => {
-          console.log(response);
-          item.downloaded = true;
-          this.messageInfo = "Downloaded file " + item.cid + ".";
-          this.showSpinnerFiles[index] = false;
-        })
-        .catch((error) => {
-          console.log(error);
-          this.messageError = "Download failed with error " + error;
-          this.showSpinnerFiles[index] = false;
-        });
-    },
-    decrypt(item, index) {
-      this.showSpinnerFiles[index] = true;
-      window.fileio.openIPFSFile(item.cid)
-        .then((content) => {
-          console.log("Decrypting " + content);
-          return crypto.decrypt(content);
-        })
-        .then((decrypted) => {
-          console.log(decrypted);
-          window.fileio.saveIPFSFile(decrypted, item.cid + ".txt");
-        })
-        .then(() => {
-          item.encrypted = false;
-          this.messageInfo = `Item decrypted at ${item.cid}.`;
-          this.showSpinnerFiles[index] = false;
-        })
-        .catch((error) => {
-          console.log(error);
-          this.messageError = "Item failed to decript.";
-          this.showSpinnerFiles[index] = false;
-        });
-    },
-    open(item, index) {
-      console.log(`Opening item at ${item.url} at index ${index}.`);
-      window.fileio.openIPFSFile(item.cid + ".txt")
-        .then((content) => {
-          this.viewFile = true;
-          this.contentView = content;
-        })
-        .catch((error) => {
-          this.messageError = error;
-        });
-    },
-    selectFile() {
-      window.fileio.selectFile().then((result) => {
-        if (!result.canceled) {
-          // open file
-          this.newFiles.push({
-            url: result.filePaths[0],
-            encrypted: false,
-            uploaded: false,
-            downloaded: true,
-            encryption: null,
-          });
-        }
-      });
-    },
-    encrypt(item, index) {
-      this.showSpinnerUploads[index] = true;
-      let newURL = item.url + ".enc";
-      window.fileio
-        .openFile(item.url)
-        .then((result) => crypto.encrypt(result))
-        .then((encrypted) => window.fileio.saveFile(encrypted, newURL))
-        .then(() => {
-          item.encrypted = true;
-          this.newFiles[index].encryption = newURL;
-          this.messageInfo = `File "${item.url}" encrypted.`;
-          this.showSpinnerUploads[index] = false;
-        })
-        .catch((error) => {
-          console.log(error);
-          this.messageError = `Error: <${error}>.`;
-          this.showSpinnerUploads[index] = false;
-        });
-    },
-    upload(item, index) {
-      this.showSpinnerUploads[index] = true;
-      let urlEncrypted = item.url + ".enc";
-      console.log(`Uploading item at ${urlEncrypted}.`);
-      ipfs.uploadFile(urlEncrypted)
-        .then((result) => {
-          console.log(result);
-          item.uploaded = true;
-          item.cid = result.Hash;
-        })
-        .then(() => {
-          console.log("Opening file.")
-          return window.fileio.openFile(urlEncrypted);
-        })
-        .then((content) => {
-          console.log("Saving file.");
-          window.fileio.saveIPFSFile(content, item.cid);
-        })
-        .then(() => {
-          console.log("Done.");
-          this.messageInfo = `File "${urlEncrypted}" uploaded.`;
-          this.items.push(item);
-          this.newFiles.splice(index, 1);
-          this.showSpinnerUploads[index] = false;
-        })
-        .catch((error) => {
-          console.log(error);
-          this.messageError = `Error: <${error}>.`;
-          this.showSpinnerUploads[index] = false;
-        });
-    },
     refresh() {
       window.settings
         .getCurrentKey()
@@ -346,47 +257,71 @@ export default {
           });
         });
     },
-    retrieveMetadata() {
+    download() {
+      this.showSpinnerDownload = true;
       window.settings
         .getCurrentKey()
         .then((result) => {
           let wallet = new Wallet(result.mnemonic);
           this.messageInfo = "Retrieving metadata...";
           let contractAddress = this.$route.params.address;
-          secret.retrieveMetadata(wallet, contractAddress).then((retrieveMetadataResult) => {
-            if (retrieveMetadataResult.display_private_metadata_error == null) {
-              this.messageInfo = `Retrieve metadata was successful!"`;
-              this.publicMetadata = retrieveMetadataResult.public_metadata.text;
-              this.privateMetadata = retrieveMetadataResult.private_metadata.text;
-            } else {
-              this.messageInfo = `Public metadata retrieved!"`;
-              this.privateMetadata = `NO ACCESS`;
-              this.publicMetadata = retrieveMetadataResult.public_metadata.text;
-            }
-          }).catch((error) => {
-            this.messageError = error.message;
-            console.error(`retrieving metadata failed with error ${error}.`);
-          })
+          return secret.retrieveMetadata(wallet, contractAddress)
+        })
+        .then((retrieveMetadataResult) => {
+          if (retrieveMetadataResult.display_private_metadata_error) {
+            this.messageInfo = `Public metadata retrieved!"`;
+            this.privateMetadata = `NO ACCESS`;
+            this.publicMetadata = retrieveMetadataResult.public_metadata.text;
+          }
+          this.messageInfo = `Retrieve metadata was successful!"`;
+          this.publicMetadata = retrieveMetadataResult.public_metadata.text;
+          this.privateMetadata = retrieveMetadataResult.private_metadata.text;
+          return retrieveMetadataResult.public_metadata.text;
+        })
+        // .then((cid) => (ipfs.downloadFile(cid), cid))
+        // .then((response, cid) => {
+        //   console.log(response);
+        //   item.downloaded = true;
+        //   this.messageInfo = "Downloaded file " + cid + ".";
+        //   this.showSpinnerDownload = false;
+        // })
+        // open file window.fileio.openIPFSFile(item.cid)
+        // decrypt crypto.decrypt(content);
+        // save
+        // this.contentView = content;
+        .catch((error) => {
+          this.messageError = error.message;
+          this.showSpinnerDownload = false;
+          console.error(`retrieving metadata failed with error ${error}.`);
         });
     },
-    setMetadata(public_metadata, private_metadata) {
-      this.setMetadataOpen = false;
-      window.settings
-        .getCurrentKey()
-        .then((result) => {
-          let wallet = new Wallet(result.mnemonic);
-          this.messageInfo = "Setting metadata...";
-          let contractAddress = this.$route.params.address;
-          secret.setMetadata(wallet, contractAddress, public_metadata, private_metadata).then((setMetadataResult) => {
-            this.messageInfo = `Set metadata was successful! Status: "${setMetadataResult}"`;
-            console.log(`set metadata with result "${setMetadataResult}"`);
-          }).catch((error) => {
-            this.messageError = error.message;
-            console.error(`Setting metadata failed with error ${error}.`);
-          })
+    async upload() {
+      let key = await window.settings.getCurrentKey();
+      let contractAddress = this.$route.params.address;
+      let wallet = new Wallet(key.mnemonic);
+      let fileSelection = await window.fileio.selectFile();
+      if (fileSelection.canceled) {
+        return;
+      }
+      this.messageInfo = "Uploading...";
+      let filePath = fileSelection.filePaths[0];
+      let fileContents = await window.fileio.openFile(filePath);
+      let password = 'password :)';
+      let encrypted = crypto.encrypt(fileContents, password);
+      let filePathEnc = filePath + ".enc";
+      await window.fileio.saveFile(encrypted, filePathEnc);
+      ipfs.uploadFile(filePathEnc)
+        .then((ipfsUpload) => ipfsUpload.Hash)
+        .then((cid) => secret.setMetadata(wallet, contractAddress, cid, password))
+        .then((setMetadataResult) => {
+          this.messageInfo = `Set metadata was successful! Status: "${setMetadataResult}"`;
+          console.log('set metadata with result ', setMetadataResult);
+        })
+        .catch((error) => {
+          this.messageError = `Error: <${error}>.`;
+          console.log('Error uploading', error);
         });
-      this.setMetadataOpen = false;
-
+      this.refresh();
     },
   },
   async mounted() {
