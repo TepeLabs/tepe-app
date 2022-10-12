@@ -58,6 +58,7 @@ async function instantiateContract(wallet, label) {
 
 async function setMetadata(wallet, contractAddress, publicMetadata, privateMetadata) {
   const client = await getClient(wallet);
+  console.log(contractAddress, publicMetadata, privateMetadata);
   return client.tx.compute.executeContract(
     {
       sender: wallet.address,
@@ -82,8 +83,9 @@ async function setMetadata(wallet, contractAddress, publicMetadata, privateMetad
     }
   )
     .then((resultSet) => {
-      console.log('resultSet', resultSet);
+      console.log('result set', resultSet);
       let response = fromUtf8(MsgExecuteContractResponse.decode(resultSet.data[0]).data);
+      console.log('set metadata response', response);
       let metadata = JSON.parse(response).set_metadata;
       console.log("\n\nSet metadata response:", metadata, "\n\n");
       console.log("Gas used:", resultSet.gasUsed);

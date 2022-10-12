@@ -324,16 +324,18 @@ export default {
         })
         .then((cid) => secret.setMetadata(wallet, contractAddress, cid, password))
         .then((setMetadataResult) => {
-          this.messageInfo = 'Set metadata was successful!';
           this.showSpinnerUpload = false;
           console.log('set metadata with result ', setMetadataResult);
+          if (setMetadataResult) {
+            this.messageInfo = 'Set metadata was successful!';
+            this.refresh();
+          }
         })
         .catch((error) => {
           this.messageError = `Error: <${error}>.`;
           this.showSpinnerUpload = false;
           console.log('Error uploading', error);
         });
-      this.refresh();
     },
     openWebsite() {
       // this.publicMetadata
