@@ -210,6 +210,7 @@ export default {
           secret.mintNFT(wallet, contractAddress, recipientAddress, number).then((mintResult) => {
             this.messageInfo = `Minting successful! Status: "${mintResult}"`;
             console.log(`Minted NFT with result "${mintResult[0]}"`);
+            this.refresh();
           }).catch((error) => {
             this.messageError = error.message;
             console.error(`Minting failed with error ${error}.`);
@@ -318,7 +319,7 @@ export default {
         .then((ipfsUpload) => ipfsUpload.Hash)
         .then((cid) => secret.setMetadata(wallet, contractAddress, cid, password))
         .then((setMetadataResult) => {
-          this.messageInfo = `Set metadata was successful! Status: "${setMetadataResult}"`;
+          this.messageInfo = 'Set metadata was successful!';
           console.log('set metadata with result ', setMetadataResult);
         })
         .catch((error) => {

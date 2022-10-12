@@ -31,7 +31,9 @@ async function uploadFile(filepath) {
   formdata.append('file', file, file.name);
   let options = Object.assign({}, DEFAULT_OPTIONS);
   options.body = formdata;
-  return request("add", options);
+  let response = await request("add", options);
+  let json = JSON.parse(response);
+  return json;
 }
 
 async function request(method, options, cid) {
