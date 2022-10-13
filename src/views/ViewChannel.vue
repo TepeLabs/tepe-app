@@ -282,10 +282,7 @@ export default {
           this.privateMetadata = metadata.private_metadata.text;
           return metadata.public_metadata.text;
         })
-        .then((cid) => {
-          console.log('cid', cid);
-          return ipfs.downloadFile(cid);
-        })
+        .then((cid) => ipfs.downloadFile(cid))
         .then((content) => {
           this.showSpinnerDownload = false;
           this.content = crypto.decrypt(content, this.privateMetadata);
@@ -309,7 +306,7 @@ export default {
       this.messageInfo = "Uploading...";
       let filePath = fileSelection.filePaths[0];
       let fileContents = await window.fileio.openFile(filePath);
-      let password = 'password :)';
+      let password = crypto.generateRandomPassword();
       let encrypted = crypto.encrypt(fileContents, password);
       let filePathEnc = filePath + ".enc";
       await window.fileio.saveFile(encrypted, filePathEnc);

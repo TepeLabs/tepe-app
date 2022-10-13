@@ -147,7 +147,6 @@ async function mintNFT(wallet, contractAddress, recipientAddress, number) {
     }
   );
   let response = fromUtf8(MsgExecuteContractResponse.decode(resultMint.data[0]).data);
-
   console.log("\n\nMintNft response:", JSON.parse(response).batch_mint_nft, "\n\n");
   console.log("Gas used:", resultMint.gasUsed);
   console.log("Fee:", resultMint.tx.authInfo.fee.amount[0].amount);
@@ -169,7 +168,6 @@ async function retrieveOwners(wallet, contractAddress) {
     },
   )
     .then((response) => {
-      console.log('retrieve owners response', response);
       let decoded = MsgExecuteContractResponse.decode(response.data[0]);
       let text = fromUtf8(decoded.data);
       let json = JSON.parse(text);
