@@ -15,13 +15,19 @@
             <button class="button" @click="nftMintOpen = true" v-if="this.isOwner">Mint</button>
           </div>
           <div class="level-item">
-            <button class="button" @click="nftTransferOpen = true" v-if="this.isOwner && this.transferable">Transfer</button>
+            <button class="button" @click="nftTransferOpen = true"
+              v-if="this.isOwner && this.transferable">Transfer</button>
           </div>
           <div class="level-item">
             <button class="button" @click="setMetadataOpen = true" v-if="this.isOwner">Set metadata</button>
           </div>
           <div class="level-item">
             <button class="button" @click="retrieveMetadata()">Read metadata</button>
+          </div>
+          <div class="level-item">
+            <button class="button" @click="channelDelete = true">
+              <font-awesome-icon :icon="faTrash" />
+            </button>
           </div>
         </div>
       </nav>
@@ -118,6 +124,7 @@
   <MessageError v-if="messageError.length > 0" :message="messageError" @on-close="messageError = ''" />
   <MessageInfo v-if="messageInfo.length > 0" :message="messageInfo" @on-close="messageInfo = ''" />
   <FileView v-if="viewFile" :content="contentView" @on-close="viewFile = false" />
+  <ChannelDelete v-if="channelDelete" @on-close="channelDelete = false" @on-confirm="deleteChannel" />
 </template>
 <script>
 import secret from "@/utils/UtilSecret";
@@ -130,12 +137,14 @@ import SetMetadata from "@/components/SetMetadata.vue";
 import MessageError from "@/components/MessageError.vue";
 import MessageInfo from "@/components/MessageInfo.vue";
 import FileView from "@/components/FileView.vue";
+import ChannelDelete from "@/components/ChannelDelete.vue";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import {
   faPlus,
   faUser,
   faCopy,
   faLock,
+  faTrash,
   faLockOpen,
   faFile,
   faSpinner,
@@ -145,7 +154,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 export default {
 
-  components: { FontAwesomeIcon, NFTMint, NFTTransfer, SetMetadata, MessageError, MessageInfo, FileView },
+  components: { FontAwesomeIcon, NFTMint, NFTTransfer, SetMetadata, MessageError, MessageInfo, FileView, ChannelDelete },
   data() {
     return {
       faPlus: faPlus,
@@ -158,6 +167,7 @@ export default {
       faFileUp: faFileArrowUp,
       faCloudDown: faCloudArrowDown,
       faCloudUp: faCloudArrowUp,
+      faTrash: faTrash,
       channel: null,
       messageError: "",
       messageInfo: "",
@@ -176,6 +186,7 @@ export default {
       items: [],
       newFiles: [],
       contentView: "",
+      channelDelete: false,
     };
   },
   methods: {
@@ -414,51 +425,57 @@ export default {
       this.setMetadataOpen = false;
 
     },
+    async deleteChannel() {
+      console.log('deleting channel');
+      let key = await window.settings.getCurrentKey();
+      window.settings.deleteChannel(key.public, this.$route.params.address);
+      this.$router.go(-1);
+    },
   },
   async mounted() {
     // await this.refresh();
     this.showSpinnerFiles = new Array(this.items.length).fill(false);
     this.showSpinnerUploads = new Array(this.items.length).fill(false);
     window.settings
-        .getCurrentKey()
-        .then((result) => {
-          let wallet = new Wallet(result.mnemonic);
-          let contractAddress = this.$route.params.address;
-          secret.queryNumTokens(wallet, contractAddress).then((queryResult) => {
-            this.numTokens = queryResult.num_tokens.count;
-          });
-
-          secret.queryNFTDossier(wallet, contractAddress).then((dossierResult) => {
-            this.admin = dossierResult.nft_dossier.owner;
-            if (dossierResult.nft_dossier.public_metadata !== null) {
-              this.publicMetadata = dossierResult.nft_dossier.public_metadata.text;
-            }
-            this.transferable = dossierResult.nft_dossier.transferable;
-            if (this.admin == result.public) {
-              this.isOwner = true;
-            } else {
-              this.isOwner = false;
-            }
-
-          });
-          window.settings.getChannel(result.public, this.$route.params.address).then((channel) => {
-              this.channel = channel;
-              console.log('Mounted: channel is ', channel);
-            });
-          console.log(this.admin);
-          console.log(result.public);
-          
+      .getCurrentKey()
+      .then((result) => {
+        let wallet = new Wallet(result.mnemonic);
+        let contractAddress = this.$route.params.address;
+        secret.queryNumTokens(wallet, contractAddress).then((queryResult) => {
+          this.numTokens = queryResult.num_tokens.count;
         });
-      // this.items = [
-      //   {
-      //     cid: "QmdGT7km3oYaRuqR15rde1FjeN4fmPSQRhFFaPTuvGykZF",
-      //     encrypted: true,
-      //     downloaded: false,
-      //     uploaded: true,
-      //     encryption: "",
-      //   },
-      // ];
-    },
+
+        secret.queryNFTDossier(wallet, contractAddress).then((dossierResult) => {
+          this.admin = dossierResult.nft_dossier.owner;
+          if (dossierResult.nft_dossier.public_metadata !== null) {
+            this.publicMetadata = dossierResult.nft_dossier.public_metadata.text;
+          }
+          this.transferable = dossierResult.nft_dossier.transferable;
+          if (this.admin == result.public) {
+            this.isOwner = true;
+          } else {
+            this.isOwner = false;
+          }
+
+        });
+        window.settings.getChannel(result.public, this.$route.params.address).then((channel) => {
+          this.channel = channel;
+          console.log('Mounted: channel is ', channel);
+        });
+        console.log(this.admin);
+        console.log(result.public);
+
+      });
+    // this.items = [
+    //   {
+    //     cid: "QmdGT7km3oYaRuqR15rde1FjeN4fmPSQRhFFaPTuvGykZF",
+    //     encrypted: true,
+    //     downloaded: false,
+    //     uploaded: true,
+    //     encryption: "",
+    //   },
+    // ];
+  },
 
 }
 
@@ -480,5 +497,4 @@ export default {
     transform: rotate(360deg);
   }
 }
-
 </style>
