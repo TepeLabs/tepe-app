@@ -201,7 +201,7 @@ export default {
           let wallet = new Wallet(result.mnemonic);
           if (recipientAddress === "") {
             recipientAddress = wallet.public;
-            console.log('no recipient');
+            console.log('no recipient, using current wallet', recipientAddress);
           }
           this.messageInfo = "Minting NFTs...";
           console.log(`Minting ${number} NFT(s) to address "${recipientAddress}".`)
@@ -214,7 +214,7 @@ export default {
           }).catch((error) => {
             this.messageError = error.message;
             console.error(`Minting failed with error ${error}.`);
-          })
+          });
         });
       this.nftMintOpen = false;
     },
@@ -254,7 +254,6 @@ export default {
           });
           secret.retrieveOwners(wallet, contractAddress).then((owners) => {
             this.owners = owners;
-            console.log('owners', owners);
           });
           secret.queryNFTDossier(wallet, contractAddress).then((dossierResult) => {
             this.admin = dossierResult.nft_dossier.owner;
@@ -262,11 +261,7 @@ export default {
               this.publicMetadata = dossierResult.nft_dossier.public_metadata.text;
             }
             this.transferable = dossierResult.nft_dossier.transferable;
-            if (this.admin == result.public) {
-              this.isOwner = true;
-            } else {
-              this.isOwner = false;
-            }
+            this.isOwner = this.admin == result.public;
           });
         });
     },
@@ -275,24 +270,25 @@ export default {
       window.settings
         .getCurrentKey()
         .then((result) => {
-          let wallet = new Wallet(result.mnemonic);
           this.messageInfo = "Retrieving metadata...";
+          let wallet = new Wallet(result.mnemonic);
           let contractAddress = this.$route.params.address;
-          return secret.retrieveMetadata(wallet, contractAddress)
+          return secret.retrieveMetadata(wallet, contractAddress);
         })
-        .then((retrieveMetadataResult) => {
-          if (!retrieveMetadataResult.display_private_metadata_error) {
-            this.messageInfo = `Retrieve metadata was successful!"`;
-            this.publicMetadata = retrieveMetadataResult.public_metadata.text;
-            this.privateMetadata = retrieveMetadataResult.private_metadata.text;
-            return retrieveMetadataResult.public_metadata.text;
-          }
+        .then((metadata) => {
+          this.messageInfo = 'Retrieve metadata was successful!"';
+          console.log('metadata', metadata);
+          this.publicMetadata = metadata.public_metadata.text;
+          this.privateMetadata = metadata.private_metadata.text;
+          return metadata.public_metadata.text;
         })
-        .then((cid) => ipfs.downloadFile(cid))
+        .then((cid) => {
+          console.log('cid', cid);
+          return ipfs.downloadFile(cid);
+        })
         .then((content) => {
           this.showSpinnerDownload = false;
           this.content = crypto.decrypt(content, this.privateMetadata);
-          console.log('decrypted', this.content);
         })
         .catch((error) => {
           this.messageError = error.message;

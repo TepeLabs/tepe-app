@@ -7,15 +7,18 @@ const GRPC_WEBURL = "https://grpc.testnet.secretsaturn.net";
 const CONTRACT_CODE_HASH =
   "1a6a70d1bd2b4923f94c677ae5a1fd34710062f1cf8d86a2ab48b5427e30905c";
 const CONTRACT_CODE_ID = "12405";
+const clients = {};
 
 async function getClient(wallet) {
-  const client = await SecretNetworkClient.create({
-    grpcWebUrl: GRPC_WEBURL,
-    chainId: CHAINID,
-    wallet: wallet,
-    walletAddress: wallet.address,
-  });
-  return client;
+  if (!(wallet.address in clients)) {
+    clients[wallet.address] = await SecretNetworkClient.create({
+      grpcWebUrl: GRPC_WEBURL,
+      chainId: CHAINID,
+      wallet: wallet,
+      walletAddress: wallet.address,
+    });
+  }
+  return clients[wallet.address];
 }
 
 async function instantiateContract(wallet, label) {
@@ -44,7 +47,8 @@ async function instantiateContract(wallet, label) {
     }
   );
   if (resultInstantiate.code != 0) {
-    let errorMessage = `Failed to instantiate contract. Error code <${resultInstantiate.code}> and message <${resultInstantiate.rawLog}>.`;
+    let errorMessage = `Failed to instantiate contract.` +
+      `Error code <${resultInstantiate.code}> and message <${resultInstantiate.rawLog}>.`;
     return Promise.reject(new Error(errorMessage));
   }
   const contractAddress = resultInstantiate.arrayLog.find(
@@ -82,14 +86,12 @@ async function setMetadata(wallet, contractAddress, publicMetadata, privateMetad
       gasLimit: 200_000,
     }
   )
-    .then((resultSet) => {
-      console.log('result set', resultSet);
-      let response = fromUtf8(MsgExecuteContractResponse.decode(resultSet.data[0]).data);
-      console.log('set metadata response', response);
+    .then((result) => {
+      let response = fromUtf8(MsgExecuteContractResponse.decode(result.data[0]).data);
       let metadata = JSON.parse(response).set_metadata;
       console.log("\n\nSet metadata response:", metadata, "\n\n");
-      console.log("Gas used:", resultSet.gasUsed);
-      console.log("Fee:", resultSet.tx.authInfo.fee.amount[0].amount);
+      console.log("Gas used:", result.gasUsed);
+      console.log("Fee:", result.tx.authInfo.fee.amount[0].amount);
       return metadata;
     })
     .catch((error) => {
@@ -99,7 +101,7 @@ async function setMetadata(wallet, contractAddress, publicMetadata, privateMetad
 
 async function retrieveMetadata(wallet, contractAddress) {
   const client = await getClient(wallet);
-  const resultRetrieve = await client.tx.compute.executeContract(
+  return client.tx.compute.executeContract(
     {
       sender: wallet.address,
       contractAddress: contractAddress,
@@ -109,12 +111,19 @@ async function retrieveMetadata(wallet, contractAddress) {
     {
       gasLimit: 400_000,
     }
-  );
-  let response = fromUtf8(MsgExecuteContractResponse.decode(resultRetrieve.data[0]).data);
-  console.log("\n\nRetrieve metadata response:", JSON.parse(response).retrieve_metadata, "\n\n");
-  console.log("Gas used:", resultRetrieve.gasUsed);
-  console.log("Fee:", resultRetrieve.tx.authInfo.fee.amount[0].amount);
-  return JSON.parse(response).retrieve_metadata;
+  )
+    .then((response) => {
+      let decoded = MsgExecuteContractResponse.decode(response.data[0]);
+      let text = fromUtf8(decoded.data);
+      let json = JSON.parse(text);
+      console.log("\n\nRetrieve metadata response:", json.retrieve_metadata);
+      console.log("Gas used:", response.gasUsed);
+      console.log("Fee:", response.tx.authInfo.fee.amount[0].amount);
+      return json.retrieve_metadata;
+    })
+    .catch((error) => {
+      console.log('Retrieve metadata error: ', error);
+    });
 }
 
 async function mintNFT(wallet, contractAddress, recipientAddress, number) {
@@ -143,9 +152,6 @@ async function mintNFT(wallet, contractAddress, recipientAddress, number) {
   console.log("Gas used:", resultMint.gasUsed);
   console.log("Fee:", resultMint.tx.authInfo.fee.amount[0].amount);
 
-  let owners = await retrieveOwners(wallet, contractAddress);
-  console.log("Owners:", owners);
-
   return JSON.parse(response).batch_mint_nft;
 }
 
@@ -163,6 +169,7 @@ async function retrieveOwners(wallet, contractAddress) {
     },
   )
     .then((response) => {
+      console.log('retrieve owners response', response);
       let decoded = MsgExecuteContractResponse.decode(response.data[0]);
       let text = fromUtf8(decoded.data);
       let json = JSON.parse(text);
@@ -193,7 +200,6 @@ async function createViewingKey(wallet, contractAddress) {
   console.log("Fee:", resultCreateViewingKey.tx.authInfo.fee.amount[0].amount);
   return JSON.parse(response).create_viewing_key;
 }
-
 
 async function transferNFT(wallet, contractAddress, recipientAddress, number) {
   const client = await getClient(wallet);
