@@ -331,17 +331,56 @@ export default {
         });
     },
     openWebsite() {
-      // this.publicMetadata
-      // require('electron').shell.openExternal("http://google.com");
-    }
+      window.external.openLink(ipfs.linkForCID(this.publicMetadata));
+    },
   },
   async mounted() {
-    await this.refresh();
-    let currentKey = await window.settings.getCurrentKey();
-    this.channel = await window.settings.getChannel(currentKey.public, this.$route.params.address)
-    console.log('Mounted: channel is ', this.channel);
+    // await this.refresh();
+    this.showSpinnerFiles = new Array(this.items.length).fill(false);
+    this.showSpinnerUploads = new Array(this.items.length).fill(false);
+    window.settings
+      .getCurrentKey()
+      .then((result) => {
+        let wallet = new Wallet(result.mnemonic);
+        let contractAddress = this.$route.params.address;
+        secret.queryNumTokens(wallet, contractAddress).then((queryResult) => {
+          this.numTokens = queryResult.num_tokens.count;
+        });
+
+        secret.queryNFTDossier(wallet, contractAddress).then((dossierResult) => {
+          this.admin = dossierResult.nft_dossier.owner;
+          if (dossierResult.nft_dossier.public_metadata !== null) {
+            this.publicMetadata = dossierResult.nft_dossier.public_metadata.text;
+          }
+          this.transferable = dossierResult.nft_dossier.transferable;
+          if (this.admin == result.public) {
+            this.isOwner = true;
+          } else {
+            this.isOwner = false;
+          }
+
+        });
+        window.settings.getChannel(result.public, this.$route.params.address).then((channel) => {
+          this.channel = channel;
+          console.log('Mounted: channel is ', channel);
+        });
+        console.log(this.admin);
+        console.log(result.public);
+
+      });
+    // this.items = [
+    //   {
+    //     cid: "QmdGT7km3oYaRuqR15rde1FjeN4fmPSQRhFFaPTuvGykZF",
+    //     encrypted: true,
+    //     downloaded: false,
+    //     uploaded: true,
+    //     encryption: "",
+    //   },
+    // ];
   },
-};
+
+}
+
 
 </script>
 <style>

@@ -36,6 +36,10 @@ async function uploadFile(filepath) {
   return json;
 }
 
+async function linkForCID(cid) {
+  return URL_API + cid;
+}
+
 async function request(method, options, cid) {
   let url = URL_API + method;
   if (cid) {
@@ -52,6 +56,7 @@ async function request(method, options, cid) {
 const utilIPFS = {
   uploadFile,
   downloadFile,
+  linkForCID,
 };
 
 export default utilIPFS;
