@@ -7,6 +7,22 @@ const BYTES_IV = 16;
 const PREFIX_SALT = 'Salted__'; // (add to match openssl tool output)
 const PREFIX_IV = '__IV__'; // not sure about the convention
 
+const ALPHA = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const NUMBERS = "0123456789";
+const SYMBOLS = "!@#$%^&*_-+=";
+const CHARACTERS = ALPHA + NUMBERS + SYMBOLS;
+const PASSWORD_LENGTH = 32;
+
+function generateRandomPassword() {
+  let password = "";
+  for (let i = 0; i < PASSWORD_LENGTH; i++) {
+    password += CHARACTERS.charAt(
+      Math.floor(Math.random() * CHARACTERS.length)
+    );
+  }
+  return password;
+}
+
 function encrypt(text, password) {
   let salt = forge.random.getBytesSync(BYTES_SALT);
   let iv = forge.random.getBytesSync(BYTES_IV);
@@ -45,6 +61,7 @@ function decrypt(bytes, password) {
 const utilCrypto = {
   encrypt,
   decrypt,
+  generateRandomPassword,
 };
 
 export default utilCrypto;
