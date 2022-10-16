@@ -92,7 +92,7 @@
     <div class="column is-three-quarters">
       <hr />
       <h3 class="title is-3">Content</h3>
-      <p>{{this.content}}</p>
+      <p style="overflow: auto; height: 30vh">{{this.content}}</p>
     </div>
   </div>
 
@@ -226,7 +226,6 @@ export default {
           let wallet = new Wallet(result.mnemonic);
           if (recipientAddress === "") {
             recipientAddress = wallet.public;
-            console.log('no recipient');
           }
           this.messageInfo = "Transferring NFTs...";
           console.log(`Tranferring ${number} NFT(s) to address ${recipientAddress}.`)
@@ -234,8 +233,7 @@ export default {
 
           secret.transferNFT(wallet, contractAddress, recipientAddress, number).then((transferResult) => {
             this.messageInfo = `Transfer successful!`;
-            console.log(`Transfered NFT with result`);
-            console.log(transferResult);
+            console.log(`Transfered NFT with result`, transferResult);
           }).catch((error) => {
             this.messageError = error.message;
             console.error(`Transfer failed with error ${error}.`);
@@ -285,7 +283,11 @@ export default {
         .then((cid) => ipfs.downloadFile(cid))
         .then((content) => {
           this.showSpinnerDownload = false;
-          this.content = crypto.decrypt(content, this.privateMetadata);
+          let decrypted_content = crypto.decrypt(content, this.privateMetadata);
+          this.content = decrypted_content;
+          // save the decrypted content to a file locally
+          let filePathDec = '/decrypted_content'
+          window.fileio.saveFile(decrypted_content, filePathDec);
         })
         .catch((error) => {
           this.messageError = error.message;
@@ -368,15 +370,6 @@ export default {
         console.log(result.public);
 
       });
-    // this.items = [
-    //   {
-    //     cid: "QmdGT7km3oYaRuqR15rde1FjeN4fmPSQRhFFaPTuvGykZF",
-    //     encrypted: true,
-    //     downloaded: false,
-    //     uploaded: true,
-    //     encryption: "",
-    //   },
-    // ];
   },
 
 }
@@ -400,4 +393,5 @@ export default {
     transform: rotate(360deg);
   }
 }
+
 </style>

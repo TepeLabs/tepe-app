@@ -94,8 +94,13 @@ export default {
               // save address to cache
               window.settings.saveChannel(wallet.public, channelAddress, name);
               this.loadChannelList();
-              // query channels for account - update
-            })
+              // mint a token for the admin to start
+              secret.mintNFT(secretjs_wallet_object, channelAddress, wallet.public, 1).then((mintResult) => {
+                console.log(`Minted NFT with result "${mintResult[0]}"`);
+              }).catch((error) => {
+                console.error(`Minting failed with error ${error}.`);
+              });
+            });
         })
         .catch((error) => {
           console.error(`Contract instantiation failed with error "${error}."`);
