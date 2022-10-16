@@ -226,7 +226,6 @@ export default {
           let wallet = new Wallet(result.mnemonic);
           if (recipientAddress === "") {
             recipientAddress = wallet.public;
-            console.log('no recipient');
           }
           this.messageInfo = "Transferring NFTs...";
           console.log(`Tranferring ${number} NFT(s) to address ${recipientAddress}.`)
@@ -234,8 +233,7 @@ export default {
 
           secret.transferNFT(wallet, contractAddress, recipientAddress, number).then((transferResult) => {
             this.messageInfo = `Transfer successful!`;
-            console.log(`Transfered NFT with result`);
-            console.log(transferResult);
+            console.log(`Transfered NFT with result`, transferResult);
           }).catch((error) => {
             this.messageError = error.message;
             console.error(`Transfer failed with error ${error}.`);
@@ -310,7 +308,6 @@ export default {
       this.messageInfo = "Uploading...";
       let filePath = fileSelection.filePaths[0];
       let fileContents = await window.fileio.openFile(filePath);
-      console.log(fileContents);
       let password = crypto.generateRandomPassword();
       let encrypted = crypto.encrypt(fileContents, password);
       let filePathEnc = filePath + ".enc";
@@ -373,15 +370,6 @@ export default {
         console.log(result.public);
 
       });
-    // this.items = [
-    //   {
-    //     cid: "QmdGT7km3oYaRuqR15rde1FjeN4fmPSQRhFFaPTuvGykZF",
-    //     encrypted: true,
-    //     downloaded: false,
-    //     uploaded: true,
-    //     encryption: "",
-    //   },
-    // ];
   },
 
 }
