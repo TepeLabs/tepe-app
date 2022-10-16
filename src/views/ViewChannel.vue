@@ -92,7 +92,7 @@
     <div class="column is-three-quarters">
       <hr />
       <h3 class="title is-3">Content</h3>
-      <p style="scroll: auto; height: 50vh">{{this.content}}</p>
+      <p style="overflow: auto; height: 30vh">{{this.content}}</p>
     </div>
   </div>
 
@@ -287,6 +287,9 @@ export default {
           this.showSpinnerDownload = false;
           let decrypted_content = crypto.decrypt(content, this.privateMetadata);
           this.content = decrypted_content;
+          // save the decrypted content to a file locally
+          let filePathDec = '/decrypted_content'
+          window.fileio.saveFile(decrypted_content, filePathDec);
         })
         .catch((error) => {
           this.messageError = error.message;
