@@ -22,8 +22,8 @@ contextBridge.exposeInMainWorld("settings", {
   initializeChannelList: (channelListJSON) => ipcRenderer.invoke("settings:initializeChannelList", channelListJSON),
 });
 
-contextBridge.exposeInMainWorld("external", {
-  openLink: (link) => ipcRenderer.invoke("external:openLink", link),
+contextBridge.exposeInMainWorld("externalaccess", {
+  openLink: (link) => ipcRenderer.invoke("externalaccess:openLink", link),
 });
 
 contextBridge.exposeInMainWorld("fileio", {

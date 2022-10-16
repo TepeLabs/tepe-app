@@ -286,6 +286,7 @@ export default {
         .then((content) => {
           this.showSpinnerDownload = false;
           this.content = crypto.decrypt(content, this.privateMetadata);
+          console.log(decrypted_content);
         })
         .catch((error) => {
           this.messageError = error.message;
@@ -306,6 +307,7 @@ export default {
       this.messageInfo = "Uploading...";
       let filePath = fileSelection.filePaths[0];
       let fileContents = await window.fileio.openFile(filePath);
+      console.log(fileContents);
       let password = crypto.generateRandomPassword();
       let encrypted = crypto.encrypt(fileContents, password);
       let filePathEnc = filePath + ".enc";
@@ -400,4 +402,5 @@ export default {
     transform: rotate(360deg);
   }
 }
+
 </style>
