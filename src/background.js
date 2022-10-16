@@ -1,6 +1,6 @@
 "use strict";
 
-import { app, protocol, BrowserWindow, ipcMain } from "electron";
+import { app, protocol, BrowserWindow, ipcMain, shell } from "electron";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import installExtension, { VUEJS3_DEVTOOLS } from "electron-devtools-installer";
 import path from "path";
@@ -60,6 +60,7 @@ function connectIPC() {
   ipcMain.handle("fileio:saveFile", fileIO.saveFile);
   ipcMain.handle("fileio:saveIPFSFile", fileIO.saveIPFSFile);
   ipcMain.handle("fileio:openIPFSFile", fileIO.openIPFSFile);
+  ipcMain.handle("external:external:openLink", (link) => shell.openExternal(link));
 }
 
 // Quit when all windows are closed.

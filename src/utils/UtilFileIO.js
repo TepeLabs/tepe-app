@@ -21,7 +21,6 @@ async function openFile(event, filePath) {
 
 async function saveFile(event, contents, filePath) {
   return new Promise((resolve, reject) => {
-    // fs.writeFile(filePath, contents, (error) => {
     fs.writeFile(filePath, contents, 'utf8', (error) => {
       if (error) {
         reject(error);

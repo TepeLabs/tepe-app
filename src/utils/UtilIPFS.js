@@ -31,7 +31,13 @@ async function uploadFile(filepath) {
   formdata.append('file', file, file.name);
   let options = Object.assign({}, DEFAULT_OPTIONS);
   options.body = formdata;
-  return request("add", options);
+  let response = await request("add", options);
+  let json = JSON.parse(response);
+  return json;
+}
+
+async function linkForCID(cid) {
+  return URL_API + cid;
 }
 
 async function request(method, options, cid) {
@@ -42,7 +48,6 @@ async function request(method, options, cid) {
   return new Promise((resolve, reject) => {
     fetch(url, options)
       .then((response) => response.text())
-      .then((response) => JSON.parse(response))
       .then((response) => resolve(response))
       .catch((error) => reject(error));
   });
@@ -51,6 +56,7 @@ async function request(method, options, cid) {
 const utilIPFS = {
   uploadFile,
   downloadFile,
+  linkForCID,
 };
 
 export default utilIPFS;
