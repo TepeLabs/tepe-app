@@ -92,7 +92,7 @@
     <div class="column is-three-quarters">
       <hr />
       <h3 class="title is-3">Content</h3>
-      <p>{{this.content}}</p>
+      <p style="scroll: auto; height: 50vh">{{this.content}}</p>
     </div>
   </div>
 
@@ -285,8 +285,8 @@ export default {
         .then((cid) => ipfs.downloadFile(cid))
         .then((content) => {
           this.showSpinnerDownload = false;
-          this.content = crypto.decrypt(content, this.privateMetadata);
-          console.log(decrypted_content);
+          let decrypted_content = crypto.decrypt(content, this.privateMetadata);
+          this.content = decrypted_content;
         })
         .catch((error) => {
           this.messageError = error.message;
