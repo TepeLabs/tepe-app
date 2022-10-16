@@ -28,11 +28,11 @@
               <font-awesome-icon :icon="faCloudUp" />
             </button>
           </div>
-          <!-- <div class="level-item">
-            <button class="button" @click="retrieveMetadata()">
-              <font-awesome-icon :icon="faCloudDown" />
+          <div class="level-item">
+            <button class="button" @click="channelDelete = true">
+              <font-awesome-icon :icon="faTrash" />
             </button>
-          </div> -->
+          </div>
         </div>
       </nav>
     </div>
@@ -126,7 +126,8 @@
   <SetMetadata v-if="setMetadataOpen" @on-close="setMetadataOpen = false" @on-set-metadata="setMetadata" />
   <MessageError v-if="messageError.length > 0" :message="messageError" @on-close="messageError = ''" />
   <MessageInfo v-if="messageInfo.length > 0" :message="messageInfo" @on-close="messageInfo = ''" />
-  <FileView v-if="viewFile" :content="content" @on-close="viewFile = false" />
+  <FileView v-if="viewFile" :content="contentView" @on-close="viewFile = false" />
+  <ChannelDelete v-if="channelDelete" @on-close="channelDelete = false" @on-confirm="deleteChannel" />
 </template>
 <script>
 import secret from "@/utils/UtilSecret";
@@ -139,12 +140,14 @@ import SetMetadata from "@/components/SetMetadata.vue";
 import MessageError from "@/components/MessageError.vue";
 import MessageInfo from "@/components/MessageInfo.vue";
 import FileView from "@/components/FileView.vue";
+import ChannelDelete from "@/components/ChannelDelete.vue";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import {
   faPlus,
   faUser,
   faCopy,
   faLock,
+  faTrash,
   faLockOpen,
   faFile,
   faSpinner,
@@ -156,7 +159,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 export default {
 
-  components: { FontAwesomeIcon, NFTMint, NFTTransfer, SetMetadata, MessageError, MessageInfo, FileView },
+  components: { FontAwesomeIcon, NFTMint, NFTTransfer, SetMetadata, MessageError, MessageInfo, FileView, ChannelDelete },
   data() {
     return {
       faPlus: faPlus,
@@ -189,7 +192,8 @@ export default {
       isOwner: false,
       items: [],
       newFiles: [],
-      content: null,
+      contentView: "",
+      channelDelete: false,
     };
   },
   methods: {
@@ -334,6 +338,12 @@ export default {
     },
     openWebsite() {
       window.external.openLink(ipfs.linkForCID(this.publicMetadata));
+    },
+    async deleteChannel() {
+      console.log('deleting channel');
+      let key = await window.settings.getCurrentKey();
+      window.settings.deleteChannel(key.public, this.$route.params.address);
+      this.$router.go(-1);
     },
   },
   async mounted() {

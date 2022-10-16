@@ -3,6 +3,8 @@ const { contextBridge, ipcRenderer } = require("electron");
 contextBridge.exposeInMainWorld("settings", {
   saveChannel: (walletAddress, channelAddress, nickname) =>
     ipcRenderer.invoke("settings:saveChannel", walletAddress, channelAddress, nickname),
+  deleteChannel: (walletAddress, channelAddress) =>
+    ipcRenderer.invoke("settings:deleteChannel", walletAddress, channelAddress),
   getChannel: (walletAddress, channelAddress) => ipcRenderer.invoke("settings:getChannel", walletAddress, channelAddress),
   getChannels: (walletAddress) => ipcRenderer.invoke("settings:getChannels", walletAddress),
   unlockWallet: (password) => ipcRenderer.invoke("settings:unlockWallet", password),

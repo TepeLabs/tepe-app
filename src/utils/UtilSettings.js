@@ -85,6 +85,16 @@ async function saveChannel(event, walletAddress, channelAddress, nickname) {
   }
 }
 
+async function deleteChannel(event, walletAddress, channelAddress) {
+  let channelList = await store.get(CHANNEL_LIST);
+  for (let i in channelList) {
+    if (channelList[i]['wallet'] == walletAddress) {
+      channelList[i].channels = channelList[i].channels.filter((x) => x.address != channelAddress);
+    }
+  }
+  store.set(CHANNEL_LIST, channelList);
+}
+
 async function getChannel(event, walletAddress, channelAddress) {
   return getChannels(event, walletAddress)
     .then((channels) => {
@@ -206,6 +216,7 @@ const utilSettings = {
   initializeWalletList,
   initializeChannelList,
   saveChannel,
+  deleteChannel,
   getChannels,
   getChannel,
   walletExists,
