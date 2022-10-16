@@ -174,6 +174,7 @@ export default {
       faPaperPlane: faPaperPlane,
       faCloudDown: faCloudArrowDown,
       faArrowsRotate: faArrowsRotate,
+      faTrash: faTrash,
       channel: null,
       messageError: "",
       messageInfo: "",
