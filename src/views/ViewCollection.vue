@@ -13,8 +13,13 @@
               <th></th>
               <th>Channels</th>
               <th>
-                <button class="button is-small" @click="channelCreateOpen = true">
+                <button class="button" @click="channelCreateOpen = true" title="Add channel">
                   +
+                </button>
+              </th>
+              <th>
+                <button class="button" @click="addressBookOpen = true" title="Address book">
+                  <font-awesome-icon :icon="faAddressBook" />
                 </button>
               </th>
             </tr>
@@ -30,14 +35,14 @@
                 </p>
                 <p>
                   {{ item.address }}
-                  <a @click="copyToClipboard(index)">
+                  <a @click="copyToClipboard(index)" title="Copy address">
                     <font-awesome-icon :icon="faCopy" v-if="!copiedToClipboard[index]" />
                     <font-awesome-icon :icon="faCheck" v-if="copiedToClipboard[index]" />
                   </a>
                 </p>
               </td>
               <td>
-                <button class="button" @click="openChannel(index)">
+                <button class="button" @click="openChannel(index)" title="Open channel">
                   <font-awesome-icon :icon="faMagnifyingGlass" />
                 </button>
               </td>
@@ -49,28 +54,32 @@
   </div>
   <ChannelCreate v-if="channelCreateOpen" @on-close="channelCreateOpen = false" @on-create="createChannel"
     @on-import="importChannel" />
+  <AddressBookEdit v-if="addressBookOpen" @on-close="addressBookOpen = false" @on-save="addressBookSaveChanges" 
+    v-bind:addressBook="addressBook" />
   <MessageError v-if="messageError.length > 0" :message="messageError" @on-close="messageError = ''" />
   <MessageInfo v-if="messageInfo.length > 0" :message="messageInfo" @on-close="messageInfo = ''" />
   <WalletUnlock v-if="walletUnlockOpen" @on-unlock="unlockWallet" />
 </template>
 <script>
 import ChannelCreate from "@/components/ChannelCreate.vue";
+import AddressBookEdit from "@/components/AddressBookEdit.vue";
 import MessageError from "@/components/MessageError.vue";
 import MessageInfo from "@/components/MessageInfo.vue";
 import secret from "@/utils/UtilSecret";
 import { Wallet } from "secretjs";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { faPlus, faCircleDot, faCopy, faCheck, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
-// import sourceData from "@/assets/data.json";
+import { faAddressBook } from "@fortawesome/free-regular-svg-icons";
 import WalletUnlock from "../components/WalletUnlock.vue";
 export default {
-  components: { ChannelCreate, MessageError, MessageInfo, FontAwesomeIcon, WalletUnlock },
+  components: { ChannelCreate, AddressBookEdit, MessageError, MessageInfo, FontAwesomeIcon, WalletUnlock },
   data() {
     return {
       messageError: "",
       messageInfo: "",
       channelList: "",
       channelCreateOpen: false,
+      addressBookOpen: false,
       walletUnlockOpen: false,
       copiedToClipboard: [],
       faPlus: faPlus,
@@ -78,9 +87,28 @@ export default {
       faCopy: faCopy,
       faCheck: faCheck,
       faMagnifyingGlass: faMagnifyingGlass,
+      faAddressBook: faAddressBook,
+      addressBook: [],
     };
   },
   methods: {
+    addressBookSaveChanges(addressEntries) {
+      let addressBookCopy = [];
+      for (let index in addressEntries) {
+        addressBookCopy = addressBookCopy.concat(JSON.parse(JSON.stringify(addressEntries[index])));
+      }
+      // this.addressBook = addressBookCopy;
+      this.addressBookOpen = false;
+      window.settings.getCurrentKey()
+        .then((wallet) => {
+          window.settings.saveAddressBook(wallet.public, addressBookCopy).then( () => {
+            window.settings.getAddressBook(wallet.public).then( (res) => {
+              this.addressBook = res; 
+            });
+          });
+        });
+
+    },
     createChannel(name) {
       window.settings.getCurrentKey()
         .then((wallet) => {
@@ -121,6 +149,14 @@ export default {
       console.log('open channel ', index);
       this.$router.push(`/channel/${this.channelList[index].address}`);
     },
+    loadAddresses() {
+      window.settings.getCurrentKey()
+        .then((wallet) => {
+          window.settings.getAddressBook(wallet.public).then((res) => {
+            this.addressBook = res;
+          });
+        });
+      },
     loadChannelList() {
       window.settings.getCurrentKey()
         .then((wallet) => window.settings.getChannels(wallet.public))
@@ -135,6 +171,8 @@ export default {
     unlockWallet() {
       this.walletUnlockOpen = false;
       this.loadChannelList();
+      this.loadAddresses();
+
     },
     copyToClipboard(index) {
       let address = this.channelList[index].address;
@@ -152,6 +190,7 @@ export default {
         if (unlocked) {
           this.walletUnlockOpen = false;
           this.loadChannelList();
+          this.loadAddresses();
         } else {
           this.walletUnlockOpen = true;
         }
@@ -159,6 +198,7 @@ export default {
       .catch((error) => {
         console.log(`Error: ${error}`);
       });
+
   },
 };
 </script>

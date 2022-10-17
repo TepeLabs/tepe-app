@@ -6,6 +6,8 @@ contextBridge.exposeInMainWorld("settings", {
   deleteChannel: (walletAddress, channelAddress) =>
     ipcRenderer.invoke("settings:deleteChannel", walletAddress, channelAddress),
   getChannel: (walletAddress, channelAddress) => ipcRenderer.invoke("settings:getChannel", walletAddress, channelAddress),
+  getAddressBook: (walletAddress) => ipcRenderer.invoke("settings:getAddressBook", walletAddress),
+  saveAddressBook: (walletAddress, addressBookCopy) => ipcRenderer.invoke("settings:saveAddressBook", walletAddress, addressBookCopy),
   getChannels: (walletAddress) => ipcRenderer.invoke("settings:getChannels", walletAddress),
   unlockWallet: (password) => ipcRenderer.invoke("settings:unlockWallet", password),
   walletUnlocked: () => ipcRenderer.invoke("settings:walletUnlocked"),
@@ -20,8 +22,6 @@ contextBridge.exposeInMainWorld("settings", {
     ipcRenderer.invoke("settings:deleteKey", key),
   getCurrentKey: () => ipcRenderer.invoke("settings:getCurrentKey"),
   getAllKeys: () => ipcRenderer.invoke("settings:getAllKeys"),
-  initializeWalletList: (walletListJSON) => ipcRenderer.invoke("settings:initializeWalletList", walletListJSON),
-  initializeChannelList: (channelListJSON) => ipcRenderer.invoke("settings:initializeChannelList", channelListJSON),
 });
 
 contextBridge.exposeInMainWorld("externalaccess", {

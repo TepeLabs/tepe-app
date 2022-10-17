@@ -42,6 +42,8 @@ function connectIPC() {
   ipcMain.handle("settings:saveChannel", settings.saveChannel);
   ipcMain.handle("settings:deleteChannel", settings.deleteChannel);
   ipcMain.handle("settings:getChannels", settings.getChannels);
+  ipcMain.handle("settings:saveAddressBook", settings.saveAddressBook);
+  ipcMain.handle("settings:getAddressBook", settings.getAddressBook);
   ipcMain.handle("settings:getChannel", settings.getChannel);
   ipcMain.handle("settings:unlockWallet", settings.unlockWallet);
   ipcMain.handle("settings:walletUnlocked", settings.walletUnlocked);
@@ -53,8 +55,6 @@ function connectIPC() {
   ipcMain.handle("settings:deleteKey", settings.deleteKey);
   ipcMain.handle("settings:getCurrentKey", settings.getCurrentKey);
   ipcMain.handle("settings:getAllKeys", settings.getAllKeys);
-  ipcMain.handle("settings:initializeWalletList", settings.initializeWalletList);
-  ipcMain.handle("settings:initializeChannelList", settings.initializeChannelList);
   ipcMain.handle("fileio:selectFile", fileIO.selectFile);
   ipcMain.handle("fileio:openFile", fileIO.openFile);
   ipcMain.handle("fileio:saveFile", fileIO.saveFile);

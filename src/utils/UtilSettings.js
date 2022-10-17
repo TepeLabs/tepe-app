@@ -11,36 +11,47 @@ const WALLET_KEY_KEYS = "keys";
 const store = new Store();
 const wallet = new ObservableStore();
 
-async function initializeWalletList(event, walletJSON) {
-  if (!store.has(WALLET)) {
-    let walletList = [];
-    for (let key in walletJSON) {
-      walletList = walletList.concat(
-        {
-          public: walletJSON[key].public,
-          private: walletJSON[key].private,
-          mnemonic: walletJSON[key].mnemonic,
-          selected: walletJSON[key].default,
-        });
+async function saveAddressBook(event, walletAddress, addressEntries) {
+  // each wallet gets its own address book
+  if (store.has(ADDRESS_BOOK)) {
+    let addressBook = await store.get(ADDRESS_BOOK);
+    let walletFound = false;
+    for (let index in addressBook) {
+      if (addressBook[index]['wallet'] == walletAddress) {
+        walletFound = true;
+        console.log(addressBook[index]['entries']);
+        addressBook[index]['entries'] = addressEntries;
+      }
     }
-    console.log(walletList);
-    store.set(WALLET, walletList);
+    if (!walletFound) {
+      let newChannelsForWallet = {
+        wallet: walletAddress,
+        entries: addressEntries,
+      };
+      addressBook = addressBook.concat(newChannelsForWallet);
+
+    }
+    store.set(ADDRESS_BOOK, addressBook);
+  } else {
+    console.log('There was no address book');
+    let newChannelsForWallet = {
+        wallet: walletAddress,
+        entries: addressEntries,
+      };
+    let addressBook = [ newChannelsForWallet ];
+    store.set(ADDRESS_BOOK, addressBook);
   }
 }
 
-async function initializeChannelList(event, channelJSON) {
-  if (!store.has(CHANNEL_LIST)) {
-    let channelList = {};
-    for (let key in channelJSON) {
-      channelList = channelList.concat(
-        {
-          address: channelJSON[key].address,
-          name: channelJSON[key].name,
-          cid: channelJSON[key].cid,
-        });
+async function getAddressBook(event, walletAddress) {  
+  // each wallet gets its own address book
+  let addressBook = await store.get(ADDRESS_BOOK);
+  for (let index in addressBook) {
+    let addresses = addressBook[index];
+    if (addresses.wallet == walletAddress) {
+      console.log(addresses.entries);
+      return addresses.entries;
     }
-    console.log(channelList);
-    store.set(CHANNEL_LIST, channelList);
   }
 }
 
@@ -73,12 +84,16 @@ async function saveChannel(event, walletAddress, channelAddress, nickname) {
     }
     store.set(CHANNEL_LIST, channelList);
   } else {
-    let channelList = [
+    let channelList = [  // KM: this seems broken!  where's the wallet?
       {
-        address: channelAddress,
-        name: nickname,
-        cid: "UNK",
-        owner: "UNK",
+        wallet: walletAddress,
+        channels: [
+          {
+            address: channelAddress,
+            name: nickname,
+            cid: "UNK",
+          }
+        ]
       },
     ];
     store.set(CHANNEL_LIST, channelList);
@@ -213,10 +228,10 @@ async function getCurrentKey() {
 }
 
 const utilSettings = {
-  initializeWalletList,
-  initializeChannelList,
   saveChannel,
   deleteChannel,
+  getAddressBook,
+  saveAddressBook,
   getChannels,
   getChannel,
   walletExists,

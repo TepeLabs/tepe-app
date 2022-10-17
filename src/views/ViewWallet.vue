@@ -12,7 +12,7 @@
             <th></th>
             <th>Wallets</th>
             <th>
-              <button class="button is-small" @click="walletCreateOpen = true">+</button>
+              <button class="button is-small" @click="walletCreateOpen = true" title="Create wallet">+</button>
             </th>
           </tr>
         </thead>
@@ -27,7 +27,7 @@
               </p>
               <span class="is-family-monospace">
                 {{ wallet.public }}
-                <a @click="copyToClipboard(index)">
+                <a @click="copyToClipboard(index)" title="Copy address">
                   <font-awesome-icon :icon="faCopy" v-if="!copiedToClipboard[index]" />
                   <font-awesome-icon :icon="faCheck" v-if="copiedToClipboard[index]" />
                 </a>

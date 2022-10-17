@@ -12,10 +12,29 @@
             <input
               class="input"
               type="text"
+              @input="onChange"
+              @click="onChange"
               v-model="recipientAddress"
               placeholder="Recipient Address"
-              @keyup.enter="$emit('onMint', recipientAddress, number)"
+              @keydown.down="onArrowDown"
+              @keydown.up="onArrowUp"
+              @keydown.enter="onEnter"
             />
+            <ul
+              id="autocomplete-results"
+              v-show="isOpen"
+              class="autocomplete-results"
+            >
+              <li
+                v-for="(result, i) in results"
+                :key="i"
+                @click="setResult(result)"
+                class="autocomplete-result"
+                :class="{ 'is-active': i === arrowCounter }"
+              >
+                {{ result }}
+              </li>
+            </ul>
             Leave blank to mint to yourself.
           </div>
           <div class="control has-icons-left">
@@ -44,13 +63,133 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { faHashtag } from "@fortawesome/free-solid-svg-icons";
 export default {
   components: { FontAwesomeIcon },
+  props: {
+    addressBook: {
+      address: {
+        type: String,
+        required: false,
+      },
+      name: {
+        type: String,
+        required: false,
+      }
+    }
+  },
   data() {
     return {
       faHashtag: faHashtag,
       recipientAddress: "",
       number: 1,
+      isOpen: false,
+      results: [],
+      arrowCounter: -1,
+      items: [],
     };
   },
   emits: ["onMint", "onClose"],
+  watch: {
+    items: function (value, oldValue) {
+      if (value.length !== oldValue.length) {
+        this.results = value;
+      }
+    }
+  },
+  mounted() {
+    document.addEventListener('click', this.handleClickOutside);
+    let items = [];
+    for (let index in this.addressBook) {
+      items = items.concat(this.addressBook[index].name);
+    }
+    this.items = items; 
+  },
+  unmounted() {
+    document.removeEventListener('click', this.handleClickOutside)
+  },
+  methods: {
+    setResult(result) {
+      let foundAddress = false;
+      for (let index in this.addressBook) {
+        if (this.addressBook[index].name == result) {
+          this.recipientAddress = this.addressBook[index].address;
+          foundAddress = true;
+        }
+      }
+      if (!foundAddress) {
+        this.recipientAddress = result;
+      }
+      this.isOpen = false;
+    },
+    filterResults() {
+      if (this.recipientAddress === '') {
+        this.results = this.items;
+      } else {
+        this.results = this.items.filter((item) => {
+          return item.toLowerCase().indexOf(this.recipientAddress.toLowerCase()) > -1;
+        });
+      }
+    },
+    onChange() {
+      this.filterResults();
+      this.isOpen = true;
+    },
+    handleClickOutside(event) {
+      if (!this.$el.contains(event.target)) {
+        this.isOpen = false;
+        this.arrowCounter = -1;
+      }
+    },
+    onArrowDown() {
+      if (this.arrowCounter < this.results.length) {
+        this.arrowCounter = this.arrowCounter + 1;
+      }
+    },
+    onArrowUp() {
+      if (this.arrowCounter > 0) {
+        this.arrowCounter = this.arrowCounter - 1;
+      }
+    },
+    onEnter() {
+      if (this.arrowCounter > -1) {
+        this.setResult(this.results[this.arrowCounter]);
+      }
+      else {
+        this.setResult(this.recipientAddress);
+      }
+      this.arrowCounter = -1;
+    },
+  },
 };
 </script>
+
+<style>
+  .autocomplete {
+    position: relative;
+    height: 120px;
+    padding: 0;
+    margin: 0;
+    border: 1px solid #eeeeee;
+    height: 120px;
+    font-size: 40px;
+  }
+
+  .autocomplete-results {
+    padding: 0;
+    margin: 0;
+    border: 1px solid #eeeeee;
+    height: 120px;
+    overflow: auto;
+  }
+
+  .autocomplete-result {
+    list-style: none;
+    text-align: left;
+    padding: 4px 2px;
+    cursor: pointer;
+  }
+
+  .autocomplete-result.is-active,
+  .autocomplete-result:hover {
+    background-color: #006989;
+    color: white;
+  }
+</style>
