@@ -5,6 +5,7 @@
 // https://github.com/ipfs/js-ipfs/blob/master/docs/core-api/FILES.md#ipfscatipfspath-options
 
 const URL_API = "https://ipfs.infura.io:5001/api/v0/";
+const URL_GATEWAY = "https://olive.infura-ipfs.io/ipfs/";
 const DEFAULT_OPTIONS = {
   method: "POST",
   headers: {
@@ -37,7 +38,7 @@ async function uploadFile(filepath) {
 }
 
 async function linkForCID(cid) {
-  return URL_API + cid;
+  return URL_GATEWAY + cid;
 }
 
 async function request(method, options, cid) {
