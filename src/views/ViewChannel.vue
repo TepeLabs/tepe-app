@@ -9,27 +9,27 @@
         </div>
         <div class="level-right">
           <div class="level-item">
-            <button class="button" @click="refresh()">
+            <button class="button" @click="refresh()" title="Refresh channel data">
               <font-awesome-icon :icon="faArrowsRotate" />
             </button>
           </div>
           <div class="level-item">
-            <button class="button" @click="nftMintOpen = true" v-if="this.isOwner">
+            <button class="button" @click="nftMintOpen = true" v-if="this.isOwner" title="Mint NFT">
               <font-awesome-icon :icon="faPlus" />
             </button>
           </div>
           <div class="level-item">
-            <button class="button" @click="nftTransferOpen = true" v-if="this.isOwner && this.transferable">
+            <button class="button" @click="nftTransferOpen = true" v-if="this.isOwner && this.transferable" title="Transfer NFT">
               <font-awesome-icon :icon="faPaperPlane" />
             </button>
           </div>
           <div class="level-item">
-            <button class="button" @click="upload()" v-if="this.isOwner">
+            <button class="button" @click="upload()" v-if="this.isOwner" title="Encrypt and upload file">
               <font-awesome-icon :icon="faCloudUp" />
             </button>
           </div>
           <div class="level-item">
-            <button class="button" @click="channelDelete = true">
+            <button class="button" @click="channelDelete = true" title="Delete channel">
               <font-awesome-icon :icon="faTrash" />
             </button>
           </div>
@@ -46,7 +46,7 @@
         <div class="media-content">
           <div class="content">
             <strong>Admin</strong>
-            <p> {{ this.admin.substring(0, 6) }}...{{ this.admin.substring(this.admin.length - 5) }} </p>
+            <p> {{this.adminRender}} </p>
           </div>
         </div>
       </article>
@@ -82,7 +82,7 @@
   <div class="columns is-centered" v-if="publicMetadata">
     <div class="column is-three-quarters">
       <hr />
-      <p>IPFS CID: <a @click="openWebsite">{{this.publicMetadata}}</a></p>
+      <p>IPFS CID: <a @click="openWebsite" title="Open in browser">{{this.publicMetadata}}</a></p>
       <p class="is-size-7 mt-4">The file is encrypted and stored on IPFS. But you can only access it if you have the
         NFT.</p>
     </div>
@@ -101,7 +101,7 @@
       <hr />
       <h3 class="subtitle is-5 has-text-centered">
         Download item
-        <a @click="download()">
+        <a @click="download()" title="Download and decrypt">
           <font-awesome-icon :icon="faCloudDown" v-if="!showSpinnerDownload" />
           <font-awesome-icon :icon="faSpinner" v-if="showSpinnerDownload" class="spinner" />
         </a>
@@ -113,7 +113,7 @@
     <div class="column is-three-quarters">
       <h3 class="subtitle is-5 has-text-centered">
         Upload item
-        <a @click="upload()">
+        <a @click="upload()" title="Encrypt and upload">
           <font-awesome-icon :icon="faCloudUp" v-if="!showSpinnerUpload" />
           <font-awesome-icon :icon="faSpinner" v-if="showSpinnerUpload" class="spinner" />
         </a>
@@ -121,8 +121,10 @@
     </div>
   </div>
 
-  <NFTMint v-if="nftMintOpen" @on-close="nftMintOpen = false" @on-mint="mintNFT" />
-  <NFTTransfer v-if="nftTransferOpen" @on-close="nftTransferOpen = false" @on-transfer="transferNFT" />
+  <NFTMint v-if="nftMintOpen" @on-close="nftMintOpen = false" @on-mint="mintNFT"
+  v-bind:addressBook="addressBook" />
+  <NFTTransfer v-if="nftTransferOpen" @on-close="nftTransferOpen = false" @on-transfer="transferNFT" 
+  v-bind:addressBook="addressBook"/>
   <SetMetadata v-if="setMetadataOpen" @on-close="setMetadataOpen = false" @on-set-metadata="setMetadata" />
   <MessageError v-if="messageError.length > 0" :message="messageError" @on-close="messageError = ''" />
   <MessageInfo v-if="messageInfo.length > 0" :message="messageInfo" @on-close="messageInfo = ''" />
@@ -184,6 +186,7 @@ export default {
       nftTransferOpen: false,
       setMetadataOpen: false,
       admin: "",
+      adminRender: "",
       numTokens: 0,
       owners: [],
       transferable: true,
@@ -195,6 +198,7 @@ export default {
       newFiles: [],
       contentView: "",
       channelDelete: false,
+      addressBook: [],
     };
   },
   methods: {
@@ -346,9 +350,25 @@ export default {
       window.settings.deleteChannel(key.public, this.$route.params.address);
       this.$router.go(-1);
     },
+    loadAddressBook() {
+      window.settings.getCurrentKey().then((result) => {
+        let wallet = new Wallet(result.mnemonic);
+        window.settings.getAddressBook(wallet.address).then( (res) => {
+          this.addressBook = res; 
+          this.adminRender = this.admin.substring(0, 6) + "..." + this.admin.substring(this.admin.length - 5);
+          for (let index in this.addressBook) {
+
+            if (this.addressBook[index].address == this.admin) {
+              this.adminRender = this.addressBook[index].name + " (" + this.adminRender + ")";
+            } 
+          }
+          console.log(this.adminRender);
+        });
+      });
+    }
   },
+
   async mounted() {
-    // await this.refresh();
     this.showSpinnerFiles = new Array(this.items.length).fill(false);
     this.showSpinnerUploads = new Array(this.items.length).fill(false);
     window.settings
@@ -371,16 +391,15 @@ export default {
           } else {
             this.isOwner = false;
           }
-
+          this.loadAddressBook();
         });
+
         window.settings.getChannel(result.public, this.$route.params.address).then((channel) => {
           this.channel = channel;
           console.log('Mounted: channel is ', channel);
         });
-        console.log(this.admin);
-        console.log(result.public);
-
       });
+    
   },
 
 }
