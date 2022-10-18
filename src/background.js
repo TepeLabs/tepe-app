@@ -60,7 +60,7 @@ function connectIPC() {
   ipcMain.handle("fileio:saveFile", fileIO.saveFile);
   ipcMain.handle("fileio:saveIPFSFile", fileIO.saveIPFSFile);
   ipcMain.handle("fileio:openIPFSFile", fileIO.openIPFSFile);
-  ipcMain.handle("externalaccess:openLink", (link) => shell.openExternal(link));
+  ipcMain.handle("externalaccess:openLink", (event, link) => shell.openExternal(link));
 }
 
 // Quit when all windows are closed.

@@ -19,7 +19,8 @@
             </button>
           </div>
           <div class="level-item">
-            <button class="button" @click="nftTransferOpen = true" v-if="this.isOwner && this.transferable" title="Transfer NFT">
+            <button class="button" @click="nftTransferOpen = true" v-if="this.isOwner && this.transferable"
+              title="Transfer NFT">
               <font-awesome-icon :icon="faPaperPlane" />
             </button>
           </div>
@@ -121,10 +122,9 @@
     </div>
   </div>
 
-  <NFTMint v-if="nftMintOpen" @on-close="nftMintOpen = false" @on-mint="mintNFT"
-  v-bind:addressBook="addressBook" />
-  <NFTTransfer v-if="nftTransferOpen" @on-close="nftTransferOpen = false" @on-transfer="transferNFT" 
-  v-bind:addressBook="addressBook"/>
+  <NFTMint v-if="nftMintOpen" @on-close="nftMintOpen = false" @on-mint="mintNFT" v-bind:addressBook="addressBook" />
+  <NFTTransfer v-if="nftTransferOpen" @on-close="nftTransferOpen = false" @on-transfer="transferNFT"
+    v-bind:addressBook="addressBook" />
   <SetMetadata v-if="setMetadataOpen" @on-close="setMetadataOpen = false" @on-set-metadata="setMetadata" />
   <MessageError v-if="messageError.length > 0" :message="messageError" @on-close="messageError = ''" />
   <MessageInfo v-if="messageInfo.length > 0" :message="messageInfo" @on-close="messageInfo = ''" />
@@ -341,8 +341,10 @@ export default {
           console.log('Error uploading', error);
         });
     },
-    openWebsite() {
-      window.external.openLink(ipfs.linkForCID(this.publicMetadata));
+    async openWebsite() {
+      let url = await ipfs.linkForCID(this.publicMetadata);
+      console.log(url);
+      window.externalaccess.openLink(url);
     },
     async deleteChannel() {
       console.log('deleting channel');
@@ -353,14 +355,14 @@ export default {
     loadAddressBook() {
       window.settings.getCurrentKey().then((result) => {
         let wallet = new Wallet(result.mnemonic);
-        window.settings.getAddressBook(wallet.address).then( (res) => {
-          this.addressBook = res; 
+        window.settings.getAddressBook(wallet.address).then((res) => {
+          this.addressBook = res;
           this.adminRender = this.admin.substring(0, 6) + "..." + this.admin.substring(this.admin.length - 5);
           for (let index in this.addressBook) {
 
             if (this.addressBook[index].address == this.admin) {
               this.adminRender = this.addressBook[index].name + " (" + this.adminRender + ")";
-            } 
+            }
           }
           console.log(this.adminRender);
         });
@@ -399,7 +401,7 @@ export default {
           console.log('Mounted: channel is ', channel);
         });
       });
-    
+
   },
 
 }
@@ -423,5 +425,4 @@ export default {
     transform: rotate(360deg);
   }
 }
-
 </style>
