@@ -46,6 +46,7 @@
                   <font-awesome-icon :icon="faMagnifyingGlass" />
                 </button>
               </td>
+              <td></td>
             </tr>
           </tbody>
         </table>
@@ -54,7 +55,7 @@
   </div>
   <ChannelCreate v-if="channelCreateOpen" @on-close="channelCreateOpen = false" @on-create="createChannel"
     @on-import="importChannel" />
-  <AddressBookEdit v-if="addressBookOpen" @on-close="addressBookOpen = false" @on-save="addressBookSaveChanges" 
+  <AddressBookEdit v-if="addressBookOpen" @on-close="addressBookOpen = false" @on-save="addressBookSaveChanges"
     v-bind:addressBook="addressBook" />
   <MessageError v-if="messageError.length > 0" :message="messageError" @on-close="messageError = ''" />
   <MessageInfo v-if="messageInfo.length > 0" :message="messageInfo" @on-close="messageInfo = ''" />
@@ -101,9 +102,9 @@ export default {
       this.addressBookOpen = false;
       window.settings.getCurrentKey()
         .then((wallet) => {
-          window.settings.saveAddressBook(wallet.public, addressBookCopy).then( () => {
-            window.settings.getAddressBook(wallet.public).then( (res) => {
-              this.addressBook = res; 
+          window.settings.saveAddressBook(wallet.public, addressBookCopy).then(() => {
+            window.settings.getAddressBook(wallet.public).then((res) => {
+              this.addressBook = res;
             });
           });
         });
@@ -156,7 +157,7 @@ export default {
             this.addressBook = res;
           });
         });
-      },
+    },
     loadChannelList() {
       window.settings.getCurrentKey()
         .then((wallet) => window.settings.getChannels(wallet.public))
