@@ -89,15 +89,7 @@
     </div>
   </div>
 
-  <div class="columns is-centered" v-if="content">
-    <div class="column is-three-quarters">
-      <hr />
-      <h3 class="title is-3">Content</h3>
-      <p style="overflow: auto; height: 30vh">{{this.content}}</p>
-    </div>
-  </div>
-
-  <div class="columns is-centered" v-if="publicMetadata && !content">
+  <div class="columns is-centered" v-if="publicMetadata">
     <div class="column is-three-quarters">
       <hr />
       <h3 class="subtitle is-5 has-text-centered">
@@ -122,13 +114,28 @@
     </div>
   </div>
 
+  <div class="columns is-centered" v-if="content">
+    <div class="column is-three-quarters">
+      <hr />
+      <h3 class="title is-3">Content</h3>
+      <p style="overflow: auto; height: 10vh">{{this.content}}</p>
+    </div>
+  </div>
+
+  <div class="columns is-centered" v-if="fileStatus">
+    <div class="column is-three-quarters">
+      <hr />
+      <h3 class="title is-3">File Status</h3>
+      <p style="overflow: auto; height: 10vh">{{this.fileStatus}}</p>
+    </div>
+  </div>
+
   <NFTMint v-if="nftMintOpen" @on-close="nftMintOpen = false" @on-mint="mintNFT" v-bind:addressBook="addressBook" />
   <NFTTransfer v-if="nftTransferOpen" @on-close="nftTransferOpen = false" @on-transfer="transferNFT"
     v-bind:addressBook="addressBook" />
   <SetMetadata v-if="setMetadataOpen" @on-close="setMetadataOpen = false" @on-set-metadata="setMetadata" />
   <MessageError v-if="messageError.length > 0" :message="messageError" @on-close="messageError = ''" />
   <MessageInfo v-if="messageInfo.length > 0" :message="messageInfo" @on-close="messageInfo = ''" />
-  <FileView v-if="viewFile" :content="contentView" @on-close="viewFile = false" />
   <ChannelDelete v-if="channelDelete" @on-close="channelDelete = false" @on-confirm="deleteChannel" />
 </template>
 <script>
@@ -136,12 +143,12 @@ import secret from "@/utils/UtilSecret";
 import ipfs from "@/utils/UtilIPFS";
 import crypto from "@/utils/UtilCrypto";
 import { Wallet } from "secretjs";
+// import { join } from "path";
 import NFTMint from "@/components/NFTMint.vue";
 import NFTTransfer from "@/components/NFTTransfer.vue";
 import SetMetadata from "@/components/SetMetadata.vue";
 import MessageError from "@/components/MessageError.vue";
 import MessageInfo from "@/components/MessageInfo.vue";
-import FileView from "@/components/FileView.vue";
 import ChannelDelete from "@/components/ChannelDelete.vue";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import {
@@ -161,7 +168,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 export default {
 
-  components: { FontAwesomeIcon, NFTMint, NFTTransfer, SetMetadata, MessageError, MessageInfo, FileView, ChannelDelete },
+  components: { FontAwesomeIcon, NFTMint, NFTTransfer, SetMetadata, MessageError, MessageInfo, ChannelDelete },
   data() {
     return {
       faPlus: faPlus,
@@ -182,6 +189,7 @@ export default {
       messageInfo: "",
       publicMetadata: "",
       privateMetadata: "",
+      decryptedFilename: "",
       nftMintOpen: false,
       nftTransferOpen: false,
       setMetadataOpen: false,
@@ -272,8 +280,11 @@ export default {
           });
         });
     },
-    download() {
+    async download() {
       this.showSpinnerDownload = true;
+      this.content = "";
+      this.fileStatus = "";
+      let filePathDec = await window.fileio.selectPath();
       window.settings
         .getCurrentKey()
         .then((result) => {
@@ -283,20 +294,40 @@ export default {
           return secret.retrieveMetadata(wallet, contractAddress);
         })
         .then((metadata) => {
-          this.messageInfo = 'Retrieve metadata was successful!"';
+          this.messageInfo = 'Retrieve metadata was successful!';
           console.log('metadata', metadata);
           this.publicMetadata = metadata.public_metadata.text;
           this.privateMetadata = metadata.private_metadata.text;
+          if (metadata.private_metadata.filename != null) {
+            this.decryptedFilename = metadata.private_metadata.filename;
+          }
           return metadata.public_metadata.text;
         })
         .then((cid) => ipfs.downloadFile(cid))
         .then((content) => {
           this.showSpinnerDownload = false;
           let decrypted_content = crypto.decrypt(content, this.privateMetadata);
-          this.content = decrypted_content;
           // save the decrypted content to a file locally
-          let filePathDec = '/decrypted_content'
-          window.fileio.saveFile(decrypted_content, filePathDec);
+          if (this.decryptedFilename != "") {
+            let txtIfTextFile = this.decryptedFilename.substring(this.decryptedFilename.length-3, this.decryptedFilename.length);
+            if (txtIfTextFile === 'txt') {
+              this.content = decrypted_content;
+            }
+            window.fileio.join(filePathDec.filePaths[0], this.decryptedFilename).then((result) => {
+            filePathDec = result;
+            this.fileStatus = 'Saved to ' + filePathDec;
+            window.fileio.saveFile(decrypted_content, filePathDec);
+            })
+            
+          } else {
+            filePathDec = window.fileio.join(filePathDec.filePaths[0], 'olive_file.dec');
+            window.fileio.join(filePathDec.filePaths[0], 'olive_file.dec').then((result) => {
+              filePathDec = result;
+              this.fileStatus = 'Saved to ' + filePathDec;
+              window.fileio.saveFile(decrypted_content, filePathDec);
+            })
+          }
+          
         })
         .catch((error) => {
           this.messageError = error.message;
@@ -316,6 +347,7 @@ export default {
       }
       this.messageInfo = "Uploading...";
       let filePath = fileSelection.filePaths[0];
+      let bareFileName = await window.fileio.basename(filePath);
       let fileContents = await window.fileio.openFile(filePath);
       let password = crypto.generateRandomPassword();
       let encrypted = crypto.encrypt(fileContents, password);
@@ -326,7 +358,7 @@ export default {
           console.log(`uploaded to IPFS ${ipfsUpload} with cid ${ipfsUpload['Hash']}`);
           return ipfsUpload.Hash;
         })
-        .then((cid) => secret.setMetadata(wallet, contractAddress, cid, password))
+        .then((cid) => secret.setMetadata(wallet, contractAddress, cid, password, bareFileName))
         .then((setMetadataResult) => {
           this.showSpinnerUpload = false;
           console.log('set metadata with result ', setMetadataResult);

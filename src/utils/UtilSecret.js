@@ -5,8 +5,8 @@ const CHAINID = "pulsar-2";
 const GRPC_WEBURL = "https://grpc.testnet.secretsaturn.net";
 // For contract code ID 12339, the olive contract v0.3
 const CONTRACT_CODE_HASH =
-  "1a6a70d1bd2b4923f94c677ae5a1fd34710062f1cf8d86a2ab48b5427e30905c";
-const CONTRACT_CODE_ID = "12405";
+  "b3c5f81db231bcb0ad61f59fc90bb7533b3d57a502d5eb1a08d3c89cfe3fb774";
+const CONTRACT_CODE_ID = "15064";
 const clients = {};
 
 async function getClient(wallet) {
@@ -60,9 +60,9 @@ async function instantiateContract(wallet, label) {
   return contractAddress;
 }
 
-async function setMetadata(wallet, contractAddress, publicMetadata, privateMetadata) {
+async function setMetadata(wallet, contractAddress, publicMetadata, privateMetadata, filename=null) {
   const client = await getClient(wallet);
-  console.log(contractAddress, publicMetadata, privateMetadata);
+  console.log(contractAddress, publicMetadata, privateMetadata, filename);
   return client.tx.compute.executeContract(
     {
       sender: wallet.address,
@@ -78,6 +78,7 @@ async function setMetadata(wallet, contractAddress, publicMetadata, privateMetad
           private_metadata:
           {
             text: privateMetadata,
+            filename: filename,
           }
         }
       }

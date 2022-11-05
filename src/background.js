@@ -56,6 +56,9 @@ function connectIPC() {
   ipcMain.handle("settings:getCurrentKey", settings.getCurrentKey);
   ipcMain.handle("settings:getAllKeys", settings.getAllKeys);
   ipcMain.handle("fileio:selectFile", fileIO.selectFile);
+  ipcMain.handle("fileio:selectPath", fileIO.selectPath);
+  ipcMain.handle("fileio:basename", fileIO.basename);
+  ipcMain.handle("fileio:join", fileIO.join);
   ipcMain.handle("fileio:openFile", fileIO.openFile);
   ipcMain.handle("fileio:saveFile", fileIO.saveFile);
   ipcMain.handle("fileio:saveIPFSFile", fileIO.saveIPFSFile);
