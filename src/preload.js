@@ -30,6 +30,9 @@ contextBridge.exposeInMainWorld("externalaccess", {
 
 contextBridge.exposeInMainWorld("fileio", {
   selectFile: () => ipcRenderer.invoke("fileio:selectFile"),
+  selectPath: () => ipcRenderer.invoke("fileio:selectPath"),
+  basename: (filePath) => ipcRenderer.invoke("fileio:basename", filePath),
+  join: (arg1, arg2) => ipcRenderer.invoke("fileio:join", arg1, arg2),
   openFile: (filePath) => ipcRenderer.invoke("fileio:openFile", filePath),
   saveFile: (contents, filePath) =>
     ipcRenderer.invoke("fileio:saveFile", contents, filePath),
