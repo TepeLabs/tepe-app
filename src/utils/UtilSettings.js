@@ -1,6 +1,7 @@
 import Store from "electron-store";
 import ObservableStore from "obs-store";
 import crypto from "@/utils/UtilCrypto";
+import { channel } from "diagnostics_channel";
 
 const WALLET = "wallet";
 const ADDRESS_BOOK = "addressBook";
@@ -35,15 +36,15 @@ async function saveAddressBook(event, walletAddress, addressEntries) {
   } else {
     console.log('There was no address book');
     let newChannelsForWallet = {
-        wallet: walletAddress,
-        entries: addressEntries,
-      };
-    let addressBook = [ newChannelsForWallet ];
+      wallet: walletAddress,
+      entries: addressEntries,
+    };
+    let addressBook = [newChannelsForWallet];
     store.set(ADDRESS_BOOK, addressBook);
   }
 }
 
-async function getAddressBook(event, walletAddress) {  
+async function getAddressBook(event, walletAddress) {
   // each wallet gets its own address book
   let addressBook = await store.get(ADDRESS_BOOK);
   for (let index in addressBook) {
@@ -66,6 +67,7 @@ async function saveChannel(event, walletAddress, channelAddress, nickname) {
           address: channelAddress,
           name: nickname,
           cid: "UNK",
+          path: '',
         });
       }
     }
@@ -77,6 +79,7 @@ async function saveChannel(event, walletAddress, channelAddress, nickname) {
             address: channelAddress,
             name: nickname,
             cid: "UNK",
+            path: '',
           }
         ]
       };
@@ -92,12 +95,45 @@ async function saveChannel(event, walletAddress, channelAddress, nickname) {
             address: channelAddress,
             name: nickname,
             cid: "UNK",
+            path: '',
           }
         ]
       },
     ];
     store.set(CHANNEL_LIST, channelList);
   }
+}
+
+async function updateChannelInfo(event, walletAddress, channelAddress, path, cid) {
+  console.log('updating channel info', walletAddress, channelAddress, path, cid);
+  if (!store.has(CHANNEL_LIST)) {
+    return;
+  }
+  let channelList = await store.get(CHANNEL_LIST);
+  for (let i in channelList) {
+    console.log('channelList', i);
+    if (channelList[i]['wallet'] == walletAddress) {
+      for (let j in channelList[i]['channels']) {
+        console.log('channels', j);
+        if (channelList[i]['channels'][j]['address'] == channelAddress) {
+          console.log('address', channelAddress);
+          if (path == null) {
+            path = channelList[i]['channels'][j]['path'];
+          }
+          if (cid == null) {
+            cid = channelList[i]['channels'][j]['cid'];
+          }
+          channelList[i]['channels'][j] = {
+            address: channelAddress,
+            name: channelList[i]['channels'][j]['name'],
+            cid: cid,
+            path: path,
+          };
+        }
+      }
+    }
+  }
+  store.set(CHANNEL_LIST, channelList);
 }
 
 async function deleteChannel(event, walletAddress, channelAddress) {
@@ -229,6 +265,7 @@ async function getCurrentKey() {
 
 const utilSettings = {
   saveChannel,
+  updateChannelInfo,
   deleteChannel,
   getAddressBook,
   saveAddressBook,

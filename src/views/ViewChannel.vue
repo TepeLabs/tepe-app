@@ -47,7 +47,7 @@
         <div class="media-content">
           <div class="content">
             <strong>Admin</strong>
-            <p> {{this.adminRender}} </p>
+            <p> {{ this.adminRender }} </p>
           </div>
         </div>
       </article>
@@ -60,7 +60,7 @@
         <div class="media-content">
           <div class="content">
             <strong>Owners</strong>
-            <p> {{this.owners.length}} </p>
+            <p> {{ this.owners.length }} </p>
           </div>
         </div>
       </article>
@@ -73,7 +73,7 @@
         <div class="media-content">
           <div class="content">
             <strong>Copies</strong>
-            <p>{{this.numTokens}}</p>
+            <p>{{ this.numTokens }}</p>
           </div>
         </div>
       </article>
@@ -83,7 +83,7 @@
   <div class="columns is-centered" v-if="publicMetadata">
     <div class="column is-three-quarters">
       <hr />
-      <p>IPFS CID: <a @click="openWebsite" title="Open in browser">{{this.publicMetadata}}</a></p>
+      <p>IPFS CID: <a @click="openWebsite" title="Open in browser">{{ this.publicMetadata }}</a></p>
       <p class="is-size-7 mt-4">The file is encrypted and stored on IPFS. But you can only access it if you have the
         NFT.</p>
     </div>
@@ -118,7 +118,7 @@
     <div class="column is-three-quarters">
       <hr />
       <h3 class="title is-3">Content</h3>
-      <p style="overflow: auto; height: 10vh">{{this.content}}</p>
+      <p style="overflow: auto; height: 10vh">{{ this.content }}</p>
     </div>
   </div>
 
@@ -126,7 +126,7 @@
     <div class="column is-three-quarters">
       <hr />
       <h3 class="title is-3">File Status</h3>
-      <p style="overflow: auto; height: 10vh">{{this.fileStatus}}</p>
+      <p style="overflow: auto; height: 10vh">{{ this.fileStatus }}</p>
     </div>
   </div>
 
@@ -285,14 +285,11 @@ export default {
       this.content = "";
       this.fileStatus = "";
       let filePathDec = await window.fileio.selectPath();
-      window.settings
-        .getCurrentKey()
-        .then((result) => {
-          this.messageInfo = "Retrieving metadata...";
-          let wallet = new Wallet(result.mnemonic);
-          let contractAddress = this.$route.params.address;
-          return secret.retrieveMetadata(wallet, contractAddress);
-        })
+      let key = await window.settings.getCurrentKey();
+      this.messageInfo = "Retrieving metadata...";
+      let wallet = new Wallet(key.mnemonic);
+      let contractAddress = this.$route.params.address;
+      secret.retrieveMetadata(wallet, contractAddress)
         .then((metadata) => {
           this.messageInfo = 'Retrieve metadata was successful!';
           console.log('metadata', metadata);
@@ -301,33 +298,38 @@ export default {
           if (metadata.private_metadata.filename != null) {
             this.decryptedFilename = metadata.private_metadata.filename;
           }
-          return metadata.public_metadata.text;
-        })
-        .then((cid) => ipfs.downloadFile(cid))
-        .then((content) => {
-          this.showSpinnerDownload = false;
-          let decrypted_content = crypto.decrypt(content, this.privateMetadata);
-          // save the decrypted content to a file locally
-          if (this.decryptedFilename != "") {
-            let txtIfTextFile = this.decryptedFilename.substring(this.decryptedFilename.length-3, this.decryptedFilename.length);
-            if (txtIfTextFile === 'txt') {
-              this.content = decrypted_content;
-            }
-            window.fileio.join(filePathDec.filePaths[0], this.decryptedFilename).then((result) => {
-            filePathDec = result;
-            this.fileStatus = 'Saved to ' + filePathDec;
-            window.fileio.saveFile(decrypted_content, filePathDec);
-            })
-            
-          } else {
-            filePathDec = window.fileio.join(filePathDec.filePaths[0], 'olive_file.dec');
-            window.fileio.join(filePathDec.filePaths[0], 'olive_file.dec').then((result) => {
-              filePathDec = result;
-              this.fileStatus = 'Saved to ' + filePathDec;
-              window.fileio.saveFile(decrypted_content, filePathDec);
-            })
-          }
-          
+          let cid = metadata.public_metadata.text;
+          ipfs.downloadFile(cid)
+            .then((content) => {
+              this.showSpinnerDownload = false;
+              let decrypted_content = crypto.decrypt(content, this.privateMetadata);
+              // save the decrypted content to a file locally
+              if (this.decryptedFilename != "") {
+                let txtIfTextFile = this.decryptedFilename.substring(this.decryptedFilename.length - 3, this.decryptedFilename.length);
+                if (txtIfTextFile === 'txt') {
+                  this.content = decrypted_content;
+                }
+                window.fileio.join(filePathDec.filePaths[0], this.decryptedFilename)
+                  .then((result) => {
+                    filePathDec = result;
+                    this.fileStatus = 'Saved to ' + filePathDec;
+                    window.fileio.saveFile(decrypted_content, filePathDec);
+                  })
+                  .then(() => {
+                    window.settings.updateChannelInfo(wallet.address, this.$route.params.address, filePathDec, cid);
+                  });
+              } else {
+                window.fileio.join(filePathDec.filePaths[0], 'olive_file.dec')
+                  .then((result) => {
+                    filePathDec = result;
+                    this.fileStatus = 'Saved to ' + filePathDec;
+                    window.fileio.saveFile(decrypted_content, filePathDec);
+                  })
+                  .then(() => {
+                    window.settings.updateChannelInfo(wallet.address, this.$route.params.address, filePathDec, cid);
+                  });
+              }
+            });
         })
         .catch((error) => {
           this.messageError = error.message;

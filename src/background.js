@@ -40,6 +40,7 @@ async function createWindow() {
 
 function connectIPC() {
   ipcMain.handle("settings:saveChannel", settings.saveChannel);
+  ipcMain.handle("settings:updateChannelInfo", settings.updateChannelInfo);
   ipcMain.handle("settings:deleteChannel", settings.deleteChannel);
   ipcMain.handle("settings:getChannels", settings.getChannels);
   ipcMain.handle("settings:saveAddressBook", settings.saveAddressBook);
