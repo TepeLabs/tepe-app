@@ -20,7 +20,6 @@ async function saveAddressBook(event, walletAddress, addressEntries) {
     for (let index in addressBook) {
       if (addressBook[index]['wallet'] == walletAddress) {
         walletFound = true;
-        console.log(addressBook[index]['entries']);
         addressBook[index]['entries'] = addressEntries;
       }
     }
@@ -50,7 +49,6 @@ async function getAddressBook(event, walletAddress) {
   for (let index in addressBook) {
     let addresses = addressBook[index];
     if (addresses.wallet == walletAddress) {
-      console.log(addresses.entries);
       return addresses.entries;
     }
   }
@@ -105,18 +103,14 @@ async function saveChannel(event, walletAddress, channelAddress, nickname) {
 }
 
 async function updateChannelInfo(event, walletAddress, channelAddress, path, cid) {
-  console.log('updating channel info', walletAddress, channelAddress, path, cid);
   if (!store.has(CHANNEL_LIST)) {
     return;
   }
   let channelList = await store.get(CHANNEL_LIST);
   for (let i in channelList) {
-    console.log('channelList', i);
     if (channelList[i]['wallet'] == walletAddress) {
       for (let j in channelList[i]['channels']) {
-        console.log('channels', j);
         if (channelList[i]['channels'][j]['address'] == channelAddress) {
-          console.log('address', channelAddress);
           if (path == null) {
             path = channelList[i]['channels'][j]['path'];
           }

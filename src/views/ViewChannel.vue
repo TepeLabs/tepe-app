@@ -30,6 +30,11 @@
             </button>
           </div>
           <div class="level-item">
+            <button class="button" @click="download()" v-if="fileStatus" title="Download file">
+              <font-awesome-icon :icon="faCloudDown" />
+            </button>
+          </div>
+          <div class="level-item">
             <button class="button" @click="channelDelete = true" title="Delete channel">
               <font-awesome-icon :icon="faTrash" />
             </button>
@@ -89,7 +94,7 @@
     </div>
   </div>
 
-  <div class="columns is-centered" v-if="publicMetadata">
+  <div class="columns is-centered" v-if="publicMetadata & !fileStatus">
     <div class="column is-three-quarters">
       <hr />
       <h3 class="subtitle is-5 has-text-centered">
@@ -305,8 +310,8 @@ export default {
               let decrypted_content = crypto.decrypt(content, this.privateMetadata);
               // save the decrypted content to a file locally
               if (this.decryptedFilename != "") {
-                let txtIfTextFile = this.decryptedFilename.substring(this.decryptedFilename.length - 3, this.decryptedFilename.length);
-                if (txtIfTextFile === 'txt') {
+                let fileExtension = this.decryptedFilename.substring(this.decryptedFilename.length - 3, this.decryptedFilename.length);
+                if (fileExtension === 'txt') {
                   this.content = decrypted_content;
                 }
                 window.fileio.join(filePathDec.filePaths[0], this.decryptedFilename)
@@ -407,35 +412,39 @@ export default {
   async mounted() {
     this.showSpinnerFiles = new Array(this.items.length).fill(false);
     this.showSpinnerUploads = new Array(this.items.length).fill(false);
-    window.settings
-      .getCurrentKey()
-      .then((result) => {
-        let wallet = new Wallet(result.mnemonic);
-        let contractAddress = this.$route.params.address;
-        secret.queryNumTokens(wallet, contractAddress).then((queryResult) => {
-          this.numTokens = queryResult.num_tokens.count;
-        });
+    let key = await window.settings.getCurrentKey();
+    let wallet = new Wallet(key.mnemonic);
+    let contractAddress = this.$route.params.address;
 
-        secret.queryNFTDossier(wallet, contractAddress).then((dossierResult) => {
-          this.admin = dossierResult.nft_dossier.owner;
-          if (dossierResult.nft_dossier.public_metadata !== null) {
-            this.publicMetadata = dossierResult.nft_dossier.public_metadata.text;
-          }
-          this.transferable = dossierResult.nft_dossier.transferable;
-          if (this.admin == result.public) {
-            this.isOwner = true;
-          } else {
-            this.isOwner = false;
-          }
-          this.loadAddressBook();
-        });
-
-        window.settings.getChannel(result.public, this.$route.params.address).then((channel) => {
-          this.channel = channel;
-          console.log('Mounted: channel is ', channel);
-        });
+    secret.queryNumTokens(wallet, contractAddress)
+      .then((queryResult) => {
+        this.numTokens = queryResult.num_tokens.count;
       });
-
+    secret.queryNFTDossier(wallet, contractAddress)
+      .then((dossierResult) => {
+        this.admin = dossierResult.nft_dossier.owner;
+        if (dossierResult.nft_dossier.public_metadata !== null) {
+          this.publicMetadata = dossierResult.nft_dossier.public_metadata.text;
+        }
+        this.transferable = dossierResult.nft_dossier.transferable;
+        if (this.admin == key.public) {
+          this.isOwner = true;
+        } else {
+          this.isOwner = false;
+        }
+        this.loadAddressBook();
+      });
+    window.settings.getChannel(key.public, this.$route.params.address)
+      .then((channel) => {
+        this.channel = channel;
+        let fileExtension = channel.path.substring(channel.path.length - 3, channel.path.length);
+        if (fileExtension === 'txt') {
+          this.content = '';
+          // load file content
+        }
+        this.fileStatus = 'Saved in ' + channel.path;
+        console.log('Mounted: channel is ', channel);
+      });
   },
 
 }
