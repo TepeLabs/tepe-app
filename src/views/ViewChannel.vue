@@ -3,8 +3,8 @@
     <div class="column is-three-quarters">
       <nav class="level">
         <div class="level-left">
-          <div class="level-item">
-            <h2 class="is-size-3" v-if="this.channel">{{ this.channel.name }}</h2>
+          <div class="level-item" v-if="this.channel">
+            <h2 class="is-size-3">{{ this.channel.name }}</h2>
           </div>
         </div>
         <div class="level-right">
@@ -13,24 +13,23 @@
               <font-awesome-icon :icon="faArrowsRotate" />
             </button>
           </div>
-          <div class="level-item">
-            <button class="button" @click="nftMintOpen = true" v-if="this.isOwner" title="Mint NFT">
+          <div class="level-item" v-if="this.isOwner">
+            <button class="button" @click="nftMintOpen = true" title="Mint NFT">
               <font-awesome-icon :icon="faPlus" />
             </button>
           </div>
-          <div class="level-item">
-            <button class="button" @click="nftTransferOpen = true" v-if="this.isOwner && this.transferable"
-              title="Transfer NFT">
+          <div class="level-item" v-if="this.isOwner && this.transferable">
+            <button class="button" @click="nftTransferOpen = true" title="Transfer NFT">
               <font-awesome-icon :icon="faPaperPlane" />
             </button>
           </div>
-          <div class="level-item">
-            <button class="button" @click="upload()" v-if="this.isOwner" title="Encrypt and upload file">
+          <div class="level-item" v-if="this.isOwner">
+            <button class="button" @click="upload()" title="Encrypt and upload file">
               <font-awesome-icon :icon="faCloudUp" />
             </button>
           </div>
-          <div class="level-item">
-            <button class="button" @click="download()" v-if="fileStatus" title="Download file">
+          <div class="level-item" v-if="filePath.length > 0">
+            <button class="button" @click="download()" title="Download file">
               <font-awesome-icon :icon="faCloudDown" />
             </button>
           </div>
@@ -94,7 +93,7 @@
     </div>
   </div>
 
-  <div class="columns is-centered" v-if="publicMetadata & !fileStatus">
+  <div class="columns is-centered" v-if="publicMetadata && (filePath.length == 0)">
     <div class="column is-three-quarters">
       <hr />
       <h3 class="subtitle is-5 has-text-centered">
@@ -127,11 +126,11 @@
     </div>
   </div>
 
-  <div class="columns is-centered" v-if="fileStatus">
+  <div class="columns is-centered" v-if="(filePath.length > 0)">
     <div class="column is-three-quarters">
       <hr />
       <h3 class="title is-3">File Status</h3>
-      <p style="overflow: auto; height: 10vh">{{ this.fileStatus }}</p>
+      <p style="overflow: auto; height: 10vh">Saved in {{ this.filePath }}</p>
     </div>
   </div>
 
@@ -148,7 +147,6 @@ import secret from "@/utils/UtilSecret";
 import ipfs from "@/utils/UtilIPFS";
 import crypto from "@/utils/UtilCrypto";
 import { Wallet } from "secretjs";
-// import { join } from "path";
 import NFTMint from "@/components/NFTMint.vue";
 import NFTTransfer from "@/components/NFTTransfer.vue";
 import SetMetadata from "@/components/SetMetadata.vue";
@@ -212,6 +210,8 @@ export default {
       contentView: "",
       channelDelete: false,
       addressBook: [],
+      filePath: "",
+      content: "",
     };
   },
   methods: {
@@ -252,7 +252,6 @@ export default {
           this.messageInfo = "Transferring NFTs...";
           console.log(`Tranferring ${number} NFT(s) to address ${recipientAddress}.`)
           let contractAddress = this.$route.params.address;
-
           secret.transferNFT(wallet, contractAddress, recipientAddress, number).then((transferResult) => {
             this.messageInfo = `Transfer successful!`;
             console.log(`Transfered NFT with result`, transferResult);
@@ -287,8 +286,6 @@ export default {
     },
     async download() {
       this.showSpinnerDownload = true;
-      this.content = "";
-      this.fileStatus = "";
       let filePathDec = await window.fileio.selectPath();
       let key = await window.settings.getCurrentKey();
       this.messageInfo = "Retrieving metadata...";
@@ -310,14 +307,15 @@ export default {
               let decrypted_content = crypto.decrypt(content, this.privateMetadata);
               // save the decrypted content to a file locally
               if (this.decryptedFilename != "") {
-                let fileExtension = this.decryptedFilename.substring(this.decryptedFilename.length - 3, this.decryptedFilename.length);
+                let fileExtension = this.decryptedFilename.substring(
+                  this.decryptedFilename.length - 3, this.decryptedFilename.length);
                 if (fileExtension === 'txt') {
                   this.content = decrypted_content;
                 }
                 window.fileio.join(filePathDec.filePaths[0], this.decryptedFilename)
                   .then((result) => {
                     filePathDec = result;
-                    this.fileStatus = 'Saved to ' + filePathDec;
+                    this.filePath = filePathDec;
                     window.fileio.saveFile(decrypted_content, filePathDec);
                   })
                   .then(() => {
@@ -327,7 +325,7 @@ export default {
                 window.fileio.join(filePathDec.filePaths[0], 'olive_file.dec')
                   .then((result) => {
                     filePathDec = result;
-                    this.fileStatus = 'Saved to ' + filePathDec;
+                    this.filePath = filePathDec;
                     window.fileio.saveFile(decrypted_content, filePathDec);
                   })
                   .then(() => {
@@ -425,6 +423,7 @@ export default {
         this.admin = dossierResult.nft_dossier.owner;
         if (dossierResult.nft_dossier.public_metadata !== null) {
           this.publicMetadata = dossierResult.nft_dossier.public_metadata.text;
+          console.log('got public metadata', this.publicMetadata);
         }
         this.transferable = dossierResult.nft_dossier.transferable;
         if (this.admin == key.public) {
@@ -439,17 +438,22 @@ export default {
         this.channel = channel;
         let fileExtension = channel.path.substring(channel.path.length - 3, channel.path.length);
         if (fileExtension === 'txt') {
-          this.content = '';
-          // load file content
+          window.fileio.openFile(channel.path)
+            .then((result) => {
+              this.content = result;
+            })
+            .catch((error) => {
+              console.log('error loading file', error);
+            });
         }
-        this.fileStatus = 'Saved in ' + channel.path;
+        console.log('channel path', channel.path.length > 0, this.filePath);
+        this.filePath = channel.path;
+        console.log('filePath', this.filePath)
         console.log('Mounted: channel is ', channel);
-      });
+      })
+      .catch((error) => console.log('error getting channel', error));
   },
-
 }
-
-
 </script>
 <style>
 .spinner {
