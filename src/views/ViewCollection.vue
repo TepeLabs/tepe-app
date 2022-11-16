@@ -41,12 +41,12 @@
                   </a>
                 </p>
               </td>
+              <td></td>
               <td>
                 <button class="button" @click="openChannel(index)" title="Open channel">
                   <font-awesome-icon :icon="faMagnifyingGlass" />
                 </button>
               </td>
-              <td></td>
             </tr>
           </tbody>
         </table>
