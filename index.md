@@ -14,7 +14,7 @@ Most content in web2 is gated, from Netflix and YouTube to Amazon's ebooks and I
 
 That will all change in web3. As a creator, *you* can own your own content and distribute them directly to your consumers. As a consumer, *you* can buy directly from creators. You can also resell into a market, lend to friends, or collect them.
 
-Remember when you could lend out a book to friends? You can't do that with ebooks on Amazon. Or resell a vinyl records to a store? You can't do that with a Spotify subscription. But that's all coming back but digitally.
+Remember when you could lend out a book to friends? You can't do that with ebooks on Amazon. Or resell a vinyl records to a store? You can't do that with a Spotify subscription. That's all coming back digitally.
 
 NFTs are the way we get from here to there. But now, NFTs display metadata for all to see. With private NFTs, an NFT can unlock content if you own it. That's the beauty of end-to-end token-gating.
 
