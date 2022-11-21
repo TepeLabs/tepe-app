@@ -12,7 +12,7 @@ Olmec is a proof-of-concept in end-to-end token-gating.
 
 Most content in web2 is gated, from Netflix and YouTube to Amazon's ebooks and Instagram. As a creator, *you* are uploading *your* content to the server owned by a company. As a consumer, *you* are only buying temporary access to view the content or are paying by spending your time to watch ads.
 
-That will all change in web3. As a creator, *you* can own your own content and distribute them directly to your consumers. As a consumer, *you* can buy directly from consumers. You can also resell into a market, lend to friends, or collect them as memorabilia.
+That will all change in web3. As a creator, *you* can own your own content and distribute them directly to your consumers. As a consumer, *you* can buy directly from creators. You can also resell into a market, lend to friends, or collect them.
 
 Remember when you could lend out a book to friends? You can't do that with ebooks on Amazon. Or resell a vinyl records to a store? You can't do that with a Spotify subscription. But that's all coming back but digitally.
 
