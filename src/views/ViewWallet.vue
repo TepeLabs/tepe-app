@@ -10,7 +10,7 @@
         <thead>
           <tr>
             <th></th>
-            <th>Wallets</th>
+            <th>Addresses</th>
             <th>
               <button class="button is-small" @click="walletCreateOpen = true" title="Create wallet">+</button>
             </th>
@@ -23,7 +23,7 @@
             </td>
             <td>
               <p>
-                <strong>Lorem {{ index }}</strong>
+                <strong>Address {{ index + 1 }}</strong>
               </p>
               <span class="is-family-monospace">
                 {{ wallet.public }}
@@ -43,7 +43,7 @@
   </div>
   <div class="columns is-centered mt-4" v-if="!hasWalletList">
     <div class="column is-three-quarters has-text-centered">
-      <button class="button" @click="walletCreateOpen = true">Create new wallet</button>
+      <button class="button" @click="walletCreateOpen = true">Add wallet address</button>
     </div>
   </div>
   <WalletAdd v-if="walletCreateOpen" :address="walletAddressNew" :mnemonic="mnemonicNew" @on-create="onWalletCreate"

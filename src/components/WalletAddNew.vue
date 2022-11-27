@@ -1,6 +1,6 @@
 <template>
   <header class="modal-card-head">
-    <p class="modal-card-title">Add Address</p>
+    <p class="modal-card-title">Create new address</p>
     <button class="delete" aria-label="close" @click="$emit('onClose')"></button>
   </header>
   <section class="modal-card-body">

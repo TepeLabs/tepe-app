@@ -18,6 +18,7 @@ async function createWindow() {
   const win = new BrowserWindow({
     width: 770,
     height: 750,
+    title: "Tepe",
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       // Use pluginOptions.nodeIntegration, leave this alone

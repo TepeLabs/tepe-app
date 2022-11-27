@@ -88,8 +88,8 @@
     <div class="column is-three-quarters">
       <hr />
       <p>IPFS CID: <a @click="openWebsite" title="Open in browser">{{ this.publicMetadata }}</a></p>
-      <p class="is-size-7 mt-4">The file is encrypted and stored on IPFS. But you can only access it if you have the
-        NFT.</p>
+      <p class="is-size-8 mt-4">The file is encrypted and stored on IPFS. You can download the encrypted file 
+      from the link above, but you can only decrypt it if you own the NFT.</p>
     </div>
   </div>
 
@@ -106,7 +106,7 @@
     </div>
   </div>
 
-  <div class="columns is-centered mt-6" v-if="!publicMetadata">
+  <div class="columns is-centered mt-6" v-if="this.isOwner && !publicMetadata">
     <div class="column is-three-quarters">
       <h3 class="subtitle is-5 has-text-centered">
         Upload item
@@ -311,6 +311,8 @@ export default {
                   this.decryptedFilename.length - 3, this.decryptedFilename.length);
                 if (fileExtension === 'txt') {
                   this.content = decrypted_content;
+                } else {
+                  this.content = '';
                 }
                 window.fileio.join(filePathDec.filePaths[0], this.decryptedFilename)
                   .then((result) => {
