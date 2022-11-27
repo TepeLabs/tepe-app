@@ -25,43 +25,43 @@ yarn electron:serve
 ### 2. Set a password to protect private keys
 An electron window will open, and the first thing to do is set a password to protect your private key(s).
 
-<img src="https://github.com/TepeProject/tepe-app/website_files/1-set_password.png" width="600"/>
+<img src="https://github.com/TepeProject/tepe-app/website_images/1-set_password.png" width="600"/>
 
 You'll reach the home page displaying all Tepe channels, which is empty for now:
 
-<img src="https://github.com/TepeProject/tepe-app/website_files/2-home.png" width="600"/>
+<img src="https://github.com/TepeProject/tepe-app/website_images/2-home.png" width="600"/>
 
 
 ### 3. Create or import a Secret address 
 
 If you already have a Secret address for the Pulsar-2 testnet, you can import it:
 
-<img src="https://github.com/TepeProject/tepe-app/website_files/3-wallet.png" width="600"/>
+<img src="https://github.com/TepeProject/tepe-app/website_images/3-wallet.png" width="600"/>
 
 Or else you can create a new one, though it will need some (free) test scrt.  You can get some through the [Secret faucet](https://faucet.pulsar.scrttestnet.com/).
 
 Afterward, you should see an address listed in the wallet page:
 
-<img src="https://github.com/TepeProject/tepe-app/website_files/4-address.png" width="600"/>
+<img src="https://github.com/TepeProject/tepe-app/website_images/4-address.png" width="600"/>
 
 ### 4. Use the address book to store important addressses
 
 You can paste the public Secret address and a nickname for as many addresses as you want, to help with minting and transferring NFTs.
 
-<img src="https://github.com/TepeProject/tepe-app/website_files/5-addressbook.png" width="600"/>
+<img src="https://github.com/TepeProject/tepe-app/website_images/5-addressbook.png" width="600"/>
 
 ### 5. Create a Tepe channel
 
 We can now create a channel -- which instantiates a new version of our Tepe smart contract on the Secret testnet.
 
-<img src="https://github.com/TepeProject/tepe-app/website_files/6-channel_creation.png" width="600"/>
+<img src="https://github.com/TepeProject/tepe-app/website_images/6-channel_creation.png" width="600"/>
 
 Unlike contract instantiation on chains like Ethereum, which cost a lot of gas each time, on Secret you only pay a lot of gas for uploading the contract blueprint.
 Each instantiation afterward is cheap, so you can make new channels (each their own instance of the contract we wrote) to your heart's content.
 
 You can then enter the channel, and should see the following
 
-<img src="https://github.com/TepeProject/tepe-app/website_files/7-channel.png" width="600"/>
+<img src="https://github.com/TepeProject/tepe-app/website_images/7-channel.png" width="600"/>
 
 ### 6. Upload content to IPFS
 
@@ -80,28 +80,28 @@ Downloading from IPFS is much easier -- just find a good public gateway from [IP
 
 Anyway, once you have a way to upload to IPFS, you can upload **anything**.  Starting with a txt file, you should see something like the following:
 
-<img src="./website_files/8-upload_txt.png" width="600"/>
+<img src="./website_images/8-upload_txt.png" width="600"/>
 
 ### 7. Minting NFTs to granting access
 You can mint and transfer NFTs with the buttons at the top of the channel page.  Let's send one to a friend:
 
-<img src="https://github.com/TepeProject/tepe-app/website_files/9-mint.png" width="600"/>
+<img src="https://github.com/TepeProject/tepe-app/website_images/9-mint.png" width="600"/>
 
 ### 8. The receiving side: the content viewer
 If you are a subscriber to content, or just the viewer for a particular channel, you can import the channel that was created by its public address
 
-<img src="https://github.com/TepeProject/tepe-app/website_files/11-otherimport.png" width="600"/>
+<img src="https://github.com/TepeProject/tepe-app/website_images/11-otherimport.png" width="600"/>
 
 Now the channel page has fewer buttons, because you can't mint, transfer, or upload to the contract.  However, if you have the NFT, you can download and decrypt
 
-<img src="https://github.com/TepeProject/tepe-app/website_files/12-channel.png" width="600"/>
+<img src="https://github.com/TepeProject/tepe-app/website_images/12-channel.png" width="600"/>
 
 If the file was a text file, its contents will display in the app on the channel page:
 
-<img src="https://github.com/TepeProject/tepe-app/website_files/13-text_unlocked.png" width="600"/>
+<img src="https://github.com/TepeProject/tepe-app/website_images/13-text_unlocked.png" width="600"/>
 
 For any other file types, you select the download location and can retrieve your decrypted file from the path shown in the app:
 
-<img src="https://github.com/TepeProject/tepe-app/website_files/14-img.png" width="600"/>
+<img src="https://github.com/TepeProject/tepe-app/website_images/14-img.png" width="600"/>
 
 You can re-upload files as much as you want for any given channel, so here we replaced the txt file with an image called `tepe.png`.
