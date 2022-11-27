@@ -4,9 +4,9 @@ The files in this repo can be cloned to run the [electron](https://www.electronj
 
 From within the app, you can:
 <ul>
-	<li>Create a new [Secret](https://scrt.network/) address on the Pulsar-2 testnet, or import an existing address</li>
+	<li>Create a new Secret (https://scrt.network/) address on the Pulsar-2 testnet, or import an existing address</li>
 	<li>Open a Tepe channel</li>
-	<li>Upload content -- of arbitrary filetype -- to [ipfs](https://ipfs.tech) be gated by the Tepe channel</li>
+	<li>Upload content -- of arbitrary filetype -- to IPFS (https://ipfs.tech) be gated by the Tepe channel</li>
 	<li>Mint NFTs and send to other Secret accounts</li>
 	<li>Download content for channels to which you have access</li>
 </ul>
@@ -80,23 +80,28 @@ Downloading from IPFS is much easier -- just find a good public gateway from [IP
 
 Anyway, once you have a way to upload to IPFS, you can upload **anything**.  Starting with a txt file, you should see something like the following:
 
-<img src="https://github.com/TepeProject/tepe-app/website_files/8-upload_txt.png" width="600"/>
+<img src="./website_files/8-upload_txt.png" width="600"/>
 
 ### 7. Minting NFTs to granting access
 You can mint and transfer NFTs with the buttons at the top of the channel page.  Let's send one to a friend:
+
 <img src="https://github.com/TepeProject/tepe-app/website_files/9-mint.png" width="600"/>
 
 ### 8. The receiving side: the content viewer
 If you are a subscriber to content, or just the viewer for a particular channel, you can import the channel that was created by its public address
+
 <img src="https://github.com/TepeProject/tepe-app/website_files/11-otherimport.png" width="600"/>
 
 Now the channel page has fewer buttons, because you can't mint, transfer, or upload to the contract.  However, if you have the NFT, you can download and decrypt
+
 <img src="https://github.com/TepeProject/tepe-app/website_files/12-channel.png" width="600"/>
 
 If the file was a text file, its contents will display in the app on the channel page:
+
 <img src="https://github.com/TepeProject/tepe-app/website_files/13-text_unlocked.png" width="600"/>
 
 For any other file types, you select the download location and can retrieve your decrypted file from the path shown in the app:
+
 <img src="https://github.com/TepeProject/tepe-app/website_files/14-img.png" width="600"/>
 
 You can re-upload files as much as you want for any given channel, so here we replaced the txt file with an image called `tepe.png`.
