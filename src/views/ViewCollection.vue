@@ -11,15 +11,20 @@
           <thead>
             <tr>
               <th></th>
-              <th>Channels</th>
+              <th style="font-size: 28px">Channels</th>
               <th>
                 <button class="button" @click="channelCreateOpen = true" title="Add channel">
-                  +
+                 <font-awesome-icon :icon="faCircleDot" /> &nbsp; Add channel
                 </button>
               </th>
               <th>
                 <button class="button" @click="addressBookOpen = true" title="Address book">
-                  <font-awesome-icon :icon="faAddressBook" />
+                  <font-awesome-icon :icon="faAddressBook" /> &nbsp; Address book
+                </button>
+              </th>
+              <th>
+                <button class="button" @click="manageWallet()" title="Manage wallet">
+                  <font-awesome-icon :icon="faWallet" /> &nbsp; Manage wallet
                 </button>
               </th>
             </tr>
@@ -69,7 +74,7 @@ import MessageInfo from "@/components/MessageInfo.vue";
 import secret from "@/utils/UtilSecret";
 import { Wallet } from "secretjs";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import { faPlus, faCircleDot, faCopy, faCheck, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faCircleDot, faCopy, faCheck, faMagnifyingGlass, faWallet } from "@fortawesome/free-solid-svg-icons";
 import { faAddressBook } from "@fortawesome/free-regular-svg-icons";
 import WalletUnlock from "../components/WalletUnlock.vue";
 export default {
@@ -87,6 +92,7 @@ export default {
       faCircleDot: faCircleDot,
       faCopy: faCopy,
       faCheck: faCheck,
+      faWallet: faWallet,
       faMagnifyingGlass: faMagnifyingGlass,
       faAddressBook: faAddressBook,
       addressBook: [],
@@ -150,6 +156,9 @@ export default {
       console.log('open channel ', index);
       this.$router.push(`/channel/${this.channelList[index].address}`);
     },
+    manageWallet() {
+      this.$router.push('/wallet');
+    },
     loadAddresses() {
       window.settings.getCurrentKey()
         .then((wallet) => {
@@ -173,7 +182,6 @@ export default {
       this.walletUnlockOpen = false;
       this.loadChannelList();
       this.loadAddresses();
-
     },
     copyToClipboard(index) {
       let address = this.channelList[index].address;
