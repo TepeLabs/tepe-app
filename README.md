@@ -1,29 +1,36 @@
 # Tepe app
 
-The files in this repo can be cloned to run the [electron](https://www.electronjs.org/) app directly.
+We have created a Tepe app that handles all the steps necessary for end-to-end token gating of content.  With it, you can easily grant someone access to a pdf you've uploaded, and know that only they can decrypt its contents.
 
 From within the app, you can:
 <ul>
-	<li>Create a new Secret (https://scrt.network/) address on the Pulsar-2 testnet, or import an existing address</li>
-	<li>Open a Tepe channel</li>
-	<li>Upload content -- of arbitrary filetype -- to IPFS (https://ipfs.tech) be gated by the Tepe channel</li>
-	<li>Mint NFTs and send to other Secret accounts</li>
-	<li>Download content for channels to which you have access</li>
+	<li>Open a Tepe channel, which creates a new instantiation of the Tepe contract on the Secret Pulsar-2 testnet</li>
+	<li>Upload content -- of arbitrary filetype -- to IPFS (https://ipfs.tech) to be gated by the Tepe channel</li>
+	<li>Mint NFTs that grant access to other Secret accounts</li>
+	<li>Download and decrypt content for channels to which you have access</li>
 </ul>
-Below we walk through this process step by step.
 
-## Step by step 
+You have a couple options to try out the app.  
 
-### 1. Install necessary packages with yarn and launch the app
-This app uses [yarn](https://yarnpkg.com/) to manage packages.  In the directory where you've copied this repo, type the following at the command line 
+## Run our packaged Windows executable (tepe.exe). 
+
+You have to click past the Windows security screen that pops up (click "Run anyway") because we have not yet invested the several hundred dollars to buy a certificate and become trusted developers. Perhaps someday!
+
+## Compile and run the app from the source code in this repo.
+
+The files in this repo can be cloned to run the [electron](https://www.electronjs.org/) app directly.
+
+We use [yarn](https://yarnpkg.com/) to manage packages.  In the directory where you've copied this repo, type the following at the command line 
 
 ```
 yarn install
 yarn electron:serve
 ```
 
-### 2. Set a password to protect private keys
-An electron window will open, and the first thing to do is set a password to protect your private key(s).
+## How to use the app, step by step 
+
+### 1. Set a password to protect private keys
+Whether you ran the executable or compiled it yourself, an electron window will open and the first thing to do is set a password to protect your private key(s).
 
 <img src="./website_images/1-set_password.png" width="600"/>
 
@@ -31,44 +38,45 @@ You'll reach the home page displaying all Tepe channels, which is empty for now:
 
 <img src="./website_images/2-home.png" width="600"/>
 
+### 2. Create or import a Secret address 
 
-### 3. Create or import a Secret address 
+To exist on the blockchain, you need a Secret address.  You can create one, in which case you'll need to go get some (free) test `scrt` from the [Secret faucet](https://faucet.pulsar.scrttestnet.com/).  `scrt` is how you'll pay for all of the contract transactions (like instantiating a Tepe contract, minting NFTs, changing metadata, etc.)
 
 If you already have a Secret address for the Pulsar-2 testnet, you can import it:
 
 <img src="./website_images/3-wallet.png" width="600"/>
 
-Or else you can create a new one, though it will need some (free) test scrt.  You can get some through the [Secret faucet](https://faucet.pulsar.scrttestnet.com/).
-
 Afterward, you should see an address listed in the wallet page:
 
 <img src="./website_images/4-address.png" width="600"/>
 
-### 4. Use the address book to store important addressses
+### 3. Use the address book to store important addressses
 
-You can paste the public Secret address and a nickname for as many addresses as you want, to help with minting and transferring NFTs.
+You can paste the public Secret address and a nickname for as many addresses as you want, to make it easier when you mint and transfer NFTs.
 
 <img src="./website_images/5-addressbook.png" width="600"/>
 
-### 5. Create a Tepe channel
+### 4. Create a Tepe channel
 
 We can now create a channel -- which instantiates a new version of our Tepe smart contract on the Secret testnet.
 
 <img src="./website_images/6-channel_creation.png" width="600"/>
 
-Unlike contract instantiation on chains like Ethereum, which cost a lot of gas each time, on Secret you only pay a lot of gas for uploading the contract blueprint.
+Unlike contract instantiation on chains like Ethereum, which cost a lot of gas each time, on Secret you only pay a lot of gas once when you upload the contract blueprint.
 Each instantiation afterward is cheap, so you can make new channels (each their own instance of the contract we wrote) to your heart's content.
 
 You can then enter the channel, and should see the following
 
 <img src="./website_images/7-channel.png" width="600"/>
 
-### 6. Upload content to IPFS
+### 5. Upload content to IPFS
 
-The contract only stores the password necessary to decrypt a file.  The file itself, after encryption, can be stashed anywhere.
+The contract's private state only stores the password necessary to decrypt a file.  The file itself, after encryption, can be stashed anywhere.
 We use IPFS to store the encrypted file, but you can do whatever you want (like host the file yourself, use a completely public google drive link, etc.).
 
-If you want to use IPFS, you need a gateway that will allow you to upload -- the easiest way we found was to create a free infura account 
+If you are using a packaged version of the app, this is handled automatically for you.  If you are compiling yourself from the source code in this repo, you'll need to set up file hosting.
+
+If you want to use IPFS, you need a gateway that will allow you to upload -- the easiest way we found was to create a free Infura account 
 (though it requires a credit card in case you store more than 5GB).
 If you go this route, save a file `.env` in the local directory and enter the necessary API data that infura gives you: 
 ```
@@ -76,18 +84,18 @@ PROJECT_ID=2DG3****************
 PROJECT_SECRET=806f**********************
 ```
 
-Downloading from IPFS is much easier -- just find a good public gateway from [IPFS public gateway checker](https://ipfs.github.io/public-gateway-checker/).
+Consuming content (downloading from IPFS) is much easier -- just find a good public gateway from [IPFS public gateway checker](https://ipfs.github.io/public-gateway-checker/).
 
 Anyway, once you have a way to upload to IPFS, you can upload **anything**.  Starting with a txt file, you should see something like the following:
 
 <img src="./website_images/8-upload_txt.png" width="600"/>
 
-### 7. Minting NFTs to granting access
+### 6. Minting NFTs to granting access
 You can mint and transfer NFTs with the buttons at the top of the channel page.  Let's send one to a friend:
 
 <img src="./website_images/9-mint.png" width="600"/>
 
-### 8. The receiving side: the content viewer
+### 7. The receiving side: the content viewer
 If you are a subscriber to content, or just the viewer for a particular channel, you can import the channel that was created by its public address
 
 <img src="./website_images/11-otherimport.png" width="600"/>
