@@ -1,11 +1,19 @@
 "use strict";
 
 import { app, protocol, BrowserWindow, ipcMain, shell } from "electron";
-import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
+// import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import installExtension, { VUEJS3_DEVTOOLS } from "electron-devtools-installer";
 import path from "path";
 import settings from "@/utils/UtilSettings";
 import fileIO from "@/utils/UtilFileIO";
+
+// const { app, protocol, BrowserWindow, ipcMain, shell } = require("electron");
+// // const { createProtocol } = require("vue-cli-plugin-electron-builder/lib");
+// const { default: installExtension, VUEJS3_DEVTOOLS } = require('electron-devtools-installer');
+// const { default: path } = require("path");
+// const { default: settings } = require("@/utils/UtilSettings");
+// const { default: fileIO } = require("@/utils/UtilFileIO");
+
 const isDevelopment = process.env.NODE_ENV !== "production";
 
 // Scheme must be registered before the app is ready
@@ -33,7 +41,7 @@ async function createWindow() {
     await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL);
     if (!process.env.IS_TEST) win.webContents.openDevTools();
   } else {
-    createProtocol("app");
+    // createProtocol("app"); this doesn't load with electron-forge 🤷‍♂️
     // Load the index.html when not in development
     win.loadURL("app://./index.html");
   }

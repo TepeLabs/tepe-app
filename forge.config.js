@@ -1,15 +1,17 @@
 require('dotenv').config();
+// import dotenv from 'dotenv';
+// dotenv.config();
 
 module.exports = {
   packagerConfig: {
     icon: 'src/assets/icon',
-    osxSign: {},
-    osxNotarize: {
-      tool: 'notarytool',
-      appleId: process.env.APPLE_ID,
-      appleIdPassword: process.env.APPLE_PASSWORD,
-      teamId: process.env.APPLE_TEAM_ID,
-    },
+    // osxSign: {},
+    // osxNotarize: {
+    //   tool: 'notarytool',
+    //   appleId: process.env.APPLE_ID,
+    //   appleIdPassword: process.env.APPLE_PASSWORD,
+    //   teamId: process.env.APPLE_TEAM_ID,
+    // },
   },
   rebuildConfig: {},
   makers: [
@@ -31,5 +33,3 @@ module.exports = {
     },
   ],
 };
-
-console.log(process.env.APPLE_ID);
