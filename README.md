@@ -12,7 +12,15 @@ From within the app, you can:
 
 You have a couple options to try out the app.  
 
-## Run our packaged Windows executable (tepe.exe). 
+## Run the app
+
+### macOS
+
+Download and run our macOS package inside `[Tepe-0.1.0-arm64.dmg](https://github.com/TepeProject/tepe-app/releases/tag/0.1.0)`.
+
+### Windows
+
+Run our packaged Windows executable `[tepe.exe](https://github.com/TepeProject/tepe-app/releases/tag/0.1.0)`.
 
 You have to click past the Windows security screen that pops up (click "Run anyway") because we have not yet invested the several hundred dollars to buy a certificate and become trusted developers. Perhaps someday!
 
