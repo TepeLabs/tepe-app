@@ -32,11 +32,11 @@ yarn electron:serve
 ### 1. Set a password to protect private keys
 Whether you ran the executable or compiled it yourself, an electron window will open and the first thing to do is set a password to protect your private key(s).
 
-<img src="./website_images/1-set_password.png" width="600"/>
+<img src="./public/assets/1-set_password.png" width="600"/>
 
 You'll reach the home page displaying all Tepe channels, which is empty for now:
 
-<img src="./website_images/2-home.png" width="600"/>
+<img src="./public/assets/2-home.png" width="600"/>
 
 ### 2. Create or import a Secret address 
 
@@ -44,30 +44,30 @@ To exist on the blockchain, you need a Secret address.  You can create one, in w
 
 If you already have a Secret address for the Pulsar-2 testnet, you can import it:
 
-<img src="./website_images/3-wallet.png" width="600"/>
+<img src="./public/assets/3-wallet.png" width="600"/>
 
 Afterward, you should see an address listed in the wallet page:
 
-<img src="./website_images/4-address.png" width="600"/>
+<img src="./public/assets/4-address.png" width="600"/>
 
 ### 3. Use the address book to store important addressses
 
 You can paste the public Secret address and a nickname for as many addresses as you want, to make it easier when you mint and transfer NFTs.
 
-<img src="./website_images/5-addressbook.png" width="600"/>
+<img src="./public/assets/5-addressbook.png" width="600"/>
 
 ### 4. Create a Tepe channel
 
 We can now create a channel -- which instantiates a new version of our Tepe smart contract on the Secret testnet.
 
-<img src="./website_images/6-channel_creation.png" width="600"/>
+<img src="./public/assets/6-channel_creation.png" width="600"/>
 
 Unlike contract instantiation on chains like Ethereum, which cost a lot of gas each time, on Secret you only pay a lot of gas once when you upload the contract blueprint.
 Each instantiation afterward is cheap, so you can make new channels (each their own instance of the contract we wrote) to your heart's content.
 
 You can then enter the channel, and should see the following
 
-<img src="./website_images/7-channel.png" width="600"/>
+<img src="./public/assets/7-channel.png" width="600"/>
 
 ### 5. Upload content to IPFS
 
@@ -88,28 +88,28 @@ Consuming content (downloading from IPFS) is much easier -- just find a good pub
 
 Anyway, once you have a way to upload to IPFS, you can upload **anything**.  Starting with a txt file, you should see something like the following:
 
-<img src="./website_images/8-upload_txt.png" width="600"/>
+<img src="./public/assets/8-upload_txt.png" width="600"/>
 
 ### 6. Minting NFTs to granting access
 You can mint and transfer NFTs with the buttons at the top of the channel page.  Let's send one to a friend:
 
-<img src="./website_images/9-mint.png" width="600"/>
+<img src="./public/assets/9-mint.png" width="600"/>
 
 ### 7. The receiving side: the content viewer
 If you are a subscriber to content, or just the viewer for a particular channel, you can import the channel that was created by its public address
 
-<img src="./website_images/11-otherimport.png" width="600"/>
+<img src="./public/assets/11-otherimport.png" width="600"/>
 
 Now the channel page has fewer buttons, because you can't mint, transfer, or upload to the contract.  However, if you have the NFT, you can download and decrypt
 
-<img src="./website_images/12-channel.png" width="600"/>
+<img src="./public/assets/12-channel.png" width="600"/>
 
 If the file was a text file, its contents will display in the app on the channel page:
 
-<img src="./website_images/13-text_unlocked.png" width="600"/>
+<img src="./public/assets/13-text_unlocked.png" width="600"/>
 
 For any other file types, you select the download location and can retrieve your decrypted file from the path shown in the app:
 
-<img src="./website_images/14-img.png" width="600"/>
+<img src="./public/assets/14-img.png" width="600"/>
 
 You can re-upload files as much as you want for any given channel, so here we replaced the txt file with an image called `tepe.png`.
