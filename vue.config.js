@@ -1,4 +1,5 @@
 const { defineConfig } = require("@vue/cli-service");
+const path = require('path');
 
 module.exports = defineConfig({
   transpileDependencies: true,
@@ -23,6 +24,13 @@ module.exports = defineConfig({
   pluginOptions: {
     electronBuilder: {
       preload: "src/preload.js",
+      builderOptions: {
+        appId: "com.electron.tepe",
+        productName: "Tepe",
+        mac: {
+          icon: "src/assets/icon.icns"
+        }
+      }
     },
   },
 });
