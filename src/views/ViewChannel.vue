@@ -76,22 +76,135 @@
         </figure>
         <div class="media-content">
           <div class="content">
-            <strong>Copies</strong>
+            <strong>Tokens</strong>
             <p>{{ this.numTokens }}</p>
           </div>
         </div>
       </article>
     </div>
   </div>
+  <hr />
+  <br>
+  <div class="columns is-centered">
+    <table>
+      
+      <tr>
+        <td width="250px">
+          <div>
 
-  <div class="columns is-centered" v-if="publicMetadata">
-    <div class="column is-three-quarters">
-      <hr />
-      <p>IPFS CID: <a @click="openWebsite" title="Open in browser">{{ this.publicMetadata }}</a></p>
-      <p class="is-size-8 mt-4">The file is encrypted and stored on IPFS. You can download the encrypted file 
-      from the link above, but you can only decrypt it if you own the NFT.</p>
-    </div>
-  </div>
+            <transition name="arrivetop">
+              <font-awesome-icon :icon="faBarsStaggered" class="fa-3x"  v-if="contract_located && page_loaded" style="margin: 0 auto; display: flex"/>
+            </transition>
+
+            <transition name="fade">
+            <div v-if="contract_located && page_loaded">
+              <hr />
+              <p>Smart contract located.</p>
+            </div>
+            </transition>
+
+          </div>
+        </td>
+
+        <td width="80px">
+          <div>
+            <br>
+            <transition name="arrivetop">
+              <font-awesome-icon :icon="faArrowRight" class="fa-2x"  v-if="contract_located && page_loaded && passkey_obtained" style="margin: auto auto; display: flex"/>
+            </transition>
+
+            <transition name="arrivetop">
+              <font-awesome-icon :icon="faArrowLeft" class="fa-2x"  v-if="contract_located && page_loaded && passkey_stored" style="margin: auto auto; display: flex"/>
+            </transition>
+          </div>
+        </td>
+
+        <td width="250px">
+          <div>
+
+            <transition name="arrivetop">
+              <font-awesome-icon :icon="faKey" class="fa-3x"  v-if="contract_located && page_loaded && (passkey_obtained || passkey_stored)" style="margin: 0 auto; display: flex"/>
+            </transition>
+            <transition name="fade">
+              <div v-if="contract_located && page_loaded && passkey_obtained">
+                <hr />
+                <p>Passkey obtained from smart contract.</p>
+              </div>
+            </transition>
+
+            <transition name="fade">
+              <div v-if="contract_located && page_loaded && passkey_stored">
+                <hr />
+                <p>Passkey stored in smart contract.</p>
+              </div>
+            </transition>
+          </div>
+        </td>
+
+      </tr>
+
+      <br>
+      <br>
+      <tr>
+        <td width="250px">
+          <div>
+            <transition name="arrivetop">
+              <font-awesome-icon :icon="faEarthAmericas" class="fa-3x"  v-if="publicMetadata && page_loaded" style="margin: 0 auto; display: flex"/>
+            </transition>
+            
+            <transition name="fade">
+              <div v-if="publicMetadata && page_loaded">
+                <hr />
+                <p v-if="!file_uploaded">Encrypted content found on IPFS.</p>
+                <p v-if="file_uploaded">Encrypted content uploaded to IPFS.</p>
+                <p>CID link: <a @click="openWebsite" title="Open in browser">{{ this.publicMetadata.substring(0, 4) + "..." + this.publicMetadata.substring(this.admin.length - 3) }}</a></p>
+              </div>
+            </transition>
+
+          </div>
+        </td>
+
+        <td width="80px">
+          <div>
+            <br>
+            <transition name="arrivetop">
+              <font-awesome-icon :icon="faArrowRight" class="fa-2x"  v-if="publicMetadata && file_downloaded" style="margin: auto auto; display: flex"/>
+            </transition>
+
+            <transition name="arrivetop">
+              <font-awesome-icon :icon="faArrowLeft" class="fa-2x"  v-if="publicMetadata && file_uploaded" style="margin: auto auto; display: flex"/>
+            </transition>
+          </div>
+        </td>
+
+        <td width="250px">
+          <div>
+            <transition name="arrivetop">
+              <font-awesome-icon :icon="faFileShield" class="fa-3x"  v-if="publicMetadata && (file_downloaded || file_uploaded)" style="margin: 0 auto; display: flex"/>
+            </transition>
+            <transition name="fade">
+            <div v-if="publicMetadata && page_loaded && file_downloaded">
+              <hr />
+              <p>Encrypted file downloaded.</p>
+            </div>
+          </transition>
+
+          <transition name="fade">
+            <div v-if="publicMetadata && page_loaded && file_uploaded">
+              <hr />
+              <p>File encrypted.</p>
+            </div>
+          </transition>
+
+          </div>
+        </td>
+
+      </tr>
+
+    </table>
+
+    </div>  
+
 
   <div class="columns is-centered" v-if="publicMetadata && (filePath.length == 0)">
     <div class="column is-three-quarters">
@@ -126,12 +239,16 @@
     </div>
   </div>
 
-  <div class="columns is-centered" v-if="(filePath.length > 0)">
+  <div class="columns is-centered" v-if="(filePath.length > 0) && page_loaded && file_unencrypted">
+    <transition name="fade">
+
     <div class="column is-three-quarters">
       <hr />
       <h3 class="title is-3">File Status</h3>
-      <p style="overflow: auto; height: 10vh">Saved in {{ this.filePath }}</p>
+      <p style="overflow: auto; height: 10vh">Decrypted and saved to {{ this.filePath }}</p>
     </div>
+    </transition>
+
   </div>
 
   <NFTMint v-if="nftMintOpen" @on-close="nftMintOpen = false" @on-mint="mintNFT" v-bind:addressBook="addressBook" />
@@ -168,6 +285,12 @@ import {
   faArrowsRotate,
   faCloudArrowUp,
   faCloudArrowDown,
+  faEarthAmericas,
+  faArrowRight,
+  faArrowLeft,
+  faFileShield,
+  faKey,
+  faBarsStaggered,
 } from "@fortawesome/free-solid-svg-icons";
 export default {
 
@@ -186,7 +309,13 @@ export default {
       faPaperPlane: faPaperPlane,
       faCloudDown: faCloudArrowDown,
       faArrowsRotate: faArrowsRotate,
+      faEarthAmericas: faEarthAmericas,
+      faArrowRight: faArrowRight,
+      faArrowLeft: faArrowLeft,
+      faFileShield: faFileShield,
       faTrash: faTrash,
+      faBarsStaggered: faBarsStaggered,
+      faKey: faKey,
       channel: null,
       messageError: "",
       messageInfo: "",
@@ -212,6 +341,14 @@ export default {
       addressBook: [],
       filePath: "",
       content: "",
+      contract_located: false,
+      page_loaded: false,
+      file_downloaded: false,
+      passkey_obtained: false,
+      file_unencrypted: false,
+      file_uploaded: false,
+      passkey_stored: false,
+      file_encryped: false,
     };
   },
   methods: {
@@ -270,12 +407,14 @@ export default {
           let contractAddress = this.$route.params.address;
           secret.queryNumTokens(wallet, contractAddress).then((queryResult) => {
             this.numTokens = queryResult.num_tokens.count;
+            this.contract_located = true;
           });
           secret.retrieveOwners(wallet, contractAddress).then((owners) => {
             this.owners = owners;
           });
           secret.queryNFTDossier(wallet, contractAddress).then((dossierResult) => {
             this.admin = dossierResult.nft_dossier.owner;
+
             if (dossierResult.nft_dossier.public_metadata) {
               this.publicMetadata = dossierResult.nft_dossier.public_metadata.text;
             }
@@ -286,6 +425,15 @@ export default {
     },
     async download() {
       this.showSpinnerDownload = true;
+
+      this.file_downloaded = false;
+      this.file_unencrypted = false;
+      this.passkey_obtained = false;
+
+      this.file_uploaded = false;
+      this.file_encrypted = false;
+      this.passkey_stored = false;
+
       let filePathDec = await window.fileio.selectPath();
       let key = await window.settings.getCurrentKey();
       this.messageInfo = "Retrieving metadata...";
@@ -294,6 +442,7 @@ export default {
       secret.retrieveMetadata(wallet, contractAddress)
         .then((metadata) => {
           this.messageInfo = 'Retrieve metadata was successful!';
+          this.passkey_obtained = true;
           console.log('metadata', metadata);
           this.publicMetadata = metadata.public_metadata.text;
           this.privateMetadata = metadata.private_metadata.text;
@@ -304,7 +453,9 @@ export default {
           ipfs.downloadFile(cid)
             .then((content) => {
               this.showSpinnerDownload = false;
+              this.file_downloaded = true;
               let decrypted_content = crypto.decrypt(content, this.privateMetadata);
+              this.file_unencrypted = true;
               // save the decrypted content to a file locally
               if (this.decryptedFilename != "") {
                 let fileExtension = this.decryptedFilename.substring(
@@ -344,6 +495,15 @@ export default {
     },
     async upload() {
       this.showSpinnerUpload = true;
+
+      this.file_downloaded = false;
+      this.file_unencrypted = false;
+      this.passkey_obtained = false;
+
+      this.file_uploaded = false;
+      this.file_encrypted = false;
+      this.passkey_stored = false;
+
       let key = await window.settings.getCurrentKey();
       let contractAddress = this.$route.params.address;
       let wallet = new Wallet(key.mnemonic);
@@ -353,6 +513,7 @@ export default {
         return;
       }
       this.messageInfo = "Uploading...";
+
       let filePath = fileSelection.filePaths[0];
       let bareFileName = await window.fileio.basename(filePath);
       let fileContents = await window.fileio.openFile(filePath);
@@ -362,6 +523,7 @@ export default {
       await window.fileio.saveFile(encrypted, filePathEnc);
       ipfs.uploadFile(filePathEnc)
         .then((ipfsUpload) => {
+          this.file_uploaded = true;
           console.log(`uploaded to IPFS ${ipfsUpload} with cid ${ipfsUpload['Hash']}`);
           return ipfsUpload.Hash;
         })
@@ -371,6 +533,7 @@ export default {
           console.log('set metadata with result ', setMetadataResult);
           if (setMetadataResult) {
             this.messageInfo = 'Set metadata was successful!';
+            this.passkey_stored = true;
             this.refresh();
           }
         })
@@ -415,9 +578,12 @@ export default {
     let key = await window.settings.getCurrentKey();
     let wallet = new Wallet(key.mnemonic);
     let contractAddress = this.$route.params.address;
+    setTimeout(() => this.page_loaded = true, 1000);
 
     secret.queryNumTokens(wallet, contractAddress)
       .then((queryResult) => {
+        this.contract_located = true;
+
         this.numTokens = queryResult.num_tokens.count;
       });
     secret.queryNFTDossier(wallet, contractAddress)
@@ -474,4 +640,43 @@ export default {
     transform: rotate(360deg);
   }
 }
+
+.arrivetop-enter-active {
+  transition: all 0.5s ease;
+}
+
+.arrivetop-enter-to {
+  opacity: 1;
+  transform: translateY(0)
+}
+
+.arrivetop-enter-from {
+  transform: translateY(-30px);
+  opacity: 0;
+}
+
+.arrivetop-leave-to {
+  opacity: 0;
+}
+
+.arrivetop-leave-active {
+  transition: opacity 0.5 ease;
+}
+
+.fade-enter-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-from {
+  opacity: 0;
+}
+
+.fade-leave-to {
+  opacity: 0;
+}
+
 </style>
